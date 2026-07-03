@@ -15,8 +15,12 @@ endif
 
 # Utilisation du nom de projet dynamique (-p) pour l'isolation multi-projets
 DOCKER_COMPOSE = docker compose --env-file $(ENV_FILE) -p $(PROJECT_NAME)
+
+# --- CONTEXTES D'EXÉCUTION (Alignement des droits WSL2) ---
 PHP_CONT       = $(DOCKER_COMPOSE) exec app
-CONSOLE        = $(PHP_CONT) bin/console
+NPM_CONT       = $(DOCKER_COMPOSE) exec -u $(shell id -u):$(shell id -g) app
+COMPOSER_CONT  = $(DOCKER_COMPOSE) exec -u $(shell id -u):$(shell id -g) app
+CONSOLE        = $(COMPOSER_CONT) bin/console
 
 # Couleurs pour le "make help"
 HELP_COLOR = \033[36m
@@ -39,10 +43,10 @@ install: ## Configuration, build docker, installation Composer/NPM et migrations
 	   ./setup.sh; \
 	fi
 	$(DOCKER_COMPOSE) up -d --build
-	$(PHP_CONT) composer install
-	$(PHP_CONT) composer recipes:install symfony/apache-pack --force
-	$(PHP_CONT) npm install
-	$(PHP_CONT) npm run dev
+	$(COMPOSER_CONT) composer install
+	$(COMPOSER_CONT) composer recipes:install symfony/apache-pack --force
+	$(NPM_CONT) npm install
+	$(NPM_CONT) npm run dev
 	$(MAKE) db-setup
 	$(MAKE) cc
 	@echo "🚀 L'application est prête sur http://$(PROJECT_NAME).localhost !"
@@ -50,16 +54,16 @@ install: ## Configuration, build docker, installation Composer/NPM et migrations
 help: ## Affiche cette aide organisée par catégories
 	@printf "\n$(HELP_COLOR)Usage:$(NO_COLOR)\n  make [commande]\n\n"
 	@awk ' \
-		BEGIN {FS = ":.*?## "} \
-		/^[a-zA-Z_-]+:.*?## / { \
-			if (current_cat != "") { \
-				printf "  $(HELP_COLOR)%-20s$(NO_COLOR) %s\n", $$1, $$2; \
-			} \
-		} \
-		/^## ——/ { \
-			current_cat = substr($$0, 4); \
-			printf "\n\033[1;35m%s\033[0m\n", current_cat; \
-		} \
+	   BEGIN {FS = ":.*?## "} \
+	   /^[a-zA-Z_-]+:.*?## / { \
+	      if (current_cat != "") { \
+	         printf "  $(HELP_COLOR)%-20s$(NO_COLOR) %s\n", $$1, $$2; \
+	      } \
+	   } \
+	   /^## ——/ { \
+	      current_cat = substr($$0, 4); \
+	      printf "\n\033[1;35m%s\033[0m\n", current_cat; \
+	   } \
 	' Makefile
 	@printf "\n"
 
@@ -104,16 +108,16 @@ cc: ## Vide le cache de l'application Symfony
 	$(CONSOLE) cache:clear
 
 vendor: ## Installe les dépendances PHP via Composer
-	$(PHP_CONT) composer install
+	$(COMPOSER_CONT) composer install
 
 composer: ## Exécute une commande composer libre (usage: make composer cmd="require symfony/uid")
-	$(PHP_CONT) composer $(cmd)
+	$(COMPOSER_CONT) composer $(cmd)
 
 composer-update: ## Met à jour l'intégralité des dépendances Composer (composer update)
-	$(PHP_CONT) composer update
+	$(COMPOSER_CONT) composer update
 
 composer-update-pkg: ## Met à jour un paquet spécifique (usage: make update-pkg cmd="symfony/uid")
-	$(PHP_CONT) composer update $(cmd)
+	$(COMPOSER_CONT) composer update $(cmd)
 
 composer-rm: ## Supprime brutalement le dossier vendor (pour reset)
 	$(PHP_CONT) rm -rf vendor/
@@ -160,32 +164,32 @@ db-setup: ## Réinitialise et re-migre l'intégralité des deux bases (Main + Lo
 ## —— FRONTEND & NPM 📦 ————————————————————————————————————————————————————————
 
 npm: ## Exécute une commande npm libre (usage: make npm cmd="install lucide-react")
-	$(PHP_CONT) npm $(cmd)
+	$(NPM_CONT) npm $(cmd)
 
 npm-rm: ## Supprime brutalement le dossier node_modules (pour reset)
 	$(PHP_CONT) rm -rf node_modules/
 
 npm-dev: ## Lance une compilation simple des assets en mode développement
-	$(PHP_CONT) npm run dev
+	$(NPM_CONT) npm run dev
 
 watch: ## Lance le serveur de build d'assets en temps réel (Watcher / Auto-recompile)
-	$(PHP_CONT) npm run watch
+	$(NPM_CONT) npm run watch
 
 npm-build: ## Compile les assets pour la production
-	$(PHP_CONT) npm run build
+	$(NPM_CONT) npm run build
 
 npm-setup: npm-rm npm-build ## Réinstallation propre de NPM et build complet du front
 
 ## —— QUALITÉ, TESTS & DROITS 🛠️ ————————————————————————————————————————————————
 
 cs: ## Corrige le style de code PHP selon la configuration d'entreprise (.php-cs-fixer.dist.php)
-	$(PHP_CONT) vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php
+	$(COMPOSER_CONT) vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php
 
 stan: ## Analyse statique du code avec PHPStan
-	$(PHP_CONT) vendor/bin/phpstan analyse src --memory-limit=1G
+	$(COMPOSER_CONT) vendor/bin/phpstan analyse src --memory-limit=1G
 
 test: ## Lance les tests unitaires et fonctionnels avec PHPUnit 10
-	$(PHP_CONT) vendor/bin/phpunit -c phpunit.dist.xml
+	$(COMPOSER_CONT) vendor/bin/phpunit -c phpunit.dist.xml
 
 qa: cs stan test ## Lance la suite de contrôle qualité complète (CS-Fixer + PHPStan + PHPUnit)
 
