@@ -1,11 +1,7 @@
 doctrine_migrations:
-    # Syntaxe moderne par défaut de Symfony / Doctrine
-    migrations_paths:
-        'DoctrineMigrations': '%kernel.project_dir%/migrations'
-
-    # Paramètres de stockage de la table de version
-    storage:
-        table_storage:
-            table_name: 'doctrine_migration_versions'
-
-    enable_profiler: '%kernel.debug%'
+  migrations_paths:
+    'DoctrineMigrations\Main': '%kernel.project_dir%/migrations/main'
+    'DoctrineMigrations\Log': '%kernel.project_dir%/migrations/log'
+  enable_profiler: false
+  services:
+    'Doctrine\Migrations\Version\MigrationFactory': 'Florimond\MultiDbMigrationsBundle\Migrations\CustomMigrationFactory'

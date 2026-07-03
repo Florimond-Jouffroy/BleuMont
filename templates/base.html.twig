@@ -4,18 +4,19 @@
     <head>
         <meta charset="UTF-8">
         <title>{% block title %}Mon Projet Symfony x React{% endblock %}</title>
-        
+
         {% block stylesheets %}
             {# Dis à Symfony de charger le CSS compilé par Webpack #}
             {{ encore_entry_link_tags('app') }}
+            {% block javascripts %}
+                {# Dis à Symfony de charger le JS compilé par Webpack #}
+                {{ encore_entry_script_tags('app') }}
+            {% endblock %}
         {% endblock %}
     </head>
     <body>
         {% block body %}{% endblock %}
 
-        {% block javascripts %}
-            {# Dis à Symfony de charger le JS compilé par Webpack #}
-            {{ encore_entry_script_tags('app') }}
-        {% endblock %}
+
     </body>
-</html> 
+</html>
