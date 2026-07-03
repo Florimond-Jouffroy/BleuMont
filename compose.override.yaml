@@ -1,0 +1,5 @@
+
+services:
+  database:
+    ports:
+      - "3306"
