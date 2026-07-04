@@ -1,0 +1,10 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription{% endblock %}
+
+{% block body %}
+    <div {{ react_component('RegisterForm', {
+        registerUrl: urls.register,
+        redirectUrl: urls.redirect
+    }) }}></div>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion{% endblock %}
+
+{% block body %}
+    <div {{ react_component('LoginForm', {
+        loginUrl: urls.login,
+        redirectUrl: urls.redirect
+    }) }}></div>
+{% endblock %}

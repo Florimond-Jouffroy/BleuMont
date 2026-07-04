@@ -9,6 +9,7 @@ services:
       PROJECT_NAME: ${PROJECT_NAME}
       TZ: Europe/Paris
       COMPOSER_AUTH: '{"github-oauth": {"github.com": "${GITHUB_COMPOSER_TOKEN}"}}'
+      COMPOSER_HOME: /tmp/composer
     depends_on:
       database:
         condition: service_healthy
