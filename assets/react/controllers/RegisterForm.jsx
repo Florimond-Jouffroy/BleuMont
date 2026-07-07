@@ -6,12 +6,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { api, extractValidationErrors, getErrorMessage } from '../utils/api';
 import { resolveUrl } from '../utils/url';
 
-export default function RegisterForm({ registerUrl = '/api/auth/register', redirectUrl = '/' }) {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+export default function RegisterForm({
+    registerUrl = '/api/auth/register',
+    resendUrl   = '/api/auth/verify-email/resend',
+    loginUrl    = '/connexion',
+}) {
+    const [email, setEmail]                     = useState('');
+    const [password, setPassword]               = useState('');
     const [passwordConfirm, setPasswordConfirm] = useState('');
-    const [errors, setErrors] = useState([]);
-    const [loading, setLoading] = useState(false);
+    const [errors, setErrors]                   = useState([]);
+    const [loading, setLoading]                 = useState(false);
+    const [done, setDone]                       = useState(false);
+    const [resent, setResent]                   = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -19,7 +25,7 @@ export default function RegisterForm({ registerUrl = '/api/auth/register', redir
         setLoading(true);
         try {
             await api.post(resolveUrl(registerUrl), { email, password, passwordConfirm });
-            window.location.href = redirectUrl;
+            setDone(true);
         } catch (err) {
             const violations = extractValidationErrors(err);
             setErrors(
@@ -31,6 +37,47 @@ export default function RegisterForm({ registerUrl = '/api/auth/register', redir
             setLoading(false);
         }
     };
+
+    const handleResend = async () => {
+        setResent(false);
+        try {
+            await api.post(resolveUrl(resendUrl), { email });
+            setResent(true);
+        } catch {
+            // réponse toujours neutre côté serveur
+            setResent(true);
+        }
+    };
+
+    if (done) {
+        return (
+            <Card className="w-full max-w-md mx-auto">
+                <CardHeader>
+                    <CardTitle>Vérifiez votre boîte e-mail</CardTitle>
+                    <CardDescription>
+                        Un lien d'activation a été envoyé à <strong>{email}</strong>.
+                        Cliquez dessus pour activer votre compte.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                    <p className="text-sm text-muted-foreground">
+                        Vous n'avez rien reçu ?
+                    </p>
+                    {resent && (
+                        <p className="text-sm text-green-600">E-mail renvoyé !</p>
+                    )}
+                    <Button variant="outline" className="w-full" onClick={handleResend}>
+                        Renvoyer l'e-mail
+                    </Button>
+                    <div className="text-center text-sm text-muted-foreground">
+                        <a href={resolveUrl(loginUrl)} className="underline underline-offset-4 hover:text-primary">
+                            Retour à la connexion
+                        </a>
+                    </div>
+                </CardContent>
+            </Card>
+        );
+    }
 
     return (
         <Card className="w-full max-w-md mx-auto">

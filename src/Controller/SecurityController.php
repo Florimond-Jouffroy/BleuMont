@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Repository\UserRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -20,9 +23,10 @@ class SecurityController extends AbstractController
 
         return $this->render('security/login.html.twig', [
             'urls' => [
-                'login'         => $this->generateUrl('api_auth_login'),
-                'redirect'      => $this->generateUrl('app_home'),
+                'login'          => $this->generateUrl('api_auth_login'),
+                'redirect'       => $this->generateUrl('app_home'),
                 'forgotPassword' => $this->generateUrl('app_security_forgot_password'),
+                'register'       => $this->generateUrl('app_security_register'),
             ],
         ]);
     }
@@ -37,8 +41,35 @@ class SecurityController extends AbstractController
         return $this->render('security/register.html.twig', [
             'urls' => [
                 'register' => $this->generateUrl('api_auth_register'),
-                'redirect' => $this->generateUrl('app_home'),
+                'resend'   => $this->generateUrl('api_auth_verify_email_resend'),
+                'login'    => $this->generateUrl('app_security_login'),
             ],
+        ]);
+    }
+
+    #[Route('/verify-email', name: 'verify_email', methods: ['GET'])]
+    public function verifyEmail(
+        Request $request,
+        UserRepository $userRepository,
+        EntityManagerInterface $em,
+    ): Response {
+        $token = $request->query->getString('token');
+        $user  = $token ? $userRepository->findOneBy(['verificationToken' => $token]) : null;
+
+        if (!$user || $user->isVerified()) {
+            return $this->render('security/verify-email.html.twig', [
+                'success' => false,
+                'loginUrl' => $this->generateUrl('app_security_login'),
+            ]);
+        }
+
+        $user->setIsVerified(true);
+        $user->setVerificationToken(null);
+        $em->flush();
+
+        return $this->render('security/verify-email.html.twig', [
+            'success'  => true,
+            'loginUrl' => $this->generateUrl('app_security_login'),
         ]);
     }
 

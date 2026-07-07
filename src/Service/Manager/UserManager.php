@@ -72,6 +72,7 @@ class UserManager
         $user = new User();
         $user->setEmail($dto->email);
         $user->setPassword($this->passwordHasher->hashPassword($user, $dto->password));
+        $user->setVerificationToken(bin2hex(random_bytes(32)));
 
         if ($this->insert($user, $flush)) {
             return $user;

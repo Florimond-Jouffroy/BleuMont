@@ -23,7 +23,9 @@ use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 #[Route('/api/auth')]
 class AuthController extends AbstractController
@@ -48,6 +50,13 @@ class AuthController extends AbstractController
             );
         }
 
+        if (!$user->isVerified()) {
+            return $this->json(
+                ['message' => 'Veuillez vérifier votre adresse e-mail avant de vous connecter.', 'code' => 'email_not_verified'],
+                Response::HTTP_FORBIDDEN,
+            );
+        }
+
         $security->login($user, LoginAuthenticator::class);
 
         return $this->json([
@@ -60,7 +69,8 @@ class AuthController extends AbstractController
     #[Route('/register', name: 'api_auth_register', methods: ['POST'])]
     public function register(
         #[MapRequestPayload] RegisterDto $dto,
-        Security $security,
+        MailerInterface $mailer,
+        UrlGeneratorInterface $urlGenerator,
     ): JsonResponse {
         $user = $this->userManager->createFromDto($dto);
 
@@ -71,12 +81,32 @@ class AuthController extends AbstractController
             );
         }
 
-        $security->login($user, LoginAuthenticator::class);
+        $this->sendVerificationEmail($user->getEmail(), $user->getVerificationToken(), $mailer, $urlGenerator);
 
         return $this->json(
-            ['id' => $user->getId(), 'email' => $user->getEmail()],
+            ['message' => 'Compte créé. Vérifiez votre boîte e-mail pour activer votre compte.'],
             Response::HTTP_CREATED,
         );
+    }
+
+    #[Route('/verify-email/resend', name: 'api_auth_verify_email_resend', methods: ['POST'])]
+    public function resendVerification(
+        Request $request,
+        UserRepository $userRepository,
+        MailerInterface $mailer,
+        UrlGeneratorInterface $urlGenerator,
+    ): JsonResponse {
+        $body  = json_decode((string) $request->getContent(), true);
+        $email = $body['email'] ?? '';
+
+        $user = $userRepository->findOneBy(['email' => $email]);
+
+        // Réponse neutre dans tous les cas
+        if ($user && !$user->isVerified() && $user->getVerificationToken()) {
+            $this->sendVerificationEmail($user->getEmail(), $user->getVerificationToken(), $mailer, $urlGenerator);
+        }
+
+        return $this->json(['message' => 'Si ce compte existe et n\'est pas encore vérifié, un nouvel e-mail a été envoyé.']);
     }
 
     #[Route('/reset-password/request', name: 'api_auth_reset_password_request', methods: ['POST'])]
@@ -89,12 +119,10 @@ class AuthController extends AbstractController
     ): JsonResponse {
         $user = $userRepository->findOneBy(['email' => $dto->email]);
 
-        // Toujours retourner 200 pour ne pas révéler l'existence du compte
         if (!$user) {
             return $this->json(['message' => 'Si cette adresse est associée à un compte, un code vous a été envoyé.']);
         }
 
-        // Supprimer les anciens tokens de cet utilisateur
         $tokenRepository->deleteByUser($user);
 
         $code  = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
@@ -149,5 +177,25 @@ class AuthController extends AbstractController
         $em->flush();
 
         return $this->json(['message' => 'Votre mot de passe a été réinitialisé avec succès.']);
+    }
+
+    private function sendVerificationEmail(string $to, string $token, MailerInterface $mailer, UrlGeneratorInterface $urlGenerator): void
+    {
+        $verificationUrl = $urlGenerator->generate(
+            'app_security_verify_email',
+            ['token' => $token],
+            UrlGeneratorInterface::ABSOLUTE_URL,
+        );
+
+        $fromAddress = $_ENV['MAILER_FROM'] ?? 'noreply@localhost';
+
+        $email = (new TemplatedEmail())
+            ->from(new Address($fromAddress))
+            ->to(new Address($to))
+            ->subject('Confirmez votre adresse e-mail')
+            ->htmlTemplate('emails/email_verification.html.twig')
+            ->context(['verificationUrl' => $verificationUrl]);
+
+        $mailer->send($email);
     }
 }
