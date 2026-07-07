@@ -19,7 +19,7 @@ class EmailVerificationTest extends AbstractApiTestCase
         $this->client->request('GET', '/verify-email', ['token' => $token]);
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorExists('.text-4xl'); // icône ✅ ou ❌
+        self::assertSelectorTextContains('h1', 'vérifiée');
 
         $this->refreshUser($user);
         self::assertTrue($user->isVerified());

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { api, extractValidationErrors, getErrorMessage } from '../utils/api';
 import { resolveUrl } from '../utils/url';
 
@@ -11,13 +10,13 @@ export default function ForgotPasswordForm({
     confirmUrl = '/api/auth/reset-password/confirm',
     loginUrl   = '/connexion',
 }) {
-    const [step, setStep]                       = useState('request'); // 'request' | 'confirm' | 'done'
-    const [email, setEmail]                     = useState('');
-    const [code, setCode]                       = useState('');
-    const [newPassword, setNewPassword]         = useState('');
+    const [step, setStep]                             = useState('request'); // 'request' | 'confirm' | 'done'
+    const [email, setEmail]                           = useState('');
+    const [code, setCode]                             = useState('');
+    const [newPassword, setNewPassword]               = useState('');
     const [newPasswordConfirm, setNewPasswordConfirm] = useState('');
-    const [errors, setErrors]                   = useState([]);
-    const [loading, setLoading]                 = useState(false);
+    const [errors, setErrors]                         = useState([]);
+    const [loading, setLoading]                       = useState(false);
 
     const handleRequest = async (e) => {
         e.preventDefault();
@@ -49,32 +48,35 @@ export default function ForgotPasswordForm({
         }
     };
 
-    if (step === 'done') {
-        return (
-            <Card className="w-full max-w-md mx-auto">
-                <CardHeader>
-                    <CardTitle>Mot de passe réinitialisé</CardTitle>
-                    <CardDescription>Votre mot de passe a été mis à jour avec succès.</CardDescription>
-                </CardHeader>
-                <CardContent>
+    const stepContent = () => {
+        if (step === 'done') {
+            return (
+                <>
+                    <div className="space-y-2 text-center">
+                        <h1 className="text-2xl font-bold tracking-tight">Mot de passe réinitialisé</h1>
+                        <p className="text-sm text-muted-foreground">
+                            Votre mot de passe a été mis à jour avec succès.
+                        </p>
+                    </div>
+
                     <Button asChild className="w-full">
                         <a href={resolveUrl(loginUrl)}>Se connecter</a>
                     </Button>
-                </CardContent>
-            </Card>
-        );
-    }
+                </>
+            );
+        }
 
-    if (step === 'confirm') {
-        return (
-            <Card className="w-full max-w-md mx-auto">
-                <CardHeader>
-                    <CardTitle>Entrez votre code</CardTitle>
-                    <CardDescription>
-                        Un code à 6 chiffres a été envoyé à <strong>{email}</strong>. Il est valable 15 minutes.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
+        if (step === 'confirm') {
+            return (
+                <>
+                    <div className="space-y-2 text-center">
+                        <h1 className="text-2xl font-bold tracking-tight">Entrez votre code</h1>
+                        <p className="text-sm text-muted-foreground">
+                            Un code à 6 chiffres a été envoyé à <strong>{email}</strong>.
+                            Il est valable 15 minutes.
+                        </p>
+                    </div>
+
                     <form onSubmit={handleConfirm} className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="fp-code">Code de vérification</Label>
@@ -134,18 +136,19 @@ export default function ForgotPasswordForm({
                             Changer d'adresse e-mail
                         </Button>
                     </form>
-                </CardContent>
-            </Card>
-        );
-    }
+                </>
+            );
+        }
 
-    return (
-        <Card className="w-full max-w-md mx-auto">
-            <CardHeader>
-                <CardTitle>Mot de passe oublié</CardTitle>
-                <CardDescription>Entrez votre adresse e-mail pour recevoir un code de réinitialisation.</CardDescription>
-            </CardHeader>
-            <CardContent>
+        return (
+            <>
+                <div className="space-y-2 text-center">
+                    <h1 className="text-2xl font-bold tracking-tight">Mot de passe oublié</h1>
+                    <p className="text-sm text-muted-foreground">
+                        Entrez votre adresse e-mail pour recevoir un code de réinitialisation.
+                    </p>
+                </div>
+
                 <form onSubmit={handleRequest} className="space-y-4">
                     <div className="space-y-2">
                         <Label htmlFor="fp-email">Email</Label>
@@ -169,13 +172,51 @@ export default function ForgotPasswordForm({
                     <Button type="submit" className="w-full" disabled={loading}>
                         {loading ? 'Envoi…' : 'Envoyer le code'}
                     </Button>
-                    <div className="text-center text-sm text-muted-foreground">
-                        <a href={resolveUrl(loginUrl)} className="underline underline-offset-4 hover:text-primary">
-                            Retour à la connexion
-                        </a>
-                    </div>
                 </form>
-            </CardContent>
-        </Card>
+
+                <p className="text-center text-sm text-muted-foreground">
+                    <a
+                        href={resolveUrl(loginUrl)}
+                        className="font-medium text-foreground underline-offset-4 hover:underline"
+                    >
+                        Retour à la connexion
+                    </a>
+                </p>
+            </>
+        );
+    };
+
+    return (
+        <div className="grid min-h-svh lg:grid-cols-2">
+            {/* ── Colonne gauche : panneau décoratif ── */}
+            <div style={{ viewTransitionName: 'auth-panel' }} className="relative hidden lg:flex lg:flex-col lg:items-center lg:justify-center bg-zinc-900 text-zinc-50 p-12">
+                <blockquote className="max-w-sm space-y-4 text-center">
+                    <p className="text-xl font-medium leading-relaxed">
+                        "Une interface simple et efficace pour gérer votre activité au quotidien."
+                    </p>
+                    <footer className="text-sm text-zinc-400">BleuMont</footer>
+                </blockquote>
+            </div>
+
+            {/* ── Colonne droite : formulaire ── */}
+            <div className="flex flex-col gap-4 p-6 md:p-10">
+                {/* Logo */}
+                <div className="flex justify-center gap-2 md:justify-start">
+                    <a href="/" className="flex items-center gap-2 font-semibold text-foreground">
+                        <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground text-xs font-bold">
+                            B
+                        </div>
+                        BleuMont
+                    </a>
+                </div>
+
+                {/* Contenu centré verticalement */}
+                <div className="flex flex-1 items-center justify-center">
+                    <div style={{ viewTransitionName: 'auth-form' }} className="w-full max-w-sm space-y-6">
+                        {stepContent()}
+                    </div>
+                </div>
+            </div>
+        </div>
     );
 }

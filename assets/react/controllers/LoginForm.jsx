@@ -46,7 +46,7 @@ export default function LoginForm({
 
                 {/* Form centré verticalement */}
                 <div className="flex flex-1 items-center justify-center">
-                    <div className="w-full max-w-xs space-y-6">
+                    <div style={{ viewTransitionName: 'auth-form' }} className="w-full max-w-xs space-y-6">
                         <div className="space-y-2 text-center">
                             <h1 className="text-2xl font-bold tracking-tight">Connexion</h1>
                             <p className="text-sm text-muted-foreground">
@@ -112,7 +112,7 @@ export default function LoginForm({
             </div>
 
             {/* ── Colonne droite : panneau décoratif ── */}
-            <div className="relative hidden lg:flex lg:flex-col lg:items-center lg:justify-center bg-zinc-900 text-zinc-50 p-12">
+            <div style={{ viewTransitionName: 'auth-panel' }} className="relative hidden lg:flex lg:flex-col lg:items-center lg:justify-center bg-zinc-900 text-zinc-50 p-12">
                 <blockquote className="max-w-sm space-y-4 text-center">
                     <p className="text-xl font-medium leading-relaxed">
                         "Une interface simple et efficace pour gérer votre activité au quotidien."

@@ -3,20 +3,55 @@
 {% block title %}Vérification de l'adresse e-mail{% endblock %}
 
 {% block body %}
-    <div class="flex min-h-screen items-center justify-center p-4">
-        <div class="w-full max-w-md rounded-lg border bg-card p-8 shadow-sm text-center space-y-4">
-            {% if success %}
-                <div class="text-4xl">✅</div>
-                <h1 class="text-xl font-semibold">Adresse e-mail vérifiée !</h1>
-                <p class="text-sm text-muted-foreground">Votre compte est maintenant actif. Vous pouvez vous connecter.</p>
-            {% else %}
-                <div class="text-4xl">❌</div>
-                <h1 class="text-xl font-semibold">Lien invalide ou expiré</h1>
-                <p class="text-sm text-muted-foreground">Ce lien de vérification n'est pas valide ou a déjà été utilisé.</p>
-            {% endif %}
-            <a href="{{ loginUrl }}" class="inline-block mt-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
-                Aller à la connexion
-            </a>
+    <div class="grid min-h-svh lg:grid-cols-2">
+        {# ── Colonne gauche : contenu ── #}
+        <div class="flex flex-col gap-4 p-6 md:p-10">
+            {# Logo #}
+            <div class="flex justify-center gap-2 md:justify-start">
+                <a href="/" class="flex items-center gap-2 font-semibold text-foreground">
+                    <div class="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground text-xs font-bold">
+                        B
+                    </div>
+                    BleuMont
+                </a>
+            </div>
+
+            {# Contenu centré verticalement #}
+            <div class="flex flex-1 items-center justify-center">
+                <div style="view-transition-name: auth-form" class="w-full max-w-sm space-y-6 text-center">
+                    {% if success %}
+                        <div class="space-y-2">
+                            <h1 class="text-2xl font-bold tracking-tight">Adresse e-mail vérifiée !</h1>
+                            <p class="text-sm text-muted-foreground">
+                                Votre compte est maintenant actif. Vous pouvez vous connecter.
+                            </p>
+                        </div>
+                        <a href="{{ loginUrl }}" class="inline-flex w-full items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
+                            Se connecter
+                        </a>
+                    {% else %}
+                        <div class="space-y-2">
+                            <h1 class="text-2xl font-bold tracking-tight">Lien invalide ou expiré</h1>
+                            <p class="text-sm text-muted-foreground">
+                                Ce lien de vérification n'est pas valide ou a déjà été utilisé.
+                            </p>
+                        </div>
+                        <a href="{{ loginUrl }}" class="text-sm font-medium text-foreground underline-offset-4 hover:underline">
+                            Retour à la connexion
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {# ── Colonne droite : panneau décoratif ── #}
+        <div style="view-transition-name: auth-panel" class="relative hidden lg:flex lg:flex-col lg:items-center lg:justify-center bg-zinc-900 text-zinc-50 p-12">
+            <blockquote class="max-w-sm space-y-4 text-center">
+                <p class="text-xl font-medium leading-relaxed">
+                    "Une interface simple et efficace pour gérer votre activité au quotidien."
+                </p>
+                <footer class="text-sm text-zinc-400">BleuMont</footer>
+            </blockquote>
         </div>
     </div>
 {% endblock %}
