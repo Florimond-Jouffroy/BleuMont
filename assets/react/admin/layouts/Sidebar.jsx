@@ -9,9 +9,14 @@ const navItems = [
     { to: '/users', icon: Users, label: 'Utilisateurs' },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ open }) {
     return (
-        <aside className="flex h-full w-64 flex-col border-r bg-background">
+        <aside
+            className={cn(
+                'fixed left-0 top-0 z-10 flex h-screen w-64 flex-col border-r bg-background transition-transform duration-300',
+                open ? 'translate-x-0' : '-translate-x-full',
+            )}
+        >
             <div className="flex h-16 items-center border-b px-6">
                 <span className="text-lg font-semibold tracking-tight">Administration</span>
             </div>

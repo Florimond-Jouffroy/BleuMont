@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import { LogOut } from 'lucide-react';
+import { LogOut, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
     DropdownMenu,
@@ -22,44 +22,59 @@ function getInitials(email) {
     return local.slice(0, 2).toUpperCase();
 }
 
+const SIDEBAR_W = 256; // w-64
+
 export default function AdminLayout({ userEmail = '', logoutUrl = '/deconnexion' }) {
+    const [open, setOpen] = useState(true);
+
     return (
-        <div className="flex h-screen overflow-hidden bg-background">
-            <Sidebar />
+        <div className="bg-background">
+            <Sidebar open={open} />
 
-            <div className="flex flex-1 flex-col overflow-hidden">
-                <header className="flex h-16 shrink-0 items-center justify-between border-b px-6">
-                    <h1 className="text-sm font-medium text-muted-foreground">
-                        Panneau d'administration
-                    </h1>
+            <header
+                className="fixed top-0 right-0 z-20 flex h-16 items-center justify-between border-b bg-background px-4 transition-all duration-300"
+                style={{ left: open ? SIDEBAR_W : 0 }}
+            >
+                <button
+                    onClick={() => setOpen((v) => !v)}
+                    className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                    aria-label={open ? 'Réduire la sidebar' : 'Ouvrir la sidebar'}
+                >
+                    {open
+                        ? <PanelLeftClose className="size-5" />
+                        : <PanelLeftOpen className="size-5" />
+                    }
+                </button>
 
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <button className="rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-                                <Avatar>
-                                    <AvatarFallback>{getInitials(userEmail)}</AvatarFallback>
-                                </Avatar>
-                            </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48">
-                            <DropdownMenuLabel className="font-normal">
-                                <p className="text-xs text-muted-foreground truncate">{userEmail}</p>
-                            </DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem asChild>
-                                <a href={logoutUrl} className="flex items-center gap-2 text-destructive focus:text-destructive">
-                                    <LogOut className="size-4" />
-                                    Se déconnecter
-                                </a>
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </header>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <button className="rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                            <Avatar>
+                                <AvatarFallback>{getInitials(userEmail)}</AvatarFallback>
+                            </Avatar>
+                        </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuLabel className="font-normal">
+                            <p className="text-xs text-muted-foreground truncate">{userEmail}</p>
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                            <a href={logoutUrl} className="flex items-center gap-2 text-destructive focus:text-destructive">
+                                <LogOut className="size-4" />
+                                Se déconnecter
+                            </a>
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </header>
 
-                <main className="flex-1 overflow-auto p-6">
-                    <Outlet />
-                </main>
-            </div>
+            <main
+                className="mt-16 min-h-[calc(100vh-4rem)] overflow-auto p-6 transition-all duration-300"
+                style={{ marginLeft: open ? SIDEBAR_W : 0 }}
+            >
+                <Outlet />
+            </main>
         </div>
     );
 }
