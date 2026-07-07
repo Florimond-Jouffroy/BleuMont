@@ -5,6 +5,7 @@
 {% block body %}
     <div {{ react_component('LoginForm', {
         loginUrl: urls.login,
-        redirectUrl: urls.redirect
+        redirectUrl: urls.redirect,
+        forgotPasswordUrl: urls.forgotPassword
     }) }}></div>
 {% endblock %}

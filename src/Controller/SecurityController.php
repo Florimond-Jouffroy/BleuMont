@@ -20,8 +20,9 @@ class SecurityController extends AbstractController
 
         return $this->render('security/login.html.twig', [
             'urls' => [
-                'login'    => $this->generateUrl('api_auth_login'),
-                'redirect' => $this->generateUrl('app_home'),
+                'login'         => $this->generateUrl('api_auth_login'),
+                'redirect'      => $this->generateUrl('app_home'),
+                'forgotPassword' => $this->generateUrl('app_security_forgot_password'),
             ],
         ]);
     }
@@ -37,6 +38,28 @@ class SecurityController extends AbstractController
             'urls' => [
                 'register' => $this->generateUrl('api_auth_register'),
                 'redirect' => $this->generateUrl('app_home'),
+            ],
+        ]);
+    }
+
+    #[Route('/deconnexion', name: 'logout')]
+    public function logout(): never
+    {
+        throw new \LogicException('Intercepted by the firewall logout handler.');
+    }
+
+    #[Route('/mot-de-passe-oublie', name: 'forgot_password', methods: ['GET'])]
+    public function forgotPassword(): Response
+    {
+        if ($this->getUser()) {
+            return $this->redirectToRoute('app_home');
+        }
+
+        return $this->render('security/forgot-password.html.twig', [
+            'urls' => [
+                'request' => $this->generateUrl('api_auth_reset_password_request'),
+                'confirm' => $this->generateUrl('api_auth_reset_password_confirm'),
+                'login'   => $this->generateUrl('app_security_login'),
             ],
         ]);
     }

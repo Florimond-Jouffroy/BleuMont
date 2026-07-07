@@ -7,7 +7,7 @@ import { api, getErrorMessage } from '../utils/api';
 import { resolveUrl } from '../utils/url';
 
 
-export default function LoginForm({ loginUrl = '/api/auth/login', redirectUrl = '/' }) {
+export default function LoginForm({ loginUrl = '/api/auth/login', redirectUrl = '/', forgotPasswordUrl = '/mot-de-passe-oublie' }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -65,6 +65,11 @@ export default function LoginForm({ loginUrl = '/api/auth/login', redirectUrl = 
                     <Button type="submit" className="w-full" disabled={loading}>
                         {loading ? 'Connexion…' : 'Se connecter'}
                     </Button>
+                    <div className="text-center text-sm text-muted-foreground">
+                        <a href={resolveUrl(forgotPasswordUrl)} className="underline underline-offset-4 hover:text-primary">
+                            Mot de passe oublié ?
+                        </a>
+                    </div>
                 </form>
             </CardContent>
         </Card>
