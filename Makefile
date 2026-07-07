@@ -27,7 +27,7 @@ HELP_COLOR = \033[36m
 NO_COLOR   = \033[0m
 
 .DEFAULT_GOAL := help
-.PHONY: help setup install up down stop restart build ps logs sh shell cmd cs vendor sf cc cc-hard db-main-create db-main-migration db-main-migrate db-main-drop db-main-reset db-log-create db-log-migrate db-log-drop db-log-reset db-setup stan perm composer composer-rm npm npm-rm npm-setup qa test
+.PHONY: help setup install up down stop restart build ps logs sh shell cmd cs vendor sf cc cc-hard db-main-create db-main-migration db-main-migrate db-main-drop db-main-reset db-log-create db-log-migrate db-log-drop db-log-reset db-setup db-test-setup stan perm composer composer-rm npm npm-rm npm-setup qa test
 
 ## —— SYSTEM & CONFIGURATION ⚙️ ————————————————————————————————————————————————
 
@@ -188,7 +188,14 @@ cs: ## Corrige le style de code PHP selon la configuration d'entreprise (.php-cs
 stan: ## Analyse statique du code avec PHPStan
 	$(COMPOSER_CONT) vendor/bin/phpstan analyse src --memory-limit=1G
 
-test: ## Lance les tests unitaires et fonctionnels avec PHPUnit 10
+db-test-setup: ## Crée et initialise les bases de données de test via le schéma Doctrine
+	$(CONSOLE) --env=test doctrine:database:drop --if-exists --force --connection=default
+	$(CONSOLE) --env=test doctrine:database:create --connection=default
+	$(CONSOLE) --env=test doctrine:schema:create --em=default
+	$(CONSOLE) --env=test doctrine:database:drop --if-exists --force --connection=log
+	$(CONSOLE) --env=test doctrine:database:create --connection=log
+
+test: ## Lance les tests avec PHPUnit 10 (lancer db-test-setup d'abord si besoin)
 	$(COMPOSER_CONT) vendor/bin/phpunit -c phpunit.dist.xml
 
 qa: cs stan test ## Lance la suite de contrôle qualité complète (CS-Fixer + PHPStan + PHPUnit)
