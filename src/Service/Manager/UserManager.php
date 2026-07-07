@@ -67,6 +67,21 @@ class UserManager
         return true;
     }
 
+    public function verifyEmail(User $user, bool $flush = true): bool
+    {
+        $user->setIsVerified(true);
+        $user->setVerificationToken(null);
+
+        return $this->update($user, $flush);
+    }
+
+    public function resetPassword(User $user, string $plainPassword, bool $flush = true): bool
+    {
+        $user->setPassword($this->passwordHasher->hashPassword($user, $plainPassword));
+
+        return $this->update($user, $flush);
+    }
+
     public function createFromDto(RegisterDto $dto, bool $flush = true): ?User
     {
         $user = new User();

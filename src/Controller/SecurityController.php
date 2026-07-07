@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Repository\UserRepository;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\Manager\UserManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -51,24 +51,15 @@ class SecurityController extends AbstractController
     public function verifyEmail(
         Request $request,
         UserRepository $userRepository,
-        EntityManagerInterface $em,
+        UserManager $userManager,
     ): Response {
         $token = $request->query->getString('token');
         $user  = $token ? $userRepository->findOneBy(['verificationToken' => $token]) : null;
 
-        if (!$user || $user->isVerified()) {
-            return $this->render('security/verify-email.html.twig', [
-                'success' => false,
-                'loginUrl' => $this->generateUrl('app_security_login'),
-            ]);
-        }
-
-        $user->setIsVerified(true);
-        $user->setVerificationToken(null);
-        $em->flush();
+        $success = $user && !$user->isVerified() && $userManager->verifyEmail($user);
 
         return $this->render('security/verify-email.html.twig', [
-            'success'  => true,
+            'success'  => $success,
             'loginUrl' => $this->generateUrl('app_security_login'),
         ]);
     }
