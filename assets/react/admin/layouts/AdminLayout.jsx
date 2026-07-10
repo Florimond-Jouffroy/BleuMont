@@ -26,7 +26,11 @@ export default function AdminLayout({ userEmail = '', logoutUrl = '/deconnexion'
                         <span className="text-sm font-medium text-foreground">{title}</span>
                     </header>
 
-                    <div className="flex flex-1 flex-col gap-4 p-6">
+                    {/* key sur le pathname : relance l'animation d'entrée à chaque changement de page */}
+                    <div
+                        key={pathname}
+                        className="flex flex-1 flex-col gap-4 p-6 animate-in fade-in slide-in-from-bottom-2 duration-300"
+                    >
                         <Outlet />
                     </div>
                 </SidebarInset>

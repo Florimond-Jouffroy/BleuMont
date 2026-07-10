@@ -39,16 +39,21 @@ abstract class AbstractApiTestCase extends WebTestCase
         return json_decode($this->client->getResponse()->getContent(), true) ?? [];
     }
 
+    /**
+     * @param list<string> $roles
+     */
     protected function createUser(
         string $email    = 'user@example.com',
         string $password = 'password123',
         bool   $verified = true,
+        array  $roles    = [],
     ): User {
         $hasher = static::getContainer()->get(UserPasswordHasherInterface::class);
 
         $user = new User();
         $user->setEmail($email);
         $user->setPassword($hasher->hashPassword($user, $password));
+        $user->setRoles($roles);
 
         if ($verified) {
             $user->setIsVerified(true);
@@ -60,6 +65,28 @@ abstract class AbstractApiTestCase extends WebTestCase
         $this->em->flush();
 
         return $user;
+    }
+
+    protected function createAdmin(string $email = 'admin@example.com'): User
+    {
+        return $this->createUser($email, roles: ['ROLE_ADMIN']);
+    }
+
+    protected function loginAs(User $user): void
+    {
+        $this->client->loginUser($user);
+    }
+
+    protected function putJson(string $url, array $payload): void
+    {
+        $this->client->request(
+            'PUT',
+            $url,
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode($payload),
+        );
     }
 
     protected function createPasswordResetToken(User $user, string $code = '123456', int $ttlMinutes = 15): PasswordResetToken

@@ -16,7 +16,7 @@ class AdminController extends AbstractController
     #[Route('/admin/{path}', name: 'app_admin_path', requirements: ['path' => '.+'])]
     public function index(): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_USER');
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
         /** @var \App\Entity\User $user */
         $user = $this->getUser();

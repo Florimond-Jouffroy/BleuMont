@@ -35,28 +35,32 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->getEntityManager()->flush();
     }
 
-    //    /**
-    //     * @return User[] Returns an array of User objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('u')
-    //            ->andWhere('u.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('u.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    /**
+     * Recherche paginée sur l'email, du plus récent au plus ancien.
+     *
+     * @return array{items: list<User>, total: int}
+     */
+    public function searchPaginated(?string $query, int $page, int $pageSize): array
+    {
+        $qb = $this->createQueryBuilder('u')->orderBy('u.id', 'DESC');
 
-    //    public function findOneBySomeField($value): ?User
-    //    {
-    //        return $this->createQueryBuilder('u')
-    //            ->andWhere('u.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        if (null !== $query && '' !== $query) {
+            $qb->andWhere('u.email LIKE :query')
+                ->setParameter('query', '%'.addcslashes($query, '%_').'%');
+        }
+
+        $total = (int) (clone $qb)
+            ->select('COUNT(u.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        /** @var list<User> $items */
+        $items = $qb
+            ->setFirstResult(($page - 1) * $pageSize)
+            ->setMaxResults($pageSize)
+            ->getQuery()
+            ->getResult();
+
+        return ['items' => $items, 'total' => $total];
+    }
 }
