@@ -6,13 +6,23 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import AppSidebar from './AppSidebar';
 
 const pageTitles = {
-    '/dashboard': 'Dashboard',
-    '/users':     'Utilisateurs',
+    '/dashboard':    'Dashboard',
+    '/users':        'Utilisateurs',
+    '/articles':     'Articles',
+    '/articles/new': 'Nouvel article',
+    '/media':        'Médiathèque',
+    '/categories':   'Catégories',
 };
+
+function getTitle(pathname) {
+    if (pageTitles[pathname]) return pageTitles[pathname];
+    if (/^\/articles\/\d+\/edit$/.test(pathname)) return "Modifier l'article";
+    return 'Administration';
+}
 
 export default function AdminLayout({ userEmail = '', logoutUrl = '/deconnexion' }) {
     const { pathname } = useLocation();
-    const title = pageTitles[pathname] ?? 'Administration';
+    const title = getTitle(pathname);
 
     return (
         <TooltipProvider>

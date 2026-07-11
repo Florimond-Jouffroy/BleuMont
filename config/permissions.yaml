@@ -1,4 +1,51 @@
 permissions:
+    # --- Médias ---
+    MEDIA_VIEW:
+        roles: [ ROLE_ADMIN ]
+        description: "Voir la bibliothèque de médias"
+
+    MEDIA_UPLOAD:
+        roles: [ ROLE_ADMIN ]
+        description: "Uploader un fichier dans la bibliothèque"
+
+    MEDIA_DELETE:
+        roles: [ ROLE_ADMIN ]
+        description: "Supprimer un fichier de la bibliothèque"
+
+    # --- Catégories ---
+    CATEGORY_VIEW:
+        roles: [ ROLE_ADMIN ]
+        description: "Voir les catégories"
+
+    CATEGORY_CREATE:
+        roles: [ ROLE_ADMIN ]
+        description: "Créer une catégorie"
+
+    CATEGORY_DELETE:
+        roles: [ ROLE_ADMIN ]
+        description: "Supprimer une catégorie"
+
+    # --- Articles ---
+    ARTICLE_VIEW:
+        roles: [ ROLE_ADMIN ]
+        description: "Voir la liste des articles"
+
+    ARTICLE_CREATE:
+        roles: [ ROLE_ADMIN ]
+        description: "Créer un article"
+
+    ARTICLE_EDIT:
+        roles: [ ROLE_ADMIN ]
+        description: "Modifier un article"
+
+    ARTICLE_DELETE:
+        roles: [ ROLE_ADMIN ]
+        description: "Supprimer un article"
+
+    ARTICLE_PUBLISH:
+        roles: [ ROLE_ADMIN ]
+        description: "Publier / dépublier un article"
+
     # --- Utilisateurs ---
     USER_VIEW:
         roles: [ ROLE_ADMIN ]
@@ -23,3 +70,4 @@ permissions:
     USER_DELETE:
         roles: [ ROLE_ADMIN ]
         description: "Supprimer un utilisateur"
+

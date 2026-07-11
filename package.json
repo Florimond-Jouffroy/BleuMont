@@ -28,6 +28,13 @@
         "build": "encore production --progress"
     },
     "dependencies": {
+        "@editorjs/code": "^2.9.4",
+        "@editorjs/delimiter": "^1.4.2",
+        "@editorjs/editorjs": "^2.31.6",
+        "@editorjs/header": "^2.8.9",
+        "@editorjs/image": "^2.10.3",
+        "@editorjs/list": "^2.0.9",
+        "@editorjs/quote": "^2.7.6",
         "@fontsource-variable/geist": "^5.2.9",
         "@tanstack/react-table": "^8.21.3",
         "class-variance-authority": "^0.7.1",
