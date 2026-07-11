@@ -9,7 +9,6 @@ use App\Repository\ArticleRepository;
 use App\Security\Voter\ArticleVoter;
 use App\Service\Manager\ArticleManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -69,32 +68,6 @@ class ArticleController extends AbstractController
         }
 
         return $this->json($this->serializeArticle($article), Response::HTTP_CREATED);
-    }
-
-    #[Route('/upload-image', name: 'api_admin_articles_upload_image', methods: ['POST'])]
-    public function uploadImage(Request $request): JsonResponse
-    {
-        $this->denyAccessUnlessGranted(ArticleVoter::EDIT);
-
-        $file = $request->files->get('image');
-
-        if (!$file instanceof UploadedFile) {
-            return $this->json(['success' => 0, 'message' => 'Aucun fichier reçu.']);
-        }
-
-        $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-        if (!in_array($file->getMimeType(), $allowed, true)) {
-            return $this->json(['success' => 0, 'message' => 'Format non supporté (jpg, png, gif, webp uniquement).']);
-        }
-
-        if ($file->getSize() > 5 * 1024 * 1024) {
-            return $this->json(['success' => 0, 'message' => 'Image trop lourde (max 5 Mo).']);
-        }
-
-        $filename = bin2hex(random_bytes(16)).'.'.$file->guessExtension();
-        $file->move($this->getParameter('kernel.project_dir').'/public/uploads/articles', $filename);
-
-        return $this->json(['success' => 1, 'file' => ['url' => '/uploads/articles/'.$filename]]);
     }
 
     #[Route('/{id}', name: 'api_admin_articles_get', methods: ['GET'])]

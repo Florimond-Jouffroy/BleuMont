@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import EditorJS from '@editorjs/editorjs';
 import Header from '@editorjs/header';
 import List from '@editorjs/list';
@@ -7,13 +7,26 @@ import Code from '@editorjs/code';
 import Delimiter from '@editorjs/delimiter';
 import Image from '@editorjs/image';
 
-export default function BlockEditor({ value, onChange, uploadImageUrl }) {
-    const holderRef = useRef(null);
-    const editorRef = useRef(null);
-    // Kept in a ref so the onChange closure always sees the latest callback
-    // without triggering an effect re-run that would destroy / recreate the editor.
-    const onChangeRef = useRef(onChange);
+const BlockEditor = forwardRef(function BlockEditor({ value, onChange, onUploadFile }, ref) {
+    const holderRef    = useRef(null);
+    const editorRef    = useRef(null);
+    const onChangeRef  = useRef(onChange);
+    const onUploadRef  = useRef(onUploadFile);
+
     onChangeRef.current = onChange;
+    onUploadRef.current = onUploadFile;
+
+    useImperativeHandle(ref, () => ({
+        insertImage: (url) => {
+            editorRef.current?.blocks.insert('image', {
+                file: { url },
+                caption: '',
+                stretched: false,
+                withBorder: false,
+                withBackground: false,
+            });
+        },
+    }));
 
     useEffect(() => {
         if (!holderRef.current || editorRef.current) return;
@@ -41,9 +54,10 @@ export default function BlockEditor({ value, onChange, uploadImageUrl }) {
                 image: {
                     class: Image,
                     config: {
-                        endpoints: { byFile: uploadImageUrl },
-                        additionalRequestHeaders: {
-                            'X-Requested-With': 'XMLHttpRequest',
+                        uploader: {
+                            // Delegated to parent (ArticleEditor) which uploads
+                            // to the media library and returns {success, file:{url}}
+                            uploadByFile: (file) => onUploadRef.current(file),
                         },
                     },
                 },
@@ -57,14 +71,9 @@ export default function BlockEditor({ value, onChange, uploadImageUrl }) {
         editorRef.current = editor;
 
         return () => {
-            // Capture the instance before clearing the ref so the async
-            // callback below still has access to it after unmount.
             const instance = editorRef.current;
             editorRef.current = null;
-
             if (instance) {
-                // destroy() must only be called after isReady resolves —
-                // calling it earlier throws "is not a function" in some states.
                 instance.isReady
                     .then(() => instance.destroy())
                     .catch(() => {});
@@ -87,4 +96,6 @@ export default function BlockEditor({ value, onChange, uploadImageUrl }) {
                 [&_ol]:list-decimal [&_ol]:pl-6"
         />
     );
-}
+});
+
+export default BlockEditor;

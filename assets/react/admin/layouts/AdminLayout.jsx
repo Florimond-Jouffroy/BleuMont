@@ -10,6 +10,7 @@ const pageTitles = {
     '/users':       'Utilisateurs',
     '/articles':    'Articles',
     '/articles/new': 'Nouvel article',
+    '/media':       'Médiathèque',
 };
 
 function getTitle(pathname) {

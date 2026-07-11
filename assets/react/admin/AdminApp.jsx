@@ -4,6 +4,7 @@ import AdminLayout from './layouts/AdminLayout';
 import ArticleEditor from './pages/ArticleEditor';
 import ArticlesList from './pages/ArticlesList';
 import Dashboard from './pages/Dashboard';
+import MediaLibrary from './pages/MediaLibrary';
 import UsersList from './pages/UsersList';
 
 const root        = document.getElementById('admin-root');
@@ -23,6 +24,7 @@ export default function AdminApp() {
                     <Route path="articles" element={<ArticlesList permissions={permissions} urls={urls} />} />
                     <Route path="articles/new" element={<ArticleEditor permissions={permissions} urls={urls} />} />
                     <Route path="articles/:id/edit" element={<ArticleEditor permissions={permissions} urls={urls} />} />
+                    <Route path="media" element={<MediaLibrary permissions={permissions} urls={urls} />} />
                 </Route>
             </Routes>
         </BrowserRouter>

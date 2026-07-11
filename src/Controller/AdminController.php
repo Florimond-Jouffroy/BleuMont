@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Security\Voter\ArticleVoter;
+use App\Security\Voter\MediaVoter;
 use App\Security\Voter\UserVoter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,7 +28,8 @@ class AdminController extends AbstractController
             'urls' => [
                 'users' => $this->generateUrl('api_admin_users_list'),
                 'articles' => $this->generateUrl('api_admin_articles_list'),
-                'articlesUploadImage' => $this->generateUrl('api_admin_articles_upload_image'),
+                'media' => $this->generateUrl('api_admin_media_list'),
+                'mediaUpload' => $this->generateUrl('api_admin_media_upload'),
             ],
             'permissions' => [
                 'canViewUsers' => $this->isGranted(UserVoter::VIEW),
@@ -41,6 +43,9 @@ class AdminController extends AbstractController
                 'canEditArticle' => $this->isGranted(ArticleVoter::EDIT),
                 'canDeleteArticle' => $this->isGranted(ArticleVoter::DELETE),
                 'canPublishArticle' => $this->isGranted(ArticleVoter::PUBLISH),
+                'canViewMedia' => $this->isGranted(MediaVoter::VIEW),
+                'canUploadMedia' => $this->isGranted(MediaVoter::UPLOAD),
+                'canDeleteMedia' => $this->isGranted(MediaVoter::DELETE),
             ],
         ]);
     }

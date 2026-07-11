@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Globe, GlobeLock, Save } from 'lucide-react';
+import { ArrowLeft, Globe, GlobeLock, ImageIcon, Save } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import BlockEditor from '../components/BlockEditor';
 import BlockRenderer from '../components/BlockRenderer';
+import MediaPickerModal from '../components/MediaPickerModal';
 import { api, getErrorMessage } from '../../utils/api';
 
 export default function ArticleEditor({ permissions = {}, urls = {} }) {
@@ -15,17 +16,20 @@ export default function ArticleEditor({ permissions = {}, urls = {} }) {
     const navigate = useNavigate();
     const isEdit = id !== undefined;
 
-    const [title, setTitle]                   = useState('');
-    const [excerpt, setExcerpt]               = useState('');
-    const [content, setContent]               = useState({ blocks: [] });
-    const [status, setStatus]                 = useState('draft');
-    const [loading, setLoading]               = useState(isEdit);
-    const [contentLoaded, setContentLoaded]   = useState(!isEdit);
-    const [saving, setSaving]                 = useState(false);
-    const [publishing, setPublishing]         = useState(false);
-    const [feedback, setFeedback]             = useState(null);
-    const [savedId, setSavedId]               = useState(id ? parseInt(id, 10) : null);
-    const [activeTab, setActiveTab]           = useState('edit');
+    const [title, setTitle]                 = useState('');
+    const [excerpt, setExcerpt]             = useState('');
+    const [content, setContent]             = useState({ blocks: [] });
+    const [status, setStatus]               = useState('draft');
+    const [loading, setLoading]             = useState(isEdit);
+    const [contentLoaded, setContentLoaded] = useState(!isEdit);
+    const [saving, setSaving]               = useState(false);
+    const [publishing, setPublishing]       = useState(false);
+    const [feedback, setFeedback]           = useState(null);
+    const [savedId, setSavedId]             = useState(id ? parseInt(id, 10) : null);
+    const [activeTab, setActiveTab]         = useState('edit');
+    const [pickerOpen, setPickerOpen]       = useState(false);
+
+    const editorRef = useRef(null);
 
     useEffect(() => {
         if (!isEdit) return;
@@ -41,6 +45,24 @@ export default function ArticleEditor({ permissions = {}, urls = {} }) {
             .catch(() => setFeedback({ type: 'error', message: "Impossible de charger l'article." }))
             .finally(() => setLoading(false));
     }, [id]);
+
+    // Called by BlockEditor's custom uploader (file selected via Editor.js image tool)
+    const handleUploadFile = useCallback(async (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        try {
+            const media = await api.post(urls.mediaUpload ?? '/api/admin/media', formData);
+            return { success: 1, file: { url: media.url } };
+        } catch {
+            return { success: 0, message: 'Upload échoué.' };
+        }
+    }, [urls.mediaUpload]);
+
+    // Called when an image is selected from the media picker modal
+    const handleLibrarySelect = useCallback((url) => {
+        editorRef.current?.insertImage(url);
+        setPickerOpen(false);
+    }, []);
 
     const handleSave = async () => {
         const trimmed = title.trim();
@@ -131,11 +153,7 @@ export default function ArticleEditor({ permissions = {}, urls = {} }) {
 
                 <div className="flex items-center gap-2 shrink-0">
                     {permissions.canPublishArticle && savedId && (
-                        <Button
-                            variant="outline"
-                            onClick={handleTogglePublish}
-                            disabled={publishing || saving}
-                        >
+                        <Button variant="outline" onClick={handleTogglePublish} disabled={publishing || saving}>
                             {status === 'published'
                                 ? <><GlobeLock className="size-4" /> Dépublier</>
                                 : <><Globe className="size-4" /> Publier</>
@@ -191,42 +209,58 @@ export default function ArticleEditor({ permissions = {}, urls = {} }) {
                 <div className="flex items-center justify-between">
                     <Label>Contenu</Label>
 
-                    {/* Onglets Édition / Aperçu */}
-                    <div className="inline-flex rounded-md border text-xs">
-                        <button
-                            type="button"
-                            onClick={() => setActiveTab('edit')}
-                            className={`px-3 py-1.5 rounded-l-md transition-colors ${
-                                activeTab === 'edit'
-                                    ? 'bg-muted font-medium'
-                                    : 'hover:bg-muted/50 text-muted-foreground'
-                            }`}
-                        >
-                            Édition
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setActiveTab('preview')}
-                            className={`px-3 py-1.5 rounded-r-md transition-colors ${
-                                activeTab === 'preview'
-                                    ? 'bg-muted font-medium'
-                                    : 'hover:bg-muted/50 text-muted-foreground'
-                            }`}
-                        >
-                            Aperçu
-                        </button>
+                    <div className="flex items-center gap-2">
+                        {/* Bouton bibliothèque (visible uniquement en mode édition) */}
+                        {activeTab === 'edit' && permissions.canUploadMedia && (
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setPickerOpen(true)}
+                                className="text-muted-foreground hover:text-foreground"
+                            >
+                                <ImageIcon className="size-4" />
+                                Bibliothèque
+                            </Button>
+                        )}
+
+                        {/* Onglets Édition / Aperçu */}
+                        <div className="inline-flex rounded-md border text-xs">
+                            <button
+                                type="button"
+                                onClick={() => setActiveTab('edit')}
+                                className={`px-3 py-1.5 rounded-l-md transition-colors ${
+                                    activeTab === 'edit'
+                                        ? 'bg-muted font-medium'
+                                        : 'hover:bg-muted/50 text-muted-foreground'
+                                }`}
+                            >
+                                Édition
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setActiveTab('preview')}
+                                className={`px-3 py-1.5 rounded-r-md transition-colors ${
+                                    activeTab === 'preview'
+                                        ? 'bg-muted font-medium'
+                                        : 'hover:bg-muted/50 text-muted-foreground'
+                                }`}
+                            >
+                                Aperçu
+                            </button>
+                        </div>
                     </div>
                 </div>
 
                 {contentLoaded && (
                     <>
-                        {/* L'éditeur reste monté même en aperçu pour ne pas perdre l'état */}
                         <div className={activeTab === 'edit' ? 'block' : 'hidden'}>
                             <BlockEditor
+                                ref={editorRef}
                                 key={savedId ?? 'new'}
                                 value={content}
                                 onChange={setContent}
-                                uploadImageUrl={urls.articlesUploadImage ?? '/api/admin/articles/upload-image'}
+                                onUploadFile={handleUploadFile}
                             />
                         </div>
 
@@ -246,6 +280,13 @@ export default function ArticleEditor({ permissions = {}, urls = {} }) {
                     </>
                 )}
             </div>
+
+            <MediaPickerModal
+                open={pickerOpen}
+                onSelect={handleLibrarySelect}
+                onCancel={() => setPickerOpen(false)}
+                urls={urls}
+            />
         </div>
     );
 }
