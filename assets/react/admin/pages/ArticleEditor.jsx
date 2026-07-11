@@ -133,7 +133,7 @@ export default function ArticleEditor({ permissions = {}, urls = {} }) {
     }
 
     return (
-        <div className="space-y-6 max-w-3xl">
+        <div className="space-y-6">
             {/* En-tête */}
             <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">

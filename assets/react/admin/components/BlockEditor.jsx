@@ -5,7 +5,7 @@ import List from '@editorjs/list';
 import Quote from '@editorjs/quote';
 import Code from '@editorjs/code';
 import Delimiter from '@editorjs/delimiter';
-import Image from '@editorjs/image';
+import EditorImageTool from './EditorImageTool';
 
 const BlockEditor = forwardRef(function BlockEditor({ value, onChange, onUploadFile }, ref) {
     const holderRef    = useRef(null);
@@ -21,15 +21,25 @@ const BlockEditor = forwardRef(function BlockEditor({ value, onChange, onUploadF
             editorRef.current?.blocks.insert('image', {
                 file: { url },
                 caption: '',
-                stretched: false,
-                withBorder: false,
-                withBackground: false,
+                width: '100',
             });
         },
     }));
 
     useEffect(() => {
         if (!holderRef.current || editorRef.current) return;
+
+        // Injected here (not in global CSS) so it lands in the DOM *after*
+        // Editor.js's own <style> tag, guaranteeing our rules win the cascade.
+        if (!document.getElementById('editorjs-fullwidth')) {
+            const style = document.createElement('style');
+            style.id = 'editorjs-fullwidth';
+            style.textContent =
+                '.codex-editor__redactor{margin-left:0!important;margin-right:0!important}' +
+                '.ce-block__content,.ce-toolbar__content{max-width:none!important;margin-left:0!important;margin-right:0!important}' +
+                '@media(min-width:768px){.codex-editor{margin-left:4em}}';
+            document.head.appendChild(style);
+        }
 
         const editor = new EditorJS({
             holder: holderRef.current,
@@ -52,11 +62,9 @@ const BlockEditor = forwardRef(function BlockEditor({ value, onChange, onUploadF
                 code: Code,
                 delimiter: Delimiter,
                 image: {
-                    class: Image,
+                    class: EditorImageTool,
                     config: {
                         uploader: {
-                            // Delegated to parent (ArticleEditor) which uploads
-                            // to the media library and returns {success, file:{url}}
                             uploadByFile: (file) => onUploadRef.current(file),
                         },
                     },

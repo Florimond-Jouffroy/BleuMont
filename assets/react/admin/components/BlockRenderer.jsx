@@ -86,16 +86,26 @@ function renderBlock(block) {
             const url = block.data.file?.url;
             if (!url) return null;
 
+            const width = block.data.width ? `${block.data.width}%` : '100%';
+            const align = block.data.align ?? 'center';
+            const imgStyle = {
+                width,
+                display: 'block',
+                marginLeft:  align === 'right'  ? 'auto' : (align === 'center' ? 'auto' : '0'),
+                marginRight: align === 'left'   ? 'auto' : (align === 'center' ? 'auto' : '0'),
+            };
+
             return (
                 <figure className="my-6">
                     <img
                         src={url}
                         alt={block.data.caption ? stripHtml(block.data.caption) : ''}
-                        className={`rounded-lg max-w-full ${block.data.stretched ? 'w-full' : 'mx-auto block'}`}
+                        className="rounded-lg max-w-full"
+                        style={imgStyle}
                     />
                     {block.data.caption && (
                         <figcaption
-                            className="mt-2 text-center text-sm text-muted-foreground"
+                            className="mt-2 text-sm text-muted-foreground text-center"
                             dangerouslySetInnerHTML={{ __html: block.data.caption }}
                         />
                     )}
