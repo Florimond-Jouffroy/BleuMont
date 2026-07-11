@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { ChevronsUpDown, LayoutDashboard, LogOut, Users } from 'lucide-react';
+import { ChevronsUpDown, FileText, LayoutDashboard, LogOut, Users } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
     DropdownMenu,
@@ -27,6 +27,7 @@ import {
 const navItems = [
     { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/users',     icon: Users,            label: 'Utilisateurs' },
+    { to: '/articles',  icon: FileText,         label: 'Articles' },
 ];
 
 function getInitials(email) {

@@ -1,4 +1,25 @@
 permissions:
+    # --- Articles ---
+    ARTICLE_VIEW:
+        roles: [ ROLE_ADMIN ]
+        description: "Voir la liste des articles"
+
+    ARTICLE_CREATE:
+        roles: [ ROLE_ADMIN ]
+        description: "Créer un article"
+
+    ARTICLE_EDIT:
+        roles: [ ROLE_ADMIN ]
+        description: "Modifier un article"
+
+    ARTICLE_DELETE:
+        roles: [ ROLE_ADMIN ]
+        description: "Supprimer un article"
+
+    ARTICLE_PUBLISH:
+        roles: [ ROLE_ADMIN ]
+        description: "Publier / dépublier un article"
+
     # --- Utilisateurs ---
     USER_VIEW:
         roles: [ ROLE_ADMIN ]
@@ -23,3 +44,4 @@ permissions:
     USER_DELETE:
         roles: [ ROLE_ADMIN ]
         description: "Supprimer un utilisateur"
+
