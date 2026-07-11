@@ -10,5 +10,10 @@
 {% endblock %}
 
 {% block body %}
-    <div id="admin-root" data-user-email="{{ userEmail }}" data-logout-url="{{ logoutUrl }}"></div>
+    <div id="admin-root"
+         data-user-email="{{ userEmail }}"
+         data-logout-url="{{ logoutUrl }}"
+         data-permissions="{{ permissions|json_encode }}"
+         data-urls="{{ urls|json_encode }}"
+    ></div>
 {% endblock %}

@@ -19,7 +19,7 @@ abstract class AbstractApiTestCase extends WebTestCase
     protected function setUp(): void
     {
         $this->client = static::createClient();
-        $this->em     = static::getContainer()->get(EntityManagerInterface::class);
+        $this->em = static::getContainer()->get(EntityManagerInterface::class);
     }
 
     protected function postJson(string $url, array $payload): void
@@ -43,10 +43,10 @@ abstract class AbstractApiTestCase extends WebTestCase
      * @param list<string> $roles
      */
     protected function createUser(
-        string $email    = 'user@example.com',
+        string $email = 'user@example.com',
         string $password = 'password123',
-        bool   $verified = true,
-        array  $roles    = [],
+        bool $verified = true,
+        array $roles = [],
     ): User {
         $hasher = static::getContainer()->get(UserPasswordHasherInterface::class);
 

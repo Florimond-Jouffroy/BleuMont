@@ -13,10 +13,11 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 class UserManager
 {
     public function __construct(
-        private readonly EntityManagerInterface      $em,
-        private readonly ApplicationLogManager       $logManager,
+        private readonly EntityManagerInterface $em,
+        private readonly ApplicationLogManager $logManager,
         private readonly UserPasswordHasherInterface $passwordHasher,
-    ) {}
+    ) {
+    }
 
     public function insert(User $entity, bool $flush = true): bool
     {

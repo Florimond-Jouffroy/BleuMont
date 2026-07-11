@@ -23,10 +23,10 @@ class SecurityController extends AbstractController
 
         return $this->render('security/login.html.twig', [
             'urls' => [
-                'login'          => $this->generateUrl('api_auth_login'),
-                'redirect'       => $this->generateUrl('app_home'),
+                'login' => $this->generateUrl('api_auth_login'),
+                'redirect' => $this->generateUrl('app_home'),
                 'forgotPassword' => $this->generateUrl('app_security_forgot_password'),
-                'register'       => $this->generateUrl('app_security_register'),
+                'register' => $this->generateUrl('app_security_register'),
             ],
         ]);
     }
@@ -41,8 +41,8 @@ class SecurityController extends AbstractController
         return $this->render('security/register.html.twig', [
             'urls' => [
                 'register' => $this->generateUrl('api_auth_register'),
-                'resend'   => $this->generateUrl('api_auth_verify_email_resend'),
-                'login'    => $this->generateUrl('app_security_login'),
+                'resend' => $this->generateUrl('api_auth_verify_email_resend'),
+                'login' => $this->generateUrl('app_security_login'),
             ],
         ]);
     }
@@ -54,12 +54,12 @@ class SecurityController extends AbstractController
         UserManager $userManager,
     ): Response {
         $token = $request->query->getString('token');
-        $user  = $token ? $userRepository->findOneBy(['verificationToken' => $token]) : null;
+        $user = $token ? $userRepository->findOneBy(['verificationToken' => $token]) : null;
 
         $success = $user && !$user->isVerified() && $userManager->verifyEmail($user);
 
         return $this->render('security/verify-email.html.twig', [
-            'success'  => $success,
+            'success' => $success,
             'loginUrl' => $this->generateUrl('app_security_login'),
         ]);
     }
@@ -81,7 +81,7 @@ class SecurityController extends AbstractController
             'urls' => [
                 'request' => $this->generateUrl('api_auth_reset_password_request'),
                 'confirm' => $this->generateUrl('api_auth_reset_password_confirm'),
-                'login'   => $this->generateUrl('app_security_login'),
+                'login' => $this->generateUrl('app_security_login'),
             ],
         ]);
     }

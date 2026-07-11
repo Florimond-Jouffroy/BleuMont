@@ -35,6 +35,7 @@ const PAGE_SIZE = 20;
 
 const currentUserEmail = document.getElementById('admin-root')?.dataset.userEmail ?? '';
 
+
 /**
  * Configuration des actions nécessitant une confirmation.
  * Chaque entrée décrit le dialog et l'appel API associé.
@@ -82,7 +83,7 @@ const CONFIRM_ACTIONS = {
     },
 };
 
-export default function UsersList() {
+export default function UsersList({ permissions = {}, urls = {} }) {
     const [users, setUsers]           = useState([]);
     const [total, setTotal]           = useState(0);
     const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: PAGE_SIZE });
@@ -114,7 +115,7 @@ export default function UsersList() {
             setRefreshing(true);
         }
         try {
-            const data = await api.get('/api/admin/users', {
+            const data = await api.get(urls.users ?? '/api/admin/users', {
                 q: query,
                 page: pagination.pageIndex + 1,
                 pageSize: pagination.pageSize,
@@ -230,48 +231,57 @@ export default function UsersList() {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-64">
-                            <DropdownMenuItem onClick={() => setConfirm({ action: 'resetPassword', user })}>
-                                <KeyRound className="size-4" />
-                                Réinitialiser le mot de passe
-                            </DropdownMenuItem>
+                            {permissions.canResetUserPassword && (
+                                <DropdownMenuItem onClick={() => setConfirm({ action: 'resetPassword', user })}>
+                                    <KeyRound className="size-4" />
+                                    Réinitialiser le mot de passe
+                                </DropdownMenuItem>
+                            )}
 
-                            {!user.isVerified && (
-                                <>
-                                    <DropdownMenuItem
-                                        onClick={() => runDirect(
-                                            api.post(`/api/admin/users/${user.id}/verify`),
-                                            `Le compte ${user.email} est maintenant vérifié.`,
-                                        )}
-                                    >
-                                        <BadgeCheck className="size-4" />
-                                        Marquer comme vérifié
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                        onClick={() => runDirect(
-                                            api.post(`/api/admin/users/${user.id}/resend-verification`),
-                                            `E-mail de vérification renvoyé à ${user.email}.`,
-                                        )}
-                                    >
-                                        <MailPlus className="size-4" />
-                                        Renvoyer l'e-mail de vérification
-                                    </DropdownMenuItem>
-                                </>
+                            {!user.isVerified && permissions.canVerifyUser && (
+                                <DropdownMenuItem
+                                    onClick={() => runDirect(
+                                        api.post(`/api/admin/users/${user.id}/verify`),
+                                        `Le compte ${user.email} est maintenant vérifié.`,
+                                    )}
+                                >
+                                    <BadgeCheck className="size-4" />
+                                    Marquer comme vérifié
+                                </DropdownMenuItem>
+                            )}
+
+                            {!user.isVerified && permissions.canResendVerification && (
+                                <DropdownMenuItem
+                                    onClick={() => runDirect(
+                                        api.post(`/api/admin/users/${user.id}/resend-verification`),
+                                        `E-mail de vérification renvoyé à ${user.email}.`,
+                                    )}
+                                >
+                                    <MailPlus className="size-4" />
+                                    Renvoyer l'e-mail de vérification
+                                </DropdownMenuItem>
+                            )}
+
+                            {!isSelf && permissions.canEditUserRoles && (
+                                <DropdownMenuItem onClick={() => setConfirm({ action: isAdmin ? 'demote' : 'promote', user })}>
+                                    {isAdmin ? <ShieldOff className="size-4" /> : <Shield className="size-4" />}
+                                    {isAdmin ? 'Retirer les droits admin' : 'Promouvoir administrateur'}
+                                </DropdownMenuItem>
                             )}
 
                             {!isSelf && (
+                                <DropdownMenuItem
+                                    onClick={() => {
+                                        window.location.href = `/?_switch_user=${encodeURIComponent(user.email)}`;
+                                    }}
+                                >
+                                    <UserCheck className="size-4" />
+                                    Se connecter en tant que
+                                </DropdownMenuItem>
+                            )}
+
+                            {!isSelf && permissions.canDeleteUser && (
                                 <>
-                                    <DropdownMenuItem onClick={() => setConfirm({ action: isAdmin ? 'demote' : 'promote', user })}>
-                                        {isAdmin ? <ShieldOff className="size-4" /> : <Shield className="size-4" />}
-                                        {isAdmin ? 'Retirer les droits admin' : 'Promouvoir administrateur'}
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                        onClick={() => {
-                                            window.location.href = `/?_switch_user=${encodeURIComponent(user.email)}`;
-                                        }}
-                                    >
-                                        <UserCheck className="size-4" />
-                                        Se connecter en tant que
-                                    </DropdownMenuItem>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem
                                         variant="destructive"

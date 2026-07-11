@@ -14,11 +14,12 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 class AuthMailer
 {
     public function __construct(
-        private readonly MailerInterface       $mailer,
+        private readonly MailerInterface $mailer,
         private readonly UrlGeneratorInterface $urlGenerator,
         #[Autowire(env: 'MAILER_FROM')]
-        private readonly string                $from,
-    ) {}
+        private readonly string $from,
+    ) {
+    }
 
     public function sendVerificationEmail(User $user): void
     {

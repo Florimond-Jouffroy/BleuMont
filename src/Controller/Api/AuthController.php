@@ -26,10 +26,11 @@ use Symfony\Component\Routing\Attribute\Route;
 class AuthController extends AbstractController
 {
     public function __construct(
-        private readonly UserManager          $userManager,
+        private readonly UserManager $userManager,
         private readonly PasswordResetManager $passwordResetManager,
-        private readonly AuthMailer           $authMailer,
-    ) {}
+        private readonly AuthMailer $authMailer,
+    ) {
+    }
 
     #[Route('/login', name: 'api_auth_login', methods: ['POST'])]
     public function login(
@@ -57,7 +58,7 @@ class AuthController extends AbstractController
         $security->login($user, LoginAuthenticator::class);
 
         return $this->json([
-            'id'    => $user->getId(),
+            'id' => $user->getId(),
             'email' => $user->getEmail(),
             'roles' => $user->getRoles(),
         ]);

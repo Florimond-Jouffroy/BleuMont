@@ -37,7 +37,7 @@ class EmailVerificationTest extends AbstractApiTestCase
 
     public function testVerifyEmailWithAlreadyVerifiedUser(): void
     {
-        $user  = $this->createUser('deja@example.com', 'password123', verified: true);
+        $user = $this->createUser('deja@example.com', 'password123', verified: true);
 
         // On force un token même si le compte est vérifié pour tester le cas
         $user->setVerificationToken('token_deja_verifie');
