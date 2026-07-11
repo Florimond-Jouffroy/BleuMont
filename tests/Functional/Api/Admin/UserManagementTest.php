@@ -29,6 +29,56 @@ class UserManagementTest extends AbstractApiTestCase
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
 
+    public function testResetPasswordForbiddenForNonAdmin(): void
+    {
+        $target = $this->createUser('cible@example.com');
+        $this->loginAs($this->createUser('simple@example.com'));
+
+        $this->postJson('/api/admin/users/'.$target->getId().'/reset-password', []);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+    }
+
+    public function testVerifyForbiddenForNonAdmin(): void
+    {
+        $target = $this->createUser('cible@example.com', verified: false);
+        $this->loginAs($this->createUser('simple@example.com'));
+
+        $this->postJson('/api/admin/users/'.$target->getId().'/verify', []);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+    }
+
+    public function testResendVerificationForbiddenForNonAdmin(): void
+    {
+        $target = $this->createUser('cible@example.com', verified: false);
+        $this->loginAs($this->createUser('simple@example.com'));
+
+        $this->postJson('/api/admin/users/'.$target->getId().'/resend-verification', []);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+    }
+
+    public function testUpdateRolesForbiddenForNonAdmin(): void
+    {
+        $target = $this->createUser('cible@example.com');
+        $this->loginAs($this->createUser('simple@example.com'));
+
+        $this->putJson('/api/admin/users/'.$target->getId().'/roles', ['roles' => ['ROLE_ADMIN']]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+    }
+
+    public function testDeleteForbiddenForNonAdmin(): void
+    {
+        $target = $this->createUser('cible@example.com');
+        $this->loginAs($this->createUser('simple@example.com'));
+
+        $this->client->request('DELETE', '/api/admin/users/'.$target->getId());
+
+        self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+    }
+
     // ── Liste ─────────────────────────────────────────────────────────────────
 
     public function testListReturnsUsersWithPagination(): void
