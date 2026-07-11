@@ -19,8 +19,11 @@ class ArticleManager
     ) {
     }
 
-    /** @param array<mixed> $content */
-    public function create(string $title, array $content, User $author, ?string $excerpt = null): ?Article
+    /**
+     * @param array<mixed>     $content
+     * @param \App\Entity\Category[] $categories
+     */
+    public function create(string $title, array $content, User $author, ?string $excerpt = null, ?string $coverImage = null, array $categories = []): ?Article
     {
         $article = new Article();
         $article->setTitle($title);
@@ -28,12 +31,17 @@ class ArticleManager
         $article->setContent($content);
         $article->setAuthor($author);
         $article->setExcerpt($excerpt);
+        $article->setCoverImage($coverImage);
+        $article->syncCategories($categories);
 
         return $this->insert($article) ? $article : null;
     }
 
-    /** @param array<mixed> $content */
-    public function update(Article $article, string $title, array $content, ?string $excerpt): bool
+    /**
+     * @param array<mixed>     $content
+     * @param \App\Entity\Category[] $categories
+     */
+    public function update(Article $article, string $title, array $content, ?string $excerpt, ?string $coverImage = null, array $categories = []): bool
     {
         if ($article->getTitle() !== $title) {
             $article->setTitle($title);
@@ -42,6 +50,8 @@ class ArticleManager
 
         $article->setContent($content);
         $article->setExcerpt($excerpt);
+        $article->setCoverImage($coverImage);
+        $article->syncCategories($categories);
         $article->setUpdatedAt(new \DateTimeImmutable());
 
         return $this->save($article);

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Globe, GlobeLock, ImageIcon, Save } from 'lucide-react';
+import { ArrowLeft, Globe, GlobeLock, ImageIcon, Save, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +11,48 @@ import BlockRenderer from '../components/BlockRenderer';
 import MediaPickerModal from '../components/MediaPickerModal';
 import { api, getErrorMessage } from '../../utils/api';
 
+function CategoryPicker({ urls, selectedIds, onChange }) {
+    const [categories, setCategories] = useState([]);
+
+    useEffect(() => {
+        api.get(urls.categories ?? '/api/admin/categories')
+            .then(setCategories)
+            .catch(() => {});
+    }, [urls.categories]);
+
+    const toggle = (id) => {
+        onChange(
+            selectedIds.includes(id)
+                ? selectedIds.filter((x) => x !== id)
+                : [...selectedIds, id],
+        );
+    };
+
+    if (categories.length === 0) return null;
+
+    return (
+        <div className="flex flex-wrap gap-2">
+            {categories.map((cat) => {
+                const active = selectedIds.includes(cat.id);
+                return (
+                    <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => toggle(cat.id)}
+                        className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                            active
+                                ? 'border-primary bg-primary text-primary-foreground'
+                                : 'border-border bg-background text-muted-foreground hover:text-foreground hover:border-foreground/40'
+                        }`}
+                    >
+                        {cat.name}
+                    </button>
+                );
+            })}
+        </div>
+    );
+}
+
 export default function ArticleEditor({ permissions = {}, urls = {} }) {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -18,6 +60,8 @@ export default function ArticleEditor({ permissions = {}, urls = {} }) {
 
     const [title, setTitle]                 = useState('');
     const [excerpt, setExcerpt]             = useState('');
+    const [coverImage, setCoverImage]       = useState(null);
+    const [categoryIds, setCategoryIds]     = useState([]);
     const [content, setContent]             = useState({ blocks: [] });
     const [status, setStatus]               = useState('draft');
     const [loading, setLoading]             = useState(isEdit);
@@ -27,7 +71,8 @@ export default function ArticleEditor({ permissions = {}, urls = {} }) {
     const [feedback, setFeedback]           = useState(null);
     const [savedId, setSavedId]             = useState(id ? parseInt(id, 10) : null);
     const [activeTab, setActiveTab]         = useState('edit');
-    const [pickerOpen, setPickerOpen]       = useState(false);
+    // pickerMode: 'cover' | 'editor'
+    const [pickerMode, setPickerMode]       = useState(null);
 
     const editorRef = useRef(null);
 
@@ -38,6 +83,8 @@ export default function ArticleEditor({ permissions = {}, urls = {} }) {
             .then((data) => {
                 setTitle(data.title);
                 setExcerpt(data.excerpt ?? '');
+                setCoverImage(data.coverImage ?? null);
+                setCategoryIds((data.categories ?? []).map((c) => c.id));
                 setContent(data.content ?? { blocks: [] });
                 setStatus(data.status);
                 setContentLoaded(true);
@@ -58,11 +105,14 @@ export default function ArticleEditor({ permissions = {}, urls = {} }) {
         }
     }, [urls.mediaUpload]);
 
-    // Called when an image is selected from the media picker modal
     const handleLibrarySelect = useCallback((url) => {
-        editorRef.current?.insertImage(url);
-        setPickerOpen(false);
-    }, []);
+        if (pickerMode === 'cover') {
+            setCoverImage(url);
+        } else {
+            editorRef.current?.insertImage(url);
+        }
+        setPickerMode(null);
+    }, [pickerMode]);
 
     const handleSave = async () => {
         const trimmed = title.trim();
@@ -75,7 +125,7 @@ export default function ArticleEditor({ permissions = {}, urls = {} }) {
         setFeedback(null);
 
         try {
-            const payload = { title: trimmed, content, excerpt: excerpt.trim() || null };
+            const payload = { title: trimmed, content, excerpt: excerpt.trim() || null, coverImage: coverImage || null, categoryIds };
 
             if (savedId) {
                 const updated = await api.put(`/api/admin/articles/${savedId}`, payload);
@@ -188,6 +238,49 @@ export default function ArticleEditor({ permissions = {}, urls = {} }) {
                 />
             </div>
 
+            {/* Image de couverture */}
+            <div className="space-y-2">
+                <Label>Image de couverture</Label>
+                {coverImage ? (
+                    <div className="relative group w-full overflow-hidden rounded-lg border bg-muted">
+                        <img
+                            src={coverImage}
+                            alt="Couverture"
+                            className="w-full max-h-64 object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                            <Button
+                                type="button"
+                                size="sm"
+                                variant="secondary"
+                                onClick={() => setPickerMode('cover')}
+                            >
+                                <ImageIcon className="size-4" />
+                                Changer
+                            </Button>
+                            <Button
+                                type="button"
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => setCoverImage(null)}
+                            >
+                                <X className="size-4" />
+                                Supprimer
+                            </Button>
+                        </div>
+                    </div>
+                ) : (
+                    <button
+                        type="button"
+                        onClick={() => setPickerMode('cover')}
+                        className="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border bg-muted/30 py-10 text-sm text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
+                    >
+                        <ImageIcon className="size-5" />
+                        Choisir une image de couverture
+                    </button>
+                )}
+            </div>
+
             {/* Extrait */}
             <div className="space-y-2">
                 <Label htmlFor="article-excerpt">
@@ -204,6 +297,12 @@ export default function ArticleEditor({ permissions = {}, urls = {} }) {
                 <p className="text-xs text-muted-foreground text-right">{excerpt.length} / 500</p>
             </div>
 
+            {/* Catégories */}
+            <div className="space-y-2">
+                <Label>Catégories <span className="text-muted-foreground font-normal">(optionnel)</span></Label>
+                <CategoryPicker urls={urls} selectedIds={categoryIds} onChange={setCategoryIds} />
+            </div>
+
             {/* Contenu + Aperçu */}
             <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -216,7 +315,7 @@ export default function ArticleEditor({ permissions = {}, urls = {} }) {
                                 type="button"
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => setPickerOpen(true)}
+                                onClick={() => setPickerMode('editor')}
                                 className="text-muted-foreground hover:text-foreground"
                             >
                                 <ImageIcon className="size-4" />
@@ -274,7 +373,7 @@ export default function ArticleEditor({ permissions = {}, urls = {} }) {
                                         {excerpt}
                                     </p>
                                 )}
-                                <BlockRenderer content={content} />
+                                <BlockRenderer content={content} coverImage={coverImage} />
                             </div>
                         )}
                     </>
@@ -282,9 +381,9 @@ export default function ArticleEditor({ permissions = {}, urls = {} }) {
             </div>
 
             <MediaPickerModal
-                open={pickerOpen}
+                open={pickerMode !== null}
                 onSelect={handleLibrarySelect}
-                onCancel={() => setPickerOpen(false)}
+                onCancel={() => setPickerMode(null)}
                 urls={urls}
             />
         </div>

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MoreHorizontal, Pencil, Plus, Search, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Pencil, Plus, Search, Tag, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/data-table';
@@ -20,6 +20,13 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { api, getErrorMessage } from '../../utils/api';
 
 const PAGE_SIZE = 20;
@@ -37,6 +44,8 @@ export default function ArticlesList({ permissions = {}, urls = {} }) {
     const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: PAGE_SIZE });
     const [search, setSearch]      = useState('');
     const [query, setQuery]        = useState('');
+    const [categoryFilter, setCategoryFilter] = useState('');
+    const [categories, setCategories] = useState([]);
     const [loading, setLoading]    = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const isFirstLoad              = useRef(true);
@@ -45,6 +54,12 @@ export default function ArticlesList({ permissions = {}, urls = {} }) {
     const [deleting, setDeleting]  = useState(false);
 
     const pageCount = Math.max(1, Math.ceil(total / pagination.pageSize));
+
+    useEffect(() => {
+        api.get(urls.categories ?? '/api/admin/categories')
+            .then(setCategories)
+            .catch(() => {});
+    }, [urls.categories]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -62,11 +77,14 @@ export default function ArticlesList({ permissions = {}, urls = {} }) {
             setRefreshing(true);
         }
         try {
-            const data = await api.get(urls.articles ?? '/api/admin/articles', {
+            const params = {
                 q: query,
                 page: pagination.pageIndex + 1,
                 pageSize: pagination.pageSize,
-            });
+            };
+            if (categoryFilter) params.categoryId = categoryFilter;
+
+            const data = await api.get(urls.articles ?? '/api/admin/articles', params);
             if (data.items.length === 0 && data.total > 0 && pagination.pageIndex > 0) {
                 setPagination((p) => ({ ...p, pageIndex: 0 }));
                 return;
@@ -80,7 +98,7 @@ export default function ArticlesList({ permissions = {}, urls = {} }) {
             setLoading(false);
             setRefreshing(false);
         }
-    }, [query, pagination]);
+    }, [query, pagination, categoryFilter]);
 
     useEffect(() => { fetchArticles(); }, [fetchArticles]);
 
@@ -131,6 +149,22 @@ export default function ArticlesList({ permissions = {}, urls = {} }) {
                     {row.original.status === 'published' ? 'Publié' : 'Brouillon'}
                 </Badge>
             ),
+        },
+        {
+            id: 'categories',
+            header: 'Catégories',
+            meta: { headerClassName: 'w-48' },
+            cell: ({ row }) => {
+                const cats = row.original.categories ?? [];
+                if (cats.length === 0) return <span className="text-muted-foreground text-xs">—</span>;
+                return (
+                    <div className="flex flex-wrap gap-1">
+                        {cats.map((c) => (
+                            <Badge key={c.id} variant="outline" className="text-xs py-0 px-1.5">{c.name}</Badge>
+                        ))}
+                    </div>
+                );
+            },
         },
         {
             accessorKey: 'authorEmail',
@@ -208,14 +242,37 @@ export default function ArticlesList({ permissions = {}, urls = {} }) {
                 )}
             </div>
 
-            <div className="relative w-full max-w-sm">
-                <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Rechercher par titre…"
-                    className="pl-8"
-                />
+            <div className="flex flex-wrap items-center gap-3">
+                <div className="relative w-full max-w-sm">
+                    <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        placeholder="Rechercher par titre…"
+                        className="pl-8"
+                    />
+                </div>
+
+                {categories.length > 0 && (
+                    <Select
+                        value={categoryFilter}
+                        onValueChange={(v) => {
+                            setCategoryFilter(v === '__all__' ? '' : v);
+                            setPagination((p) => ({ ...p, pageIndex: 0 }));
+                        }}
+                    >
+                        <SelectTrigger className="w-48">
+                            <Tag className="size-4 text-muted-foreground" />
+                            <SelectValue placeholder="Toutes les catégories" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__all__">Toutes les catégories</SelectItem>
+                            {categories.map((cat) => (
+                                <SelectItem key={cat.id} value={String(cat.id)}>{cat.name}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                )}
             </div>
 
             {feedback && (

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Search, Upload, X } from 'lucide-react';
+import { Search, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -107,12 +107,7 @@ export default function MediaPickerModal({ open, onSelect, onCancel, urls = {} }
         <Dialog open={open} onOpenChange={(o) => !o && handleClose()}>
             <DialogContent className="max-w-3xl max-h-[80vh] flex flex-col gap-0 p-0">
                 <DialogHeader className="px-6 pt-6 pb-4 border-b shrink-0">
-                    <div className="flex items-center justify-between">
-                        <DialogTitle>Bibliothèque de médias</DialogTitle>
-                        <Button variant="ghost" size="icon" onClick={handleClose}>
-                            <X className="size-4" />
-                        </Button>
-                    </div>
+                    <DialogTitle>Bibliothèque de médias</DialogTitle>
 
                     <div className="flex items-center gap-3 mt-3">
                         <div className="relative flex-1">

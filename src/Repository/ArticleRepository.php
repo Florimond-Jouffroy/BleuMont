@@ -21,7 +21,7 @@ class ArticleRepository extends ServiceEntityRepository
     /**
      * @return array{items: list<Article>, total: int}
      */
-    public function searchPaginated(?string $query, int $page, int $pageSize): array
+    public function searchPaginated(?string $query, int $page, int $pageSize, ?int $categoryId = null): array
     {
         $qb = $this->createQueryBuilder('a')
             ->orderBy('a.createdAt', 'DESC');
@@ -29,6 +29,12 @@ class ArticleRepository extends ServiceEntityRepository
         if (null !== $query && '' !== $query) {
             $qb->andWhere('a.title LIKE :query')
                 ->setParameter('query', '%'.$query.'%');
+        }
+
+        if (null !== $categoryId) {
+            $qb->join('a.categories', 'c')
+                ->andWhere('c.id = :catId')
+                ->setParameter('catId', $categoryId);
         }
 
         $total = (int) (clone $qb)->select('COUNT(a.id)')->getQuery()->getSingleScalarResult();

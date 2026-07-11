@@ -6,11 +6,12 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import AppSidebar from './AppSidebar';
 
 const pageTitles = {
-    '/dashboard':   'Dashboard',
-    '/users':       'Utilisateurs',
-    '/articles':    'Articles',
+    '/dashboard':    'Dashboard',
+    '/users':        'Utilisateurs',
+    '/articles':     'Articles',
     '/articles/new': 'Nouvel article',
-    '/media':       'Médiathèque',
+    '/media':        'Médiathèque',
+    '/categories':   'Catégories',
 };
 
 function getTitle(pathname) {

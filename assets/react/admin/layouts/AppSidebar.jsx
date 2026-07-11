@@ -1,7 +1,8 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { ChevronsUpDown, FileText, Image, LayoutDashboard, LogOut, Users } from 'lucide-react';
+import { ChevronRight, ChevronsUpDown, FileText, Image, LayoutDashboard, LogOut, Tag, Users } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -21,14 +22,21 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    SidebarMenuSub,
+    SidebarMenuSubButton,
+    SidebarMenuSubItem,
     SidebarRail,
 } from '@/components/ui/sidebar';
 
 const navItems = [
     { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { to: '/users',     icon: Users,            label: 'Utilisateurs' },
-    { to: '/articles',  icon: FileText,         label: 'Articles' },
-    { to: '/media',     icon: Image,            label: 'Médiathèque' },
+    { to: '/users',     icon: Users,           label: 'Utilisateurs' },
+    { to: '/media',     icon: Image,           label: 'Médiathèque' },
+];
+
+const blogItems = [
+    { to: '/articles',   icon: FileText, label: 'Articles' },
+    { to: '/categories', icon: Tag,      label: 'Catégories' },
 ];
 
 function getInitials(email) {
@@ -57,6 +65,9 @@ function NavItem({ to, icon: Icon, label }) {
 }
 
 export default function AppSidebar({ userEmail = '', logoutUrl = '/deconnexion' }) {
+    const { pathname } = useLocation();
+    const isBlogActive = pathname.startsWith('/articles') || pathname.startsWith('/categories');
+
     return (
         <Sidebar collapsible="icon">
             {/* ── Header : logo ── */}
@@ -87,6 +98,33 @@ export default function AppSidebar({ userEmail = '', logoutUrl = '/deconnexion' 
                             {navItems.map((item) => (
                                 <NavItem key={item.to} {...item} />
                             ))}
+
+                            {/* Blog (collapsible) */}
+                            <SidebarMenuItem>
+                                <Collapsible defaultOpen={isBlogActive} className="group/blog w-full">
+                                    <CollapsibleTrigger asChild>
+                                        <SidebarMenuButton tooltip="Blog" isActive={isBlogActive}>
+                                            <FileText />
+                                            <span>Blog</span>
+                                            <ChevronRight className="ml-auto size-4 transition-transform duration-200 group-data-[state=open]/blog:rotate-90" />
+                                        </SidebarMenuButton>
+                                    </CollapsibleTrigger>
+                                    <CollapsibleContent>
+                                        <SidebarMenuSub>
+                                            {blogItems.map(({ to, label }) => {
+                                                const isActive = pathname === to || pathname.startsWith(to + '/');
+                                                return (
+                                                    <SidebarMenuSubItem key={to}>
+                                                        <SidebarMenuSubButton asChild isActive={isActive}>
+                                                            <NavLink to={to}>{label}</NavLink>
+                                                        </SidebarMenuSubButton>
+                                                    </SidebarMenuSubItem>
+                                                );
+                                            })}
+                                        </SidebarMenuSub>
+                                    </CollapsibleContent>
+                                </Collapsible>
+                            </SidebarMenuItem>
                         </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>

@@ -12,6 +12,19 @@ permissions:
         roles: [ ROLE_ADMIN ]
         description: "Supprimer un fichier de la bibliothèque"
 
+    # --- Catégories ---
+    CATEGORY_VIEW:
+        roles: [ ROLE_ADMIN ]
+        description: "Voir les catégories"
+
+    CATEGORY_CREATE:
+        roles: [ ROLE_ADMIN ]
+        description: "Créer une catégorie"
+
+    CATEGORY_DELETE:
+        roles: [ ROLE_ADMIN ]
+        description: "Supprimer une catégorie"
+
     # --- Articles ---
     ARTICLE_VIEW:
         roles: [ ROLE_ADMIN ]

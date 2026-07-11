@@ -118,7 +118,7 @@ function renderBlock(block) {
     }
 }
 
-export default function BlockRenderer({ content }) {
+export default function BlockRenderer({ content, coverImage = null }) {
     const blocks = content?.blocks ?? [];
 
     if (blocks.length === 0) {
@@ -127,6 +127,15 @@ export default function BlockRenderer({ content }) {
 
     return (
         <div className="text-sm leading-relaxed">
+            {coverImage && (
+                <figure className="mb-8 -mx-6 -mt-5">
+                    <img
+                        src={coverImage}
+                        alt="Couverture"
+                        className="w-full max-h-80 object-cover rounded-t-md"
+                    />
+                </figure>
+            )}
             {blocks.map((block, i) => {
                 const rendered = renderBlock(block);
                 if (!rendered) return null;
