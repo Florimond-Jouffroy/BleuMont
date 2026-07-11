@@ -6,17 +6,21 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import AppSidebar from './AppSidebar';
 
 const pageTitles = {
-    '/dashboard':    'Dashboard',
-    '/users':        'Utilisateurs',
-    '/articles':     'Articles',
-    '/articles/new': 'Nouvel article',
-    '/media':        'Médiathèque',
-    '/categories':   'Catégories',
+    '/dashboard':          'Dashboard',
+    '/users':              'Utilisateurs',
+    '/articles':           'Articles',
+    '/articles/new':       'Nouvel article',
+    '/media':              'Médiathèque',
+    '/categories':         'Catégories',
+    '/products':           'Produits',
+    '/products/new':       'Nouveau produit',
+    '/product-categories': 'Catégories produits',
 };
 
 function getTitle(pathname) {
     if (pageTitles[pathname]) return pageTitles[pathname];
     if (/^\/articles\/\d+\/edit$/.test(pathname)) return "Modifier l'article";
+    if (/^\/products\/\d+\/edit$/.test(pathname)) return 'Modifier le produit';
     return 'Administration';
 }
 

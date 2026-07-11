@@ -22,7 +22,7 @@ final class Version20260703204041 extends CustomMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('DROP TABLE user');
+        $this->addSql('DROP TABLE IF EXISTS user');
     }
 
     public function down(Schema $schema): void

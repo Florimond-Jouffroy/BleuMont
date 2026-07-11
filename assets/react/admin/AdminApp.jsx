@@ -5,6 +5,9 @@ import ArticleEditor from './pages/ArticleEditor';
 import ArticlesList from './pages/ArticlesList';
 import CategoryManager from './pages/CategoryManager';
 import Dashboard from './pages/Dashboard';
+import ProductCategoryManager from './pages/ProductCategoryManager';
+import ProductEditor from './pages/ProductEditor';
+import ProductsList from './pages/ProductsList';
 import MediaLibrary from './pages/MediaLibrary';
 import UsersList from './pages/UsersList';
 
@@ -26,6 +29,10 @@ export default function AdminApp() {
                     <Route path="articles/new" element={<ArticleEditor permissions={permissions} urls={urls} />} />
                     <Route path="articles/:id/edit" element={<ArticleEditor permissions={permissions} urls={urls} />} />
                     <Route path="categories" element={<CategoryManager permissions={permissions} urls={urls} />} />
+                    <Route path="products" element={<ProductsList permissions={permissions} urls={urls} />} />
+                    <Route path="products/new" element={<ProductEditor permissions={permissions} urls={urls} />} />
+                    <Route path="products/:id/edit" element={<ProductEditor permissions={permissions} urls={urls} />} />
+                    <Route path="product-categories" element={<ProductCategoryManager permissions={permissions} urls={urls} />} />
                     <Route path="media" element={<MediaLibrary permissions={permissions} urls={urls} />} />
                 </Route>
             </Routes>
