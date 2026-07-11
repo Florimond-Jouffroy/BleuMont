@@ -139,3 +139,32 @@
     @apply font-sans;
     }
 }
+
+/* ── View Transitions entre pages auth ── */
+@view-transition {
+  navigation: auto;
+}
+
+/* Panneau décoratif : reste fixe, pas d'animation */
+::view-transition-old(auth-panel),
+::view-transition-new(auth-panel) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* Formulaire : fondu + légère translation verticale */
+::view-transition-old(auth-form) {
+  animation: 180ms ease-in both auth-slide-out;
+}
+
+::view-transition-new(auth-form) {
+  animation: 280ms ease-out both auth-slide-in;
+}
+
+@keyframes auth-slide-out {
+  to { opacity: 0; transform: translateY(-8px); }
+}
+
+@keyframes auth-slide-in {
+  from { opacity: 0; transform: translateY(8px); }
+}

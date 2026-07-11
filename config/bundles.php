@@ -15,4 +15,5 @@ return [
     Florimond\MultiDbMigrationsBundle\FlorimondMultiDbMigrationsBundle::class => ['all' => true],
     Symfony\Bundle\SecurityBundle\SecurityBundle::class => ['all' => true],
     Florimond\CoreBundle\FlorimondCoreBundle::class => ['all' => true],
+    DAMA\DoctrineTestBundle\DAMADoctrineTestBundle::class => ['test' => true],
 ];

@@ -1,0 +1,25 @@
+permissions:
+    # --- Utilisateurs ---
+    USER_VIEW:
+        roles: [ ROLE_ADMIN ]
+        description: "Voir la liste des utilisateurs"
+
+    USER_RESET_PASSWORD:
+        roles: [ ROLE_ADMIN ]
+        description: "Réinitialiser le mot de passe d'un utilisateur"
+
+    USER_VERIFY:
+        roles: [ ROLE_ADMIN ]
+        description: "Vérifier le compte d'un utilisateur"
+
+    USER_RESEND_VERIFICATION:
+        roles: [ ROLE_ADMIN ]
+        description: "Renvoyer l'e-mail de vérification"
+
+    USER_EDIT_ROLES:
+        roles: [ ROLE_ADMIN ]
+        description: "Modifier les rôles d'un utilisateur"
+
+    USER_DELETE:
+        roles: [ ROLE_ADMIN ]
+        description: "Supprimer un utilisateur"
