@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api, ApiError } from '../../utils/api';
 import BlockRenderer from '../../admin/components/BlockRenderer';
+import { useCart } from '../context/CartContext';
 
 function formatPrice(cents) {
     return (cents / 100).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
@@ -10,12 +11,15 @@ function formatPrice(cents) {
 export default function Produit({ urls }) {
     const { slug }    = useParams();
     const navigate    = useNavigate();
+    const { addItem } = useCart();
 
     const [product, setProduct]             = useState(null);
     const [loading, setLoading]             = useState(true);
     const [notFound, setNotFound]           = useState(false);
     const [selectedImage, setSelectedImage] = useState(0);
     const [selectedVariantId, setSelectedVariantId] = useState(null);
+    const [addLoading, setAddLoading]       = useState(false);
+    const [addSuccess, setAddSuccess]       = useState(false);
 
     useEffect(() => {
         setLoading(true);
@@ -180,10 +184,28 @@ export default function Produit({ urls }) {
 
                     {/* CTA */}
                     <button
-                        disabled={!inStock}
+                        disabled={!inStock || addLoading}
+                        onClick={async () => {
+                            if (!inStock || addLoading) return;
+                            setAddLoading(true);
+                            setAddSuccess(false);
+                            try {
+                                await addItem(product.id, selectedVariantId);
+                                setAddSuccess(true);
+                                setTimeout(() => setAddSuccess(false), 2500);
+                            } finally {
+                                setAddLoading(false);
+                            }
+                        }}
                         className="w-full rounded-xl bg-primary px-6 py-3.5 text-base font-medium text-primary-foreground hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
                     >
-                        {inStock ? 'Ajouter au panier' : 'Rupture de stock'}
+                        {!inStock
+                            ? 'Rupture de stock'
+                            : addLoading
+                                ? 'Ajout en cours…'
+                                : addSuccess
+                                    ? '✓ Ajouté au panier'
+                                    : 'Ajouter au panier'}
                     </button>
 
                     {/* Description */}

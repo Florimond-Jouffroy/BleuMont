@@ -43,8 +43,21 @@
                 </a>
             </nav>
 
-            {# ── Actions utilisateur (poussées à droite) ── #}
-            <div class="flex items-center gap-2 ml-auto">
+            {# ── Icône panier ── #}
+            <a href="{{ path('shop_catchall', {path: 'panier'}) }}"
+               class="relative ml-auto flex items-center justify-center rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+               title="Mon panier">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007Z" />
+                </svg>
+                <span id="navbar-cart-count"
+                      class="absolute -top-0.5 -right-0.5 hidden h-4 min-w-4 items-center justify-center rounded-full bg-primary px-0.5 text-[10px] font-bold text-primary-foreground">
+                    0
+                </span>
+            </a>
+
+            {# ── Actions utilisateur ── #}
+            <div class="flex items-center gap-2">
                 {% if app.user %}
                     {# Mon compte #}
                     <a href="{{ path('account_index') }}"
