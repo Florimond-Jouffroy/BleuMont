@@ -12,6 +12,7 @@ import ProductEditor from './pages/ProductEditor';
 import ProductsList from './pages/ProductsList';
 import MediaLibrary from './pages/MediaLibrary';
 import UsersList from './pages/UsersList';
+import ShippingMethods from './pages/ShippingMethods';
 
 const root        = document.getElementById('admin-root');
 const userEmail   = root?.dataset.userEmail ?? '';
@@ -38,6 +39,7 @@ export default function AdminApp() {
                     <Route path="produits/:id/modifier" element={<ProductEditor permissions={permissions} urls={urls} />} />
                     <Route path="categories-produits" element={<ProductCategoryManager permissions={permissions} urls={urls} />} />
                     <Route path="medias" element={<MediaLibrary permissions={permissions} urls={urls} />} />
+                    <Route path="livraison" element={<ShippingMethods urls={urls} />} />
                 </Route>
             </Routes>
         </BrowserRouter>

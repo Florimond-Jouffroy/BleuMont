@@ -5,6 +5,7 @@ import CartDrawer from './components/CartDrawer';
 import Catalogue from './pages/Catalogue';
 import Produit from './pages/Produit';
 import Panier from './pages/Panier';
+import Checkout from './pages/Checkout';
 
 const root = document.getElementById('shop-root');
 const urls = JSON.parse(root?.dataset.urls ?? '{}');
@@ -18,6 +19,7 @@ export default function ShopApp() {
                     <Route index element={<Catalogue urls={urls} />} />
                     <Route path="produit/:slug" element={<Produit urls={urls} />} />
                     <Route path="panier" element={<Panier />} />
+                    <Route path="commander" element={<Checkout urls={urls} />} />
                 </Routes>
             </CartProvider>
         </BrowserRouter>

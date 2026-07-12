@@ -11,6 +11,7 @@ use App\Security\Voter\MediaVoter;
 use App\Security\Voter\ProductCategoryVoter;
 use App\Security\Voter\ProductVoter;
 use App\Security\Voter\UserVoter;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -38,6 +39,7 @@ class AdminController extends AbstractController
                 'products'          => $this->generateUrl('api_admin_products_list'),
                 'productCategories' => $this->generateUrl('api_admin_product_categories_list'),
                 'orders'            => $this->generateUrl('api_admin_orders_list'),
+                'shippingMethods'   => $this->generateUrl('api_admin_shipping_list'),
             ],
             'permissions' => [
                 'canViewUsers'          => $this->isGranted(UserVoter::VIEW),

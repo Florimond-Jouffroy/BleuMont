@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShoppingBag, Trash2, ArrowLeft, Lock } from 'lucide-react';
+import { ShoppingBag, Trash2, ArrowLeft } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 
 function formatPrice(cents) {
@@ -96,18 +96,12 @@ export default function Panier() {
                         </div>
                     </dl>
 
-                    {/* Checkout placeholder */}
                     <button
-                        disabled
-                        className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-sm font-medium text-primary-foreground disabled:cursor-not-allowed disabled:opacity-60 transition-colors"
-                        title="Bientôt disponible"
+                        onClick={() => navigate('/commander')}
+                        className="w-full rounded-xl bg-primary py-3.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
                     >
-                        <Lock className="h-4 w-4" />
-                        Passer commande
+                        Passer commande →
                     </button>
-                    <p className="text-center text-xs text-muted-foreground">
-                        Le paiement en ligne sera bientôt disponible.
-                    </p>
                 </div>
             </div>
         </div>
