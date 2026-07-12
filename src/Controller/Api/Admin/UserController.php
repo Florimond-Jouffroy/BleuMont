@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/admin/users')]
+#[Route('/api/admin/utilisateurs')]
 class UserController extends AbstractController
 {
     /** Rôles attribuables depuis l'admin (ROLE_USER est implicite). */
@@ -48,7 +48,7 @@ class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/reset-password', name: 'api_admin_users_reset_password', methods: ['POST'])]
+    #[Route('/{id}/reinitialiser-mot-de-passe', name: 'api_admin_users_reset_password', methods: ['POST'])]
     public function resetPassword(User $user): JsonResponse
     {
         $this->denyAccessUnlessGranted(UserVoter::RESET_PASSWORD, $user);
@@ -67,7 +67,7 @@ class UserController extends AbstractController
         return $this->json(['message' => sprintf('Un code de réinitialisation a été envoyé à %s.', $user->getEmail())]);
     }
 
-    #[Route('/{id}/verify', name: 'api_admin_users_verify', methods: ['POST'])]
+    #[Route('/{id}/verifier', name: 'api_admin_users_verify', methods: ['POST'])]
     public function verify(User $user): JsonResponse
     {
         $this->denyAccessUnlessGranted(UserVoter::VERIFY, $user);
@@ -89,7 +89,7 @@ class UserController extends AbstractController
         return $this->json($this->serializeUser($user));
     }
 
-    #[Route('/{id}/resend-verification', name: 'api_admin_users_resend_verification', methods: ['POST'])]
+    #[Route('/{id}/renvoyer-verification', name: 'api_admin_users_resend_verification', methods: ['POST'])]
     public function resendVerification(User $user): JsonResponse
     {
         $this->denyAccessUnlessGranted(UserVoter::RESEND_VERIFICATION, $user);

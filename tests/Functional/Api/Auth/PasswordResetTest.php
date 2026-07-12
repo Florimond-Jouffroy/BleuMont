@@ -11,8 +11,8 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class PasswordResetTest extends AbstractApiTestCase
 {
-    private const URL_REQUEST = '/api/auth/reset-password/request';
-    private const URL_CONFIRM = '/api/auth/reset-password/confirm';
+    private const URL_REQUEST = '/api/auth/reinitialisation-mot-de-passe/demande';
+    private const URL_CONFIRM = '/api/auth/reinitialisation-mot-de-passe/confirmation';
 
     // ── Demande de réinitialisation ───────────────────────────────────────────
 

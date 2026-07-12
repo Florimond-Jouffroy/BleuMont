@@ -14,7 +14,7 @@ class OrderTest extends AbstractApiTestCase
 
     public function testListRequiresAuthentication(): void
     {
-        $this->client->request('GET', '/api/admin/orders');
+        $this->client->request('GET', '/api/admin/commandes');
 
         self::assertResponseRedirects('/connexion');
     }
@@ -22,7 +22,7 @@ class OrderTest extends AbstractApiTestCase
     public function testListForbiddenForNonAdmin(): void
     {
         $this->loginAs($this->createUser('user@example.com'));
-        $this->client->request('GET', '/api/admin/orders');
+        $this->client->request('GET', '/api/admin/commandes');
 
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
@@ -33,7 +33,7 @@ class OrderTest extends AbstractApiTestCase
         $order    = $this->createOrder($customer);
         $this->loginAs($this->createUser('user@example.com'));
 
-        $this->postJson('/api/admin/orders/'.$order->getId().'/transition', ['status' => 'confirmed']);
+        $this->postJson('/api/admin/commandes/'.$order->getId().'/transition', ['status' => 'confirmed']);
 
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
@@ -44,7 +44,7 @@ class OrderTest extends AbstractApiTestCase
         $order    = $this->createOrder($customer);
         $this->loginAs($this->createUser('user@example.com'));
 
-        $this->client->request('DELETE', '/api/admin/orders/'.$order->getId());
+        $this->client->request('DELETE', '/api/admin/commandes/'.$order->getId());
 
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
@@ -58,7 +58,7 @@ class OrderTest extends AbstractApiTestCase
         $this->createOrder($customer, 'ORD-20240101-00001');
         $this->createOrder($customer, 'ORD-20240101-00002');
 
-        $this->client->request('GET', '/api/admin/orders');
+        $this->client->request('GET', '/api/admin/commandes');
 
         self::assertResponseIsSuccessful();
         $data = $this->getJson();
@@ -77,7 +77,7 @@ class OrderTest extends AbstractApiTestCase
         $this->createOrder($customer, 'ORD-20240101-00001', Order::STATUS_PENDING);
         $this->createOrder($customer, 'ORD-20240101-00002', Order::STATUS_CONFIRMED);
 
-        $this->client->request('GET', '/api/admin/orders', ['status' => 'confirmed']);
+        $this->client->request('GET', '/api/admin/commandes', ['status' => 'confirmed']);
 
         self::assertResponseIsSuccessful();
         $data = $this->getJson();
@@ -92,7 +92,7 @@ class OrderTest extends AbstractApiTestCase
         $this->createOrder($customer, 'ORD-20240101-00001');
         $this->createOrder($customer, 'ORD-20240101-00002');
 
-        $this->client->request('GET', '/api/admin/orders', ['q' => '00001']);
+        $this->client->request('GET', '/api/admin/commandes', ['q' => '00001']);
 
         self::assertResponseIsSuccessful();
         $data = $this->getJson();
@@ -108,7 +108,7 @@ class OrderTest extends AbstractApiTestCase
         $this->createOrder($alice, 'ORD-20240101-00001');
         $this->createOrder($bob, 'ORD-20240101-00002');
 
-        $this->client->request('GET', '/api/admin/orders', ['q' => 'Alice']);
+        $this->client->request('GET', '/api/admin/commandes', ['q' => 'Alice']);
 
         self::assertResponseIsSuccessful();
         $data = $this->getJson();
@@ -124,7 +124,7 @@ class OrderTest extends AbstractApiTestCase
         $customer = $this->createCustomer('jean@example.com', 'Jean', 'Dupont');
         $order    = $this->createOrder($customer);
 
-        $this->client->request('GET', '/api/admin/orders/'.$order->getId());
+        $this->client->request('GET', '/api/admin/commandes/'.$order->getId());
 
         self::assertResponseIsSuccessful();
         $data = $this->getJson();
@@ -142,7 +142,7 @@ class OrderTest extends AbstractApiTestCase
         $customer = $this->createCustomer();
         $order    = $this->createOrder($customer, 'ORD-20240101-00001', Order::STATUS_PENDING);
 
-        $this->client->request('GET', '/api/admin/orders/'.$order->getId());
+        $this->client->request('GET', '/api/admin/commandes/'.$order->getId());
 
         self::assertResponseIsSuccessful();
         $data = $this->getJson();
@@ -154,7 +154,7 @@ class OrderTest extends AbstractApiTestCase
     {
         $this->loginAs($this->createAdmin());
 
-        $this->client->request('GET', '/api/admin/orders/99999');
+        $this->client->request('GET', '/api/admin/commandes/99999');
 
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
@@ -167,7 +167,7 @@ class OrderTest extends AbstractApiTestCase
         $customer = $this->createCustomer();
         $order    = $this->createOrder($customer, 'ORD-20240101-00001', Order::STATUS_PENDING);
 
-        $this->postJson('/api/admin/orders/'.$order->getId().'/transition', [
+        $this->postJson('/api/admin/commandes/'.$order->getId().'/transition', [
             'status'  => 'confirmed',
             'comment' => 'Paiement reçu.',
         ]);
@@ -184,7 +184,7 @@ class OrderTest extends AbstractApiTestCase
         $customer = $this->createCustomer();
         $order    = $this->createOrder($customer);
 
-        $this->postJson('/api/admin/orders/'.$order->getId().'/transition', ['status' => 'foobar']);
+        $this->postJson('/api/admin/commandes/'.$order->getId().'/transition', ['status' => 'foobar']);
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
@@ -196,7 +196,7 @@ class OrderTest extends AbstractApiTestCase
         // pending → delivered n'est pas dans TRANSITIONS[pending]
         $order = $this->createOrder($customer, 'ORD-20240101-00001', Order::STATUS_PENDING);
 
-        $this->postJson('/api/admin/orders/'.$order->getId().'/transition', ['status' => 'delivered']);
+        $this->postJson('/api/admin/commandes/'.$order->getId().'/transition', ['status' => 'delivered']);
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
@@ -207,7 +207,7 @@ class OrderTest extends AbstractApiTestCase
         $customer = $this->createCustomer();
         $order    = $this->createOrder($customer, 'ORD-20240101-00001', Order::STATUS_CANCELLED);
 
-        $this->client->request('GET', '/api/admin/orders/'.$order->getId());
+        $this->client->request('GET', '/api/admin/commandes/'.$order->getId());
 
         self::assertResponseIsSuccessful();
         $data = $this->getJson();
@@ -220,7 +220,7 @@ class OrderTest extends AbstractApiTestCase
         $customer = $this->createCustomer();
         $order    = $this->createOrder($customer, 'ORD-20240101-00001', Order::STATUS_REFUNDED);
 
-        $this->client->request('GET', '/api/admin/orders/'.$order->getId());
+        $this->client->request('GET', '/api/admin/commandes/'.$order->getId());
 
         self::assertResponseIsSuccessful();
         $data = $this->getJson();
@@ -235,7 +235,7 @@ class OrderTest extends AbstractApiTestCase
         $customer = $this->createCustomer();
         $order    = $this->createOrder($customer);
 
-        $this->patchJson('/api/admin/orders/'.$order->getId().'/note', [
+        $this->patchJson('/api/admin/commandes/'.$order->getId().'/note', [
             'internalNote' => 'À traiter en priorité.',
         ]);
 
@@ -250,7 +250,7 @@ class OrderTest extends AbstractApiTestCase
         $customer = $this->createCustomer();
         $order    = $this->createOrder($customer);
 
-        $this->patchJson('/api/admin/orders/'.$order->getId().'/note', ['internalNote' => '']);
+        $this->patchJson('/api/admin/commandes/'.$order->getId().'/note', ['internalNote' => '']);
 
         self::assertResponseIsSuccessful();
         $data = $this->getJson();
@@ -266,7 +266,7 @@ class OrderTest extends AbstractApiTestCase
         $order    = $this->createOrder($customer);
         $id       = $order->getId();
 
-        $this->client->request('DELETE', '/api/admin/orders/'.$id);
+        $this->client->request('DELETE', '/api/admin/commandes/'.$id);
 
         self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
         self::assertNull($this->em->getRepository(Order::class)->find($id));
@@ -276,7 +276,7 @@ class OrderTest extends AbstractApiTestCase
     {
         $this->loginAs($this->createAdmin());
 
-        $this->client->request('DELETE', '/api/admin/orders/99999');
+        $this->client->request('DELETE', '/api/admin/commandes/99999');
 
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }

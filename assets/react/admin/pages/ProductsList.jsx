@@ -54,7 +54,7 @@ export default function ProductsList({ permissions = {}, urls = {} }) {
     const [deleting, setDeleting]     = useState(false);
 
     useEffect(() => {
-        api.get(urls.productCategories ?? '/api/admin/product-categories')
+        api.get(urls.productCategories ?? '/api/admin/categories-produits')
             .then(setCategories)
             .catch(() => {});
     }, [urls.productCategories]);
@@ -76,7 +76,7 @@ export default function ProductsList({ permissions = {}, urls = {} }) {
             if (statusFilter) params.status = statusFilter;
             if (categoryFilter) params.categoryId = categoryFilter;
 
-            const data = await api.get(urls.products ?? '/api/admin/products', params);
+            const data = await api.get(urls.products ?? '/api/admin/produits', params);
             if (data.items.length === 0 && data.total > 0 && pagination.pageIndex > 0) {
                 setPagination((p) => ({ ...p, pageIndex: 0 }));
                 return;
@@ -97,8 +97,8 @@ export default function ProductsList({ permissions = {}, urls = {} }) {
     const handleTogglePublish = useCallback(async (product) => {
         setFeedback(null);
         const endpoint = product.status === 'published'
-            ? `/api/admin/products/${product.id}/unpublish`
-            : `/api/admin/products/${product.id}/publish`;
+            ? `/api/admin/produits/${product.id}/depublier`
+            : `/api/admin/produits/${product.id}/publier`;
         try {
             await api.post(endpoint);
             fetchProducts();
@@ -112,7 +112,7 @@ export default function ProductsList({ permissions = {}, urls = {} }) {
         setDeleting(true);
         setFeedback(null);
         try {
-            await api.delete(`/api/admin/products/${deleteTarget.id}`);
+            await api.delete(`/api/admin/produits/${deleteTarget.id}`);
             setFeedback({ type: 'success', message: `Le produit « ${deleteTarget.name} » a été supprimé.` });
             setDeleteTarget(null);
             fetchProducts();
@@ -204,7 +204,7 @@ export default function ProductsList({ permissions = {}, urls = {} }) {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-56">
                             {permissions.canEditProduct && (
-                                <DropdownMenuItem onClick={() => navigate(`/products/${product.id}/edit`)}>
+                                <DropdownMenuItem onClick={() => navigate(`/produits/${product.id}/modifier`)}>
                                     <Pencil className="size-4" />
                                     Modifier
                                 </DropdownMenuItem>
@@ -238,7 +238,7 @@ export default function ProductsList({ permissions = {}, urls = {} }) {
                     <p className="text-muted-foreground">Gestion du catalogue produits.</p>
                 </div>
                 {permissions.canCreateProduct && (
-                    <Button onClick={() => navigate('/products/new')}>
+                    <Button onClick={() => navigate('/produits/nouveau')}>
                         <Plus className="size-4" />
                         Nouveau produit
                     </Button>

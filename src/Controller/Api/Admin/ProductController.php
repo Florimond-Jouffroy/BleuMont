@@ -25,7 +25,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * - serializeList() : données compactes pour le tableau (cover, stock, statut)
  * - serializeFull() : données complètes pour l'éditeur produit (images, variantes, description)
  */
-#[Route('/api/admin/products')]
+#[Route('/api/admin/produits')]
 class ProductController extends AbstractController
 {
     public function __construct(private readonly ProductManager $manager)
@@ -133,7 +133,7 @@ class ProductController extends AbstractController
         return $this->json(null, Response::HTTP_NO_CONTENT);
     }
 
-    #[Route('/{id}/publish', name: 'api_admin_products_publish', methods: ['POST'])]
+    #[Route('/{id}/publier', name: 'api_admin_products_publish', methods: ['POST'])]
     public function publish(Product $product): JsonResponse
     {
         $this->denyAccessUnlessGranted(ProductVoter::PUBLISH, $product);
@@ -149,7 +149,7 @@ class ProductController extends AbstractController
         return $this->json($this->serializeList($product));
     }
 
-    #[Route('/{id}/unpublish', name: 'api_admin_products_unpublish', methods: ['POST'])]
+    #[Route('/{id}/depublier', name: 'api_admin_products_unpublish', methods: ['POST'])]
     public function unpublish(Product $product): JsonResponse
     {
         $this->denyAccessUnlessGranted(ProductVoter::PUBLISH, $product);

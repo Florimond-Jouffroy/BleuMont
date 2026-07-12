@@ -16,7 +16,7 @@ class EmailVerificationTest extends AbstractApiTestCase
         $user = $this->createUser('nonverifie@example.com', 'password123', verified: false);
         $token = $user->getVerificationToken();
 
-        $this->client->request('GET', '/verify-email', ['token' => $token]);
+        $this->client->request('GET', '/verification-email', ['token' => $token]);
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h1', 'vérifiée');
@@ -28,7 +28,7 @@ class EmailVerificationTest extends AbstractApiTestCase
 
     public function testVerifyEmailWithInvalidToken(): void
     {
-        $this->client->request('GET', '/verify-email', ['token' => 'token_invalide_xyz']);
+        $this->client->request('GET', '/verification-email', ['token' => 'token_invalide_xyz']);
 
         self::assertResponseIsSuccessful();
         // La page s'affiche mais sans succès
@@ -43,7 +43,7 @@ class EmailVerificationTest extends AbstractApiTestCase
         $user->setVerificationToken('token_deja_verifie');
         $this->em->flush();
 
-        $this->client->request('GET', '/verify-email', ['token' => 'token_deja_verifie']);
+        $this->client->request('GET', '/verification-email', ['token' => 'token_deja_verifie']);
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h1', 'invalide');
@@ -51,7 +51,7 @@ class EmailVerificationTest extends AbstractApiTestCase
 
     public function testVerifyEmailWithMissingToken(): void
     {
-        $this->client->request('GET', '/verify-email');
+        $this->client->request('GET', '/verification-email');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h1', 'invalide');
@@ -61,7 +61,7 @@ class EmailVerificationTest extends AbstractApiTestCase
 
     public function testResendVerificationReturnsNeutralResponse(): void
     {
-        $this->postJson('/api/auth/verify-email/resend', [
+        $this->postJson('/api/auth/verification-email/renvoyer', [
             'email' => 'quelconque@example.com',
         ]);
 
@@ -72,7 +72,7 @@ class EmailVerificationTest extends AbstractApiTestCase
     {
         $this->createUser('nonverifie@example.com', 'password123', verified: false);
 
-        $this->postJson('/api/auth/verify-email/resend', [
+        $this->postJson('/api/auth/verification-email/renvoyer', [
             'email' => 'nonverifie@example.com',
         ]);
 
@@ -81,7 +81,7 @@ class EmailVerificationTest extends AbstractApiTestCase
 
     public function testResendVerificationWithInvalidEmail(): void
     {
-        $this->postJson('/api/auth/verify-email/resend', [
+        $this->postJson('/api/auth/verification-email/renvoyer', [
             'email' => 'pas-un-email',
         ]);
 

@@ -28,7 +28,7 @@ export default function ProductCategoryManager({ permissions = {}, urls = {} }) 
 
     const fetchCategories = async () => {
         try {
-            const data = await api.get(urls.productCategories ?? '/api/admin/product-categories');
+            const data = await api.get(urls.productCategories ?? '/api/admin/categories-produits');
             setCategories(data);
         } catch (err) {
             setFeedback({ type: 'error', message: getErrorMessage(err) });
@@ -46,7 +46,7 @@ export default function ProductCategoryManager({ permissions = {}, urls = {} }) 
         setCreating(true);
         setFeedback(null);
         try {
-            await api.post(urls.productCategories ?? '/api/admin/product-categories', { name });
+            await api.post(urls.productCategories ?? '/api/admin/categories-produits', { name });
             setNewName('');
             await fetchCategories();
             setFeedback({ type: 'success', message: `Catégorie « ${name} » créée.` });
@@ -64,7 +64,7 @@ export default function ProductCategoryManager({ permissions = {}, urls = {} }) 
         setSaving(true);
         setFeedback(null);
         try {
-            await api.put(`/api/admin/product-categories/${editTarget.id}`, { name });
+            await api.put(`/api/admin/categories-produits/${editTarget.id}`, { name });
             setEditTarget(null);
             await fetchCategories();
             setFeedback({ type: 'success', message: `Catégorie renommée en « ${name} ».` });
@@ -80,7 +80,7 @@ export default function ProductCategoryManager({ permissions = {}, urls = {} }) 
         setDeleting(true);
         setFeedback(null);
         try {
-            await api.delete(`/api/admin/product-categories/${deleteTarget.id}`);
+            await api.delete(`/api/admin/categories-produits/${deleteTarget.id}`);
             setFeedback({ type: 'success', message: `Catégorie « ${deleteTarget.name} » supprimée.` });
             setDeleteTarget(null);
             await fetchCategories();

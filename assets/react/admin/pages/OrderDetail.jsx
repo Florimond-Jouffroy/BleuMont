@@ -76,7 +76,7 @@ export default function OrderDetail({ permissions = {} }) {
 
     const fetchOrder = async () => {
         try {
-            const data = await api.get(`/api/admin/orders/${id}`);
+            const data = await api.get(`/api/admin/commandes/${id}`);
             setOrder(data);
             setInternalNote(data.internalNote ?? '');
         } catch {
@@ -93,7 +93,7 @@ export default function OrderDetail({ permissions = {} }) {
         setTransitioning(true);
         setFeedback(null);
         try {
-            const data = await api.post(`/api/admin/orders/${id}/transition`, {
+            const data = await api.post(`/api/admin/commandes/${id}/transition`, {
                 status: transitionTarget,
                 comment: transitionComment.trim() || null,
             });
@@ -112,7 +112,7 @@ export default function OrderDetail({ permissions = {} }) {
         setSavingNote(true);
         setFeedback(null);
         try {
-            const data = await api.patch(`/api/admin/orders/${id}/note`, { internalNote });
+            const data = await api.patch(`/api/admin/commandes/${id}/note`, { internalNote });
             setOrder(data);
             setFeedback({ type: 'success', message: 'Note enregistrée.' });
         } catch (err) {
@@ -142,7 +142,7 @@ export default function OrderDetail({ permissions = {} }) {
             {/* En-tête */}
             <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                    <Button variant="ghost" size="icon" onClick={() => navigate('/orders')}>
+                    <Button variant="ghost" size="icon" onClick={() => navigate('/commandes')}>
                         <ArrowLeft className="size-4" />
                     </Button>
                     <div>

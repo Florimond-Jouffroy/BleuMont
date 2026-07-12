@@ -29,9 +29,9 @@ import {
 } from '@/components/ui/sidebar';
 
 const navItems = [
-    { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { to: '/users',     icon: Users,           label: 'Utilisateurs' },
-    { to: '/media',     icon: Image,           label: 'Médiathèque' },
+    { to: '/dashboard',    icon: LayoutDashboard, label: 'Dashboard' },
+    { to: '/utilisateurs', icon: Users,           label: 'Utilisateurs' },
+    { to: '/medias',       icon: Image,           label: 'Médiathèque' },
 ];
 
 const blogItems = [
@@ -40,9 +40,9 @@ const blogItems = [
 ];
 
 const shopItems = [
-    { to: '/orders',             icon: ShoppingCart, label: 'Commandes' },
-    { to: '/products',           icon: Package,      label: 'Produits' },
-    { to: '/product-categories', icon: Tag,          label: 'Catégories' },
+    { to: '/commandes',          icon: ShoppingCart, label: 'Commandes' },
+    { to: '/produits',           icon: Package,      label: 'Produits' },
+    { to: '/categories-produits', icon: Tag,         label: 'Catégories' },
 ];
 
 function getInitials(email) {
@@ -103,7 +103,7 @@ function NavItem({ to, icon: Icon, label }) {
 export default function AppSidebar({ userEmail = '', logoutUrl = '/deconnexion' }) {
     const { pathname } = useLocation();
     const isBlogActive = pathname.startsWith('/articles') || pathname.startsWith('/categories');
-    const isShopActive = pathname.startsWith('/orders') || pathname.startsWith('/products') || pathname.startsWith('/product-categories');
+    const isShopActive = pathname.startsWith('/commandes') || pathname.startsWith('/produits') || pathname.startsWith('/categories-produits');
 
     return (
         <Sidebar collapsible="icon">

@@ -14,7 +14,7 @@ class ProductTest extends AbstractApiTestCase
 
     public function testListRequiresAuthentication(): void
     {
-        $this->client->request('GET', '/api/admin/products');
+        $this->client->request('GET', '/api/admin/produits');
 
         self::assertResponseRedirects('/connexion');
     }
@@ -22,7 +22,7 @@ class ProductTest extends AbstractApiTestCase
     public function testListForbiddenForNonAdmin(): void
     {
         $this->loginAs($this->createUser('user@example.com'));
-        $this->client->request('GET', '/api/admin/products');
+        $this->client->request('GET', '/api/admin/produits');
 
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
@@ -30,7 +30,7 @@ class ProductTest extends AbstractApiTestCase
     public function testCreateForbiddenForNonAdmin(): void
     {
         $this->loginAs($this->createUser('user@example.com'));
-        $this->postJson('/api/admin/products', ['name' => 'Test']);
+        $this->postJson('/api/admin/produits', ['name' => 'Test']);
 
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
@@ -39,7 +39,7 @@ class ProductTest extends AbstractApiTestCase
     {
         $product = $this->createProduct();
         $this->loginAs($this->createUser('user@example.com'));
-        $this->client->request('DELETE', '/api/admin/products/'.$product->getId());
+        $this->client->request('DELETE', '/api/admin/produits/'.$product->getId());
 
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
@@ -52,7 +52,7 @@ class ProductTest extends AbstractApiTestCase
         $this->createProduct('T-shirt', 't-shirt');
         $this->createProduct('Pantalon', 'pantalon');
 
-        $this->client->request('GET', '/api/admin/products');
+        $this->client->request('GET', '/api/admin/produits');
 
         self::assertResponseIsSuccessful();
         $data = $this->getJson();
@@ -70,7 +70,7 @@ class ProductTest extends AbstractApiTestCase
         $this->createProduct('T-shirt', 't-shirt', Product::STATUS_DRAFT);
         $this->createProduct('Pantalon', 'pantalon', Product::STATUS_PUBLISHED);
 
-        $this->client->request('GET', '/api/admin/products', ['status' => 'published']);
+        $this->client->request('GET', '/api/admin/produits', ['status' => 'published']);
 
         self::assertResponseIsSuccessful();
         $data = $this->getJson();
@@ -84,7 +84,7 @@ class ProductTest extends AbstractApiTestCase
         $this->createProduct('T-shirt blanc', 't-shirt-blanc');
         $this->createProduct('Pantalon noir', 'pantalon-noir');
 
-        $this->client->request('GET', '/api/admin/products', ['q' => 'shirt']);
+        $this->client->request('GET', '/api/admin/produits', ['q' => 'shirt']);
 
         self::assertResponseIsSuccessful();
         $data = $this->getJson();
@@ -98,7 +98,7 @@ class ProductTest extends AbstractApiTestCase
     {
         $this->loginAs($this->createAdmin());
 
-        $this->postJson('/api/admin/products', ['name' => 'Nouveau produit']);
+        $this->postJson('/api/admin/produits', ['name' => 'Nouveau produit']);
 
         self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
         $data = $this->getJson();
@@ -112,7 +112,7 @@ class ProductTest extends AbstractApiTestCase
     {
         $this->loginAs($this->createAdmin());
 
-        $this->postJson('/api/admin/products', ['name' => '']);
+        $this->postJson('/api/admin/produits', ['name' => '']);
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
@@ -124,7 +124,7 @@ class ProductTest extends AbstractApiTestCase
         $this->loginAs($this->createAdmin());
         $product = $this->createProduct('T-shirt', 't-shirt');
 
-        $this->client->request('GET', '/api/admin/products/'.$product->getId());
+        $this->client->request('GET', '/api/admin/produits/'.$product->getId());
 
         self::assertResponseIsSuccessful();
         $data = $this->getJson();
@@ -138,7 +138,7 @@ class ProductTest extends AbstractApiTestCase
     {
         $this->loginAs($this->createAdmin());
 
-        $this->client->request('GET', '/api/admin/products/99999');
+        $this->client->request('GET', '/api/admin/produits/99999');
 
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
@@ -150,7 +150,7 @@ class ProductTest extends AbstractApiTestCase
         $this->loginAs($this->createAdmin());
         $product = $this->createProduct('T-shirt', 't-shirt');
 
-        $this->putJson('/api/admin/products/'.$product->getId(), [
+        $this->putJson('/api/admin/produits/'.$product->getId(), [
             'name'  => 'T-shirt mis à jour',
             'price' => 2999,
             'stock' => 10,
@@ -168,7 +168,7 @@ class ProductTest extends AbstractApiTestCase
         $this->loginAs($this->createAdmin());
         $product = $this->createProduct('T-shirt', 't-shirt');
 
-        $this->putJson('/api/admin/products/'.$product->getId(), ['name' => '']);
+        $this->putJson('/api/admin/produits/'.$product->getId(), ['name' => '']);
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
@@ -180,7 +180,7 @@ class ProductTest extends AbstractApiTestCase
         $this->loginAs($this->createAdmin());
         $product = $this->createProduct('T-shirt', 't-shirt', Product::STATUS_DRAFT);
 
-        $this->postJson('/api/admin/products/'.$product->getId().'/publish', []);
+        $this->postJson('/api/admin/produits/'.$product->getId().'/publish', []);
 
         self::assertResponseIsSuccessful();
         $data = $this->getJson();
@@ -192,7 +192,7 @@ class ProductTest extends AbstractApiTestCase
         $this->loginAs($this->createAdmin());
         $product = $this->createProduct('T-shirt', 't-shirt', Product::STATUS_PUBLISHED);
 
-        $this->postJson('/api/admin/products/'.$product->getId().'/publish', []);
+        $this->postJson('/api/admin/produits/'.$product->getId().'/publish', []);
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
@@ -202,7 +202,7 @@ class ProductTest extends AbstractApiTestCase
         $this->loginAs($this->createAdmin());
         $product = $this->createProduct('T-shirt', 't-shirt', Product::STATUS_PUBLISHED);
 
-        $this->postJson('/api/admin/products/'.$product->getId().'/unpublish', []);
+        $this->postJson('/api/admin/produits/'.$product->getId().'/unpublish', []);
 
         self::assertResponseIsSuccessful();
         $data = $this->getJson();
@@ -214,7 +214,7 @@ class ProductTest extends AbstractApiTestCase
         $this->loginAs($this->createAdmin());
         $product = $this->createProduct('T-shirt', 't-shirt', Product::STATUS_DRAFT);
 
-        $this->postJson('/api/admin/products/'.$product->getId().'/unpublish', []);
+        $this->postJson('/api/admin/produits/'.$product->getId().'/unpublish', []);
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
@@ -227,7 +227,7 @@ class ProductTest extends AbstractApiTestCase
         $product = $this->createProduct('T-shirt', 't-shirt');
         $id      = $product->getId();
 
-        $this->client->request('DELETE', '/api/admin/products/'.$id);
+        $this->client->request('DELETE', '/api/admin/produits/'.$id);
 
         self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
         self::assertNull($this->em->getRepository(Product::class)->find($id));
@@ -237,7 +237,7 @@ class ProductTest extends AbstractApiTestCase
     {
         $this->loginAs($this->createAdmin());
 
-        $this->client->request('DELETE', '/api/admin/products/99999');
+        $this->client->request('DELETE', '/api/admin/produits/99999');
 
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }

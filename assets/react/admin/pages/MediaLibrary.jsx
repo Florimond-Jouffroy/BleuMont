@@ -51,7 +51,7 @@ export default function MediaLibrary({ permissions = {}, urls = {} }) {
     const fetchMedia = useCallback(async () => {
         setLoading(true);
         try {
-            const data = await api.get(urls.media ?? '/api/admin/media', {
+            const data = await api.get(urls.media ?? '/api/admin/medias', {
                 q: query,
                 page,
                 pageSize: PAGE_SIZE,
@@ -82,7 +82,7 @@ export default function MediaLibrary({ permissions = {}, urls = {} }) {
         formData.append('file', file);
 
         try {
-            const media = await api.post(urls.mediaUpload ?? '/api/admin/media', formData);
+            const media = await api.post(urls.mediaUpload ?? '/api/admin/medias', formData);
             if (media.isDuplicate) {
                 setFeedback({ type: 'info', message: 'Cette image est déjà dans la bibliothèque.' });
             } else {
@@ -102,7 +102,7 @@ export default function MediaLibrary({ permissions = {}, urls = {} }) {
         setDeleting(true);
         setFeedback(null);
         try {
-            await api.delete(`/api/admin/media/${deleteTarget.id}`);
+            await api.delete(`/api/admin/medias/${deleteTarget.id}`);
             setFeedback({ type: 'success', message: `« ${deleteTarget.originalName} » supprimé.` });
             setDeleteTarget(null);
             fetchMedia();

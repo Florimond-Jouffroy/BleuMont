@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RegistrationTest extends AbstractApiTestCase
 {
-    private const URL = '/api/auth/register';
+    private const URL = '/api/auth/inscription';
 
     public function testSuccessfulRegistration(): void
     {

@@ -105,8 +105,8 @@ export default function ArticlesList({ permissions = {}, urls = {} }) {
     const handleTogglePublish = useCallback(async (article) => {
         setFeedback(null);
         const endpoint = article.status === 'published'
-            ? `/api/admin/articles/${article.id}/unpublish`
-            : `/api/admin/articles/${article.id}/publish`;
+            ? `/api/admin/articles/${article.id}/depublier`
+            : `/api/admin/articles/${article.id}/publier`;
         try {
             await api.post(endpoint);
             fetchArticles();
@@ -195,7 +195,7 @@ export default function ArticlesList({ permissions = {}, urls = {} }) {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-56">
                             {permissions.canEditArticle && (
-                                <DropdownMenuItem onClick={() => navigate(`/articles/${article.id}/edit`)}>
+                                <DropdownMenuItem onClick={() => navigate(`/articles/${article.id}/modifier`)}>
                                     <Pencil className="size-4" />
                                     Modifier
                                 </DropdownMenuItem>
@@ -235,7 +235,7 @@ export default function ArticlesList({ permissions = {}, urls = {} }) {
                 </div>
 
                 {permissions.canCreateArticle && (
-                    <Button onClick={() => navigate('/articles/new')}>
+                    <Button onClick={() => navigate('/articles/nouveau')}>
                         <Plus className="size-4" />
                         Nouvel article
                     </Button>

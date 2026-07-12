@@ -25,7 +25,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * - serializeFull() : données complètes pour la fiche détail, inclut les lignes,
  *   l'historique des statuts et les transitions autorisées depuis l'état actuel.
  */
-#[Route('/api/admin/orders')]
+#[Route('/api/admin/commandes')]
 class OrderController extends AbstractController
 {
     public function __construct(private readonly OrderManager $manager)

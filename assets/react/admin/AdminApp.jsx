@@ -26,18 +26,18 @@ export default function AdminApp() {
                 <Route element={<AdminLayout userEmail={userEmail} logoutUrl={logoutUrl} />}>
                     <Route index element={<Navigate to="/dashboard" replace />} />
                     <Route path="dashboard" element={<Dashboard />} />
-                    <Route path="users" element={<UsersList permissions={permissions} urls={urls} />} />
+                    <Route path="utilisateurs" element={<UsersList permissions={permissions} urls={urls} />} />
                     <Route path="articles" element={<ArticlesList permissions={permissions} urls={urls} />} />
-                    <Route path="articles/new" element={<ArticleEditor permissions={permissions} urls={urls} />} />
-                    <Route path="articles/:id/edit" element={<ArticleEditor permissions={permissions} urls={urls} />} />
+                    <Route path="articles/nouveau" element={<ArticleEditor permissions={permissions} urls={urls} />} />
+                    <Route path="articles/:id/modifier" element={<ArticleEditor permissions={permissions} urls={urls} />} />
                     <Route path="categories" element={<CategoryManager permissions={permissions} urls={urls} />} />
-                    <Route path="orders" element={<OrdersList permissions={permissions} urls={urls} />} />
-                    <Route path="orders/:id" element={<OrderDetail permissions={permissions} />} />
-                    <Route path="products" element={<ProductsList permissions={permissions} urls={urls} />} />
-                    <Route path="products/new" element={<ProductEditor permissions={permissions} urls={urls} />} />
-                    <Route path="products/:id/edit" element={<ProductEditor permissions={permissions} urls={urls} />} />
-                    <Route path="product-categories" element={<ProductCategoryManager permissions={permissions} urls={urls} />} />
-                    <Route path="media" element={<MediaLibrary permissions={permissions} urls={urls} />} />
+                    <Route path="commandes" element={<OrdersList permissions={permissions} urls={urls} />} />
+                    <Route path="commandes/:id" element={<OrderDetail permissions={permissions} />} />
+                    <Route path="produits" element={<ProductsList permissions={permissions} urls={urls} />} />
+                    <Route path="produits/nouveau" element={<ProductEditor permissions={permissions} urls={urls} />} />
+                    <Route path="produits/:id/modifier" element={<ProductEditor permissions={permissions} urls={urls} />} />
+                    <Route path="categories-produits" element={<ProductCategoryManager permissions={permissions} urls={urls} />} />
+                    <Route path="medias" element={<MediaLibrary permissions={permissions} urls={urls} />} />
                 </Route>
             </Routes>
         </BrowserRouter>

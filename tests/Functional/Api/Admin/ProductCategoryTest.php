@@ -14,7 +14,7 @@ class ProductCategoryTest extends AbstractApiTestCase
 
     public function testListRequiresAuthentication(): void
     {
-        $this->client->request('GET', '/api/admin/product-categories');
+        $this->client->request('GET', '/api/admin/categories-produits');
 
         self::assertResponseRedirects('/connexion');
     }
@@ -22,7 +22,7 @@ class ProductCategoryTest extends AbstractApiTestCase
     public function testListForbiddenForNonAdmin(): void
     {
         $this->loginAs($this->createUser('user@example.com'));
-        $this->client->request('GET', '/api/admin/product-categories');
+        $this->client->request('GET', '/api/admin/categories-produits');
 
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
@@ -30,7 +30,7 @@ class ProductCategoryTest extends AbstractApiTestCase
     public function testCreateForbiddenForNonAdmin(): void
     {
         $this->loginAs($this->createUser('user@example.com'));
-        $this->postJson('/api/admin/product-categories', ['name' => 'Test']);
+        $this->postJson('/api/admin/categories-produits', ['name' => 'Test']);
 
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
@@ -39,7 +39,7 @@ class ProductCategoryTest extends AbstractApiTestCase
     {
         $category = $this->createProductCategory();
         $this->loginAs($this->createUser('user@example.com'));
-        $this->putJson('/api/admin/product-categories/'.$category->getId(), ['name' => 'Mode']);
+        $this->putJson('/api/admin/categories-produits/'.$category->getId(), ['name' => 'Mode']);
 
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
@@ -48,7 +48,7 @@ class ProductCategoryTest extends AbstractApiTestCase
     {
         $category = $this->createProductCategory();
         $this->loginAs($this->createUser('user@example.com'));
-        $this->client->request('DELETE', '/api/admin/product-categories/'.$category->getId());
+        $this->client->request('DELETE', '/api/admin/categories-produits/'.$category->getId());
 
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
@@ -61,7 +61,7 @@ class ProductCategoryTest extends AbstractApiTestCase
         $this->createProductCategory('Vêtements', 'vetements');
         $this->createProductCategory('Accessoires', 'accessoires');
 
-        $this->client->request('GET', '/api/admin/product-categories');
+        $this->client->request('GET', '/api/admin/categories-produits');
 
         self::assertResponseIsSuccessful();
         $data = $this->getJson();
@@ -76,7 +76,7 @@ class ProductCategoryTest extends AbstractApiTestCase
     {
         $this->loginAs($this->createAdmin());
 
-        $this->client->request('GET', '/api/admin/product-categories');
+        $this->client->request('GET', '/api/admin/categories-produits');
 
         self::assertResponseIsSuccessful();
         self::assertSame([], $this->getJson());
@@ -88,7 +88,7 @@ class ProductCategoryTest extends AbstractApiTestCase
     {
         $this->loginAs($this->createAdmin());
 
-        $this->postJson('/api/admin/product-categories', ['name' => 'Nouveautés']);
+        $this->postJson('/api/admin/categories-produits', ['name' => 'Nouveautés']);
 
         self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
         $data = $this->getJson();
@@ -101,7 +101,7 @@ class ProductCategoryTest extends AbstractApiTestCase
     {
         $this->loginAs($this->createAdmin());
 
-        $this->postJson('/api/admin/product-categories', ['name' => '   ']);
+        $this->postJson('/api/admin/categories-produits', ['name' => '   ']);
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
@@ -110,7 +110,7 @@ class ProductCategoryTest extends AbstractApiTestCase
     {
         $this->loginAs($this->createAdmin());
 
-        $this->postJson('/api/admin/product-categories', []);
+        $this->postJson('/api/admin/categories-produits', []);
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
@@ -122,7 +122,7 @@ class ProductCategoryTest extends AbstractApiTestCase
         $this->loginAs($this->createAdmin());
         $category = $this->createProductCategory('Vêtements', 'vetements');
 
-        $this->putJson('/api/admin/product-categories/'.$category->getId(), ['name' => 'Mode']);
+        $this->putJson('/api/admin/categories-produits/'.$category->getId(), ['name' => 'Mode']);
 
         self::assertResponseIsSuccessful();
         $data = $this->getJson();
@@ -134,7 +134,7 @@ class ProductCategoryTest extends AbstractApiTestCase
         $this->loginAs($this->createAdmin());
         $category = $this->createProductCategory('Vêtements', 'vetements');
 
-        $this->putJson('/api/admin/product-categories/'.$category->getId(), ['name' => '']);
+        $this->putJson('/api/admin/categories-produits/'.$category->getId(), ['name' => '']);
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
@@ -143,7 +143,7 @@ class ProductCategoryTest extends AbstractApiTestCase
     {
         $this->loginAs($this->createAdmin());
 
-        $this->putJson('/api/admin/product-categories/99999', ['name' => 'Test']);
+        $this->putJson('/api/admin/categories-produits/99999', ['name' => 'Test']);
 
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
@@ -156,7 +156,7 @@ class ProductCategoryTest extends AbstractApiTestCase
         $category = $this->createProductCategory('À supprimer', 'a-supprimer');
         $id       = $category->getId();
 
-        $this->client->request('DELETE', '/api/admin/product-categories/'.$id);
+        $this->client->request('DELETE', '/api/admin/categories-produits/'.$id);
 
         self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
         self::assertNull($this->em->getRepository(ProductCategory::class)->find($id));
@@ -166,7 +166,7 @@ class ProductCategoryTest extends AbstractApiTestCase
     {
         $this->loginAs($this->createAdmin());
 
-        $this->client->request('DELETE', '/api/admin/product-categories/99999');
+        $this->client->request('DELETE', '/api/admin/categories-produits/99999');
 
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }

@@ -86,7 +86,7 @@ export default function OrdersList({ permissions = {}, urls = {} }) {
             const params = { q: query, page: pagination.pageIndex + 1, pageSize: pagination.pageSize };
             if (statusFilter) params.status = statusFilter;
 
-            const data = await api.get(urls.orders ?? '/api/admin/orders', params);
+            const data = await api.get(urls.orders ?? '/api/admin/commandes', params);
             if (data.items.length === 0 && data.total > 0 && pagination.pageIndex > 0) {
                 setPagination((p) => ({ ...p, pageIndex: 0 }));
                 return;
@@ -109,7 +109,7 @@ export default function OrdersList({ permissions = {}, urls = {} }) {
         setDeleting(true);
         setFeedback(null);
         try {
-            await api.delete(`/api/admin/orders/${deleteTarget.id}`);
+            await api.delete(`/api/admin/commandes/${deleteTarget.id}`);
             setFeedback({ type: 'success', message: `Commande ${deleteTarget.orderNumber} supprimée.` });
             setDeleteTarget(null);
             fetchOrders();
@@ -173,7 +173,7 @@ export default function OrdersList({ permissions = {}, urls = {} }) {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-48">
-                            <DropdownMenuItem onClick={() => navigate(`/orders/${order.id}`)}>
+                            <DropdownMenuItem onClick={() => navigate(`/commandes/${order.id}`)}>
                                 <Eye className="size-4" />
                                 Voir le détail
                             </DropdownMenuItem>

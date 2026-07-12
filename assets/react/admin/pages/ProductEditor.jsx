@@ -22,7 +22,7 @@ function parsePriceToCents(str) {
 function CategoryPicker({ urls, selectedIds, onChange }) {
     const [categories, setCategories] = useState([]);
     useEffect(() => {
-        api.get(urls.productCategories ?? '/api/admin/product-categories').then(setCategories).catch(() => {});
+        api.get(urls.productCategories ?? '/api/admin/categories-produits').then(setCategories).catch(() => {});
     }, [urls.productCategories]);
 
     const toggle = (id) => onChange(selectedIds.includes(id) ? selectedIds.filter((x) => x !== id) : [...selectedIds, id]);
@@ -121,7 +121,7 @@ export default function ProductEditor({ permissions = {}, urls = {} }) {
 
     useEffect(() => {
         if (!isEdit) return;
-        api.get(`/api/admin/products/${id}`)
+        api.get(`/api/admin/produits/${id}`)
             .then((data) => {
                 setName(data.name);
                 setPriceStr(formatPrice(data.price));
@@ -144,7 +144,7 @@ export default function ProductEditor({ permissions = {}, urls = {} }) {
         const formData = new FormData();
         formData.append('file', file);
         try {
-            const media = await api.post(urls.mediaUpload ?? '/api/admin/media', formData);
+            const media = await api.post(urls.mediaUpload ?? '/api/admin/medias', formData);
             return { success: 1, file: { url: media.url } };
         } catch {
             return { success: 0, message: 'Upload échoué.' };
@@ -186,13 +186,13 @@ export default function ProductEditor({ permissions = {}, urls = {} }) {
         try {
             const payload = buildPayload();
             if (savedId) {
-                await api.put(`/api/admin/products/${savedId}`, payload);
+                await api.put(`/api/admin/produits/${savedId}`, payload);
                 setFeedback({ type: 'success', message: 'Produit enregistré.' });
             } else {
-                const created = await api.post(urls.products ?? '/api/admin/products', payload);
+                const created = await api.post(urls.products ?? '/api/admin/produits', payload);
                 setSavedId(created.id);
                 setStatus(created.status);
-                navigate(`/products/${created.id}/edit`, { replace: true });
+                navigate(`/produits/${created.id}/modifier`, { replace: true });
                 setFeedback({ type: 'success', message: 'Produit créé.' });
             }
         } catch (err) {
@@ -207,8 +207,8 @@ export default function ProductEditor({ permissions = {}, urls = {} }) {
         setPublishing(true);
         setFeedback(null);
         const endpoint = status === 'published'
-            ? `/api/admin/products/${savedId}/unpublish`
-            : `/api/admin/products/${savedId}/publish`;
+            ? `/api/admin/produits/${savedId}/depublier`
+            : `/api/admin/produits/${savedId}/publier`;
         try {
             const updated = await api.post(endpoint);
             setStatus(updated.status);
@@ -235,7 +235,7 @@ export default function ProductEditor({ permissions = {}, urls = {} }) {
             {/* En-tête */}
             <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                    <Button variant="ghost" size="icon" onClick={() => navigate('/products')}>
+                    <Button variant="ghost" size="icon" onClick={() => navigate('/produits')}>
                         <ArrowLeft className="size-4" />
                     </Button>
                     <div>

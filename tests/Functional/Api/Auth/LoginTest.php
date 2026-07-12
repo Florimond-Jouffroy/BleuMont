@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class LoginTest extends AbstractApiTestCase
 {
-    private const URL = '/api/auth/login';
+    private const URL = '/api/auth/connexion';
 
     public function testSuccessfulLogin(): void
     {

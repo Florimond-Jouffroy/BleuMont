@@ -20,7 +20,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * Toutes les routes sont protégées par ProductCategoryVoter (VIEW, CREATE, EDIT, DELETE).
  * Les droits sont configurés dans config/permissions.yaml.
  */
-#[Route('/api/admin/product-categories')]
+#[Route('/api/admin/categories-produits')]
 class ProductCategoryController extends AbstractController
 {
     public function __construct(private readonly ProductCategoryManager $manager)
