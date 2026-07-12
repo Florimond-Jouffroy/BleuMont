@@ -1,5 +1,6 @@
 import React from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
+import { Globe } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -40,6 +41,13 @@ export default function AdminLayout({ userEmail = '', logoutUrl = '/deconnexion'
                         <SidebarTrigger className="-ml-1" />
                         <Separator orientation="vertical" className="mr-2 h-4" />
                         <span className="text-sm font-medium text-foreground">{title}</span>
+                        <a
+                            href="/"
+                            className="ml-auto flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                        >
+                            <Globe className="size-4" />
+                            <span>Voir le site</span>
+                        </a>
                     </header>
 
                     {/* key sur le pathname : relance l'animation d'entrée à chaque changement de page */}
