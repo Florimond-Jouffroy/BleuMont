@@ -9,6 +9,7 @@
         {% include 'layout/_footer.html.twig' %}
     </div>
 
+    {% if shopEnabled %}
     {# Badge panier : charge le compte depuis la session, écoute les mises à jour du SPA #}
     <script>
     (function () {
@@ -33,4 +34,5 @@
         });
     })();
     </script>
+    {% endif %}
 {% endblock %}

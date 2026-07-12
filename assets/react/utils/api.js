@@ -87,10 +87,11 @@ async function request(url, options = {}) {
 }
 
 export const api = {
-    get: (url, params) => request(url, { method: 'GET', params }),
-    post: (url, body) => request(url, { method: 'POST', body }),
-    put: (url, body) => request(url, { method: 'PUT', body }),
-    delete: (url) => request(url, { method: 'DELETE' }),
+    get:    (url, params) => request(url, { method: 'GET', params }),
+    post:   (url, body)   => request(url, { method: 'POST',   body }),
+    put:    (url, body)   => request(url, { method: 'PUT',    body }),
+    patch:  (url, body)   => request(url, { method: 'PATCH',  body }),
+    delete: (url)         => request(url, { method: 'DELETE' }),
 };
 
 /**

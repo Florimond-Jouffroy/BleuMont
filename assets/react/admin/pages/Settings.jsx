@@ -58,6 +58,46 @@ export default function Settings({ urls = {} }) {
                 </p>
             )}
 
+            {/* ── Boutique ── */}
+            <div className="rounded-lg border">
+                <div className="px-5 py-4 border-b bg-muted/40">
+                    <h3 className="font-semibold text-sm">Boutique en ligne</h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">Activer ou désactiver l'accès public à la boutique</p>
+                </div>
+                <div className="p-5">
+                    <div className="flex items-center justify-between gap-6">
+                        <div>
+                            <p className="text-sm font-medium">Boutique active</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                                Quand désactivée, les pages <code>/boutique/*</code> affichent un message de maintenance
+                                et le lien dans la navigation est masqué. L'administration reste entièrement accessible.
+                            </p>
+                        </div>
+                        <button
+                            type="button"
+                            role="switch"
+                            aria-checked={settings?.shopEnabled}
+                            disabled={saving}
+                            onClick={() => updateSetting({ shopEnabled: !settings?.shopEnabled })}
+                            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                                settings?.shopEnabled ? 'bg-primary' : 'bg-muted'
+                            } ${saving ? 'opacity-60 cursor-not-allowed' : ''}`}
+                        >
+                            <span
+                                className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-lg transform transition-transform ${
+                                    settings?.shopEnabled ? 'translate-x-5' : 'translate-x-0'
+                                }`}
+                            />
+                        </button>
+                    </div>
+                    {settings?.shopEnabled === false && (
+                        <div className="mt-4 rounded-md bg-yellow-50 border border-yellow-200 px-4 py-3 text-sm text-yellow-800">
+                            La boutique est actuellement <strong>désactivée</strong>. Les visiteurs voient une page de maintenance.
+                        </div>
+                    )}
+                </div>
+            </div>
+
             {/* ── Facturation ── */}
             <div className="rounded-lg border">
                 <div className="px-5 py-4 border-b bg-muted/40">
