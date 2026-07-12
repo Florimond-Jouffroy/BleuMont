@@ -46,13 +46,15 @@
             {# ── Actions utilisateur (poussées à droite) ── #}
             <div class="flex items-center gap-2 ml-auto">
                 {% if app.user %}
-                    {# Email tronqué #}
-                    <span class="hidden lg:flex items-center gap-1.5 text-sm text-muted-foreground">
+                    {# Mon compte #}
+                    <a href="{{ path('account_index') }}"
+                       class="hidden lg:flex items-center gap-1.5 rounded-md px-2 py-1 text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors
+                              {% if route starts with 'account' %}text-foreground font-medium{% endif %}">
                         <span class="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-xs font-medium text-foreground shrink-0">
                             {{ app.user.userIdentifier|slice(0,1)|upper }}
                         </span>
                         <span class="truncate max-w-[140px]">{{ app.user.userIdentifier }}</span>
-                    </span>
+                    </a>
 
                     {# Lien Administration #}
                     {% if is_granted('ROLE_ADMIN') %}
