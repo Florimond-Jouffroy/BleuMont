@@ -12,6 +12,7 @@ use App\Repository\OrderRepository;
 use App\Repository\ProductRepository;
 use App\Repository\ProductVariantRepository;
 use App\Repository\ShippingMethodRepository;
+use App\Service\InvoiceService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -31,6 +32,7 @@ class CheckoutController extends AbstractController
         CustomerRepository $customerRepo,
         ShippingMethodRepository $shippingRepo,
         OrderRepository $orderRepo,
+        InvoiceService $invoiceService,
     ): JsonResponse {
         $this->denyAccessUnlessGranted('ROLE_USER');
 
@@ -169,6 +171,11 @@ class CheckoutController extends AbstractController
 
         // ── 9. Clear cart ─────────────────────────────────────────────────────
         $request->getSession()->remove('shop_cart');
+
+        // ── 10. Auto-generate invoice if trigger = on_order ───────────────────
+        if ('on_order' === $invoiceService->getInvoiceTrigger()) {
+            $invoiceService->generateForOrder($order);
+        }
 
         return $this->json(['orderNumber' => $order->getOrderNumber()], Response::HTTP_CREATED);
     }

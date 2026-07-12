@@ -4,6 +4,7 @@ import AdminLayout from './layouts/AdminLayout';
 import ArticleEditor from './pages/ArticleEditor';
 import ArticlesList from './pages/ArticlesList';
 import CategoryManager from './pages/CategoryManager';
+import InvoicesList from './pages/InvoicesList';
 import OrderDetail from './pages/OrderDetail';
 import OrdersList from './pages/OrdersList';
 import Dashboard from './pages/Dashboard';
@@ -11,6 +12,7 @@ import ProductCategoryManager from './pages/ProductCategoryManager';
 import ProductEditor from './pages/ProductEditor';
 import ProductsList from './pages/ProductsList';
 import MediaLibrary from './pages/MediaLibrary';
+import Settings from './pages/Settings';
 import UsersList from './pages/UsersList';
 import ShippingMethods from './pages/ShippingMethods';
 
@@ -34,12 +36,14 @@ export default function AdminApp() {
                     <Route path="categories" element={<CategoryManager permissions={permissions} urls={urls} />} />
                     <Route path="commandes" element={<OrdersList permissions={permissions} urls={urls} />} />
                     <Route path="commandes/:id" element={<OrderDetail permissions={permissions} />} />
+                    <Route path="factures" element={<InvoicesList urls={urls} />} />
                     <Route path="produits" element={<ProductsList permissions={permissions} urls={urls} />} />
                     <Route path="produits/nouveau" element={<ProductEditor permissions={permissions} urls={urls} />} />
                     <Route path="produits/:id/modifier" element={<ProductEditor permissions={permissions} urls={urls} />} />
                     <Route path="categories-produits" element={<ProductCategoryManager permissions={permissions} urls={urls} />} />
                     <Route path="medias" element={<MediaLibrary permissions={permissions} urls={urls} />} />
                     <Route path="livraison" element={<ShippingMethods urls={urls} />} />
+                    <Route path="parametres" element={<Settings urls={urls} />} />
                 </Route>
             </Routes>
         </BrowserRouter>

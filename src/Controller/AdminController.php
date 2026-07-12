@@ -40,6 +40,8 @@ class AdminController extends AbstractController
                 'productCategories' => $this->generateUrl('api_admin_product_categories_list'),
                 'orders'            => $this->generateUrl('api_admin_orders_list'),
                 'shippingMethods'   => $this->generateUrl('api_admin_shipping_list'),
+                'invoices'          => $this->generateUrl('api_admin_invoices_list'),
+                'settings'          => $this->generateUrl('api_admin_settings_get'),
             ],
             'permissions' => [
                 'canViewUsers'          => $this->isGranted(UserVoter::VIEW),

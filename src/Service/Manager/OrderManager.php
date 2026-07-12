@@ -9,6 +9,7 @@ use App\Entity\Order;
 use App\Entity\OrderItem;
 use App\Entity\OrderStatusHistory;
 use App\Repository\OrderRepository;
+use App\Service\InvoiceService;
 use Doctrine\ORM\EntityManagerInterface;
 use Florimond\LogBundle\Service\Manager\ApplicationLogManager;
 
@@ -26,6 +27,7 @@ class OrderManager
         private readonly EntityManagerInterface $em,
         private readonly ApplicationLogManager $logManager,
         private readonly OrderRepository $orderRepository,
+        private readonly InvoiceService $invoiceService,
     ) {
     }
 
@@ -102,7 +104,19 @@ class OrderManager
         $history->setComment($comment);
         $this->em->persist($history);
 
-        return $this->flush();
+        if (!$this->flush()) {
+            return false;
+        }
+
+        // Auto-generate invoice on confirmation if trigger = on_confirm
+        if (Order::STATUS_CONFIRMED === $newStatus
+            && 'on_confirm' === $this->invoiceService->getInvoiceTrigger()
+            && null === $this->invoiceService->findForOrder($order)
+        ) {
+            $this->invoiceService->generateForOrder($order);
+        }
+
+        return true;
     }
 
     public function updateInternalNote(Order $order, ?string $note): bool

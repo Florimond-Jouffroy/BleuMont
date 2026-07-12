@@ -8,22 +8,23 @@ import AppSidebar from './AppSidebar';
 
 const pageTitles = {
     '/dashboard':          'Dashboard',
-    '/users':              'Utilisateurs',
+    '/utilisateurs':       'Utilisateurs',
     '/articles':           'Articles',
-    '/articles/new':       'Nouvel article',
-    '/media':              'Médiathèque',
+    '/medias':             'Médiathèque',
     '/categories':         'Catégories',
-    '/orders':             'Commandes',
-    '/products':           'Produits',
-    '/products/new':       'Nouveau produit',
-    '/product-categories': 'Catégories produits',
+    '/commandes':          'Commandes',
+    '/factures':           'Factures',
+    '/produits':           'Produits',
+    '/categories-produits': 'Catégories produits',
+    '/livraison':          'Livraison',
+    '/parametres':         'Paramètres',
 };
 
 function getTitle(pathname) {
     if (pageTitles[pathname]) return pageTitles[pathname];
-    if (/^\/articles\/\d+\/edit$/.test(pathname)) return "Modifier l'article";
-    if (/^\/products\/\d+\/edit$/.test(pathname)) return 'Modifier le produit';
-    if (/^\/orders\/\d+$/.test(pathname)) return 'Détail commande';
+    if (/^\/articles\/\d+\/modifier$/.test(pathname)) return "Modifier l'article";
+    if (/^\/produits\/\d+\/modifier$/.test(pathname)) return 'Modifier le produit';
+    if (/^\/commandes\/\d+$/.test(pathname)) return 'Détail commande';
     return 'Administration';
 }
 
