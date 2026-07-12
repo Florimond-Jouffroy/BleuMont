@@ -1,8 +1,8 @@
-{% extends 'base.html.twig' %}
+{% extends 'layout/public_base.html.twig' %}
 
 {% block title %}Inscription{% endblock %}
 
-{% block body %}
+{% block content %}
     <div {{ react_component('RegisterForm', {
         registerUrl: urls.register,
         resendUrl: urls.resend,

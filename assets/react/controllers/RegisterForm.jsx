@@ -48,7 +48,7 @@ export default function RegisterForm({
     };
 
     const decorativePanel = (
-        <div style={{ viewTransitionName: 'auth-panel' }} className="relative hidden lg:flex lg:flex-col lg:items-center lg:justify-center bg-zinc-900 text-zinc-50 p-12">
+        <div style={{ viewTransitionName: 'auth-panel' }} className="hidden lg:flex lg:flex-col lg:items-center lg:justify-center bg-zinc-900 text-zinc-50 p-12">
             <blockquote className="max-w-sm space-y-4 text-center">
                 <p className="text-xl font-medium leading-relaxed">
                     "Une interface simple et efficace pour gérer votre activité au quotidien."
@@ -60,47 +60,35 @@ export default function RegisterForm({
 
     if (done) {
         return (
-            <div className="grid min-h-svh lg:grid-cols-2">
-                <div className="flex flex-col gap-4 p-6 md:p-10">
-                    <div className="flex justify-center gap-2 md:justify-start">
-                        <a href="/" className="flex items-center gap-2 font-semibold text-foreground">
-                            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground text-xs font-bold">
-                                B
-                            </div>
-                            BleuMont
-                        </a>
-                    </div>
-
-                    <div className="flex flex-1 items-center justify-center">
-                        <div style={{ viewTransitionName: 'auth-form' }} className="w-full max-w-sm space-y-6">
-                            <div className="space-y-2 text-center">
+            <div className="lg:grid lg:grid-cols-2 min-h-[calc(100vh-4rem)]">
+                <div className="flex items-center justify-center px-6 py-16 lg:px-16 lg:py-24">
+                    <div style={{ viewTransitionName: 'auth-form' }} className="w-full max-w-md">
+                        <div className="rounded-2xl border bg-card shadow-sm p-10 space-y-7 text-center">
+                            <div className="space-y-2">
                                 <h1 className="text-2xl font-bold tracking-tight">Vérifiez votre boîte e-mail</h1>
                                 <p className="text-sm text-muted-foreground">
-                                    Un lien d'activation a été envoyé à <strong>{email}</strong>.
+                                    Un lien d'activation a été envoyé à{' '}
+                                    <strong className="text-foreground">{email}</strong>.
                                     Cliquez dessus pour activer votre compte.
                                 </p>
                             </div>
 
                             <div className="space-y-3">
-                                <p className="text-sm text-muted-foreground text-center">
-                                    Vous n'avez rien reçu ?
-                                </p>
+                                <p className="text-sm text-muted-foreground">Vous n'avez rien reçu ?</p>
                                 {resent && (
-                                    <p className="text-sm text-green-600 text-center">E-mail renvoyé !</p>
+                                    <p className="text-sm text-green-600">E-mail renvoyé !</p>
                                 )}
                                 <Button variant="outline" className="w-full" onClick={handleResend}>
                                     Renvoyer l'e-mail
                                 </Button>
                             </div>
 
-                            <p className="text-center text-sm text-muted-foreground">
-                                <a
-                                    href={resolveUrl(loginUrl)}
-                                    className="font-medium text-foreground underline-offset-4 hover:underline"
-                                >
-                                    Retour à la connexion
-                                </a>
-                            </p>
+                            <a
+                                href={resolveUrl(loginUrl)}
+                                className="block text-sm font-medium text-muted-foreground underline-offset-4 hover:underline"
+                            >
+                                Retour à la connexion
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -110,30 +98,19 @@ export default function RegisterForm({
     }
 
     return (
-        <div className="grid min-h-svh lg:grid-cols-2">
+        <div className="lg:grid lg:grid-cols-2 min-h-[calc(100vh-4rem)]">
             {/* ── Colonne gauche : formulaire ── */}
-            <div className="flex flex-col gap-4 p-6 md:p-10">
-                {/* Logo */}
-                <div className="flex justify-center gap-2 md:justify-start">
-                    <a href="/" className="flex items-center gap-2 font-semibold text-foreground">
-                        <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground text-xs font-bold">
-                            B
-                        </div>
-                        BleuMont
-                    </a>
-                </div>
-
-                {/* Form centré verticalement */}
-                <div className="flex flex-1 items-center justify-center">
-                    <div style={{ viewTransitionName: 'auth-form' }} className="w-full max-w-sm space-y-6">
-                        <div className="space-y-2 text-center">
+            <div className="flex items-center justify-center px-6 py-16 lg:px-16 lg:py-24">
+                <div style={{ viewTransitionName: 'auth-form' }} className="w-full max-w-md">
+                    <div className="rounded-2xl border bg-card shadow-sm p-10 space-y-7">
+                        <div className="space-y-1.5 text-center">
                             <h1 className="text-2xl font-bold tracking-tight">Inscription</h1>
                             <p className="text-sm text-muted-foreground">
                                 Créez votre compte pour accéder à la plateforme
                             </p>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="space-y-4">
+                        <form onSubmit={handleSubmit} className="space-y-5">
                             <div className="space-y-2">
                                 <Label htmlFor="reg-email">Email</Label>
                                 <Input

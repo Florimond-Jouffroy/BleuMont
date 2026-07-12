@@ -11,10 +11,10 @@ export default function LoginForm({
     forgotPasswordUrl = '/mot-de-passe-oublie',
     registerUrl       = '/inscription',
 }) {
-    const [email, setEmail]     = useState('');
+    const [email, setEmail]       = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError]     = useState('');
-    const [loading, setLoading] = useState(false);
+    const [error, setError]       = useState('');
+    const [loading, setLoading]   = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -24,37 +24,26 @@ export default function LoginForm({
             await api.post(resolveUrl(loginUrl), { email, password });
             window.location.href = redirectUrl;
         } catch (err) {
-            setError(getErrorMessage(err, 'Erreur de connexion.'));
+            setError(getErrorMessage(err, 'Identifiants incorrects.'));
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="grid min-h-svh lg:grid-cols-2">
+        <div className="lg:grid lg:grid-cols-2 min-h-[calc(100vh-4rem)]">
             {/* ── Colonne gauche : formulaire ── */}
-            <div className="flex flex-col gap-4 p-6 md:p-10">
-                {/* Logo */}
-                <div className="flex justify-center gap-2 md:justify-start">
-                    <a href="/" className="flex items-center gap-2 font-semibold text-foreground">
-                        <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground text-xs font-bold">
-                            B
-                        </div>
-                        BleuMont
-                    </a>
-                </div>
-
-                {/* Form centré verticalement */}
-                <div className="flex flex-1 items-center justify-center">
-                    <div style={{ viewTransitionName: 'auth-form' }} className="w-full max-w-xs space-y-6">
-                        <div className="space-y-2 text-center">
+            <div className="flex items-center justify-center px-6 py-16 lg:px-16 lg:py-24">
+                <div style={{ viewTransitionName: 'auth-form' }} className="w-full max-w-md">
+                    <div className="rounded-2xl border bg-card shadow-sm p-10 space-y-7">
+                        <div className="space-y-1.5 text-center">
                             <h1 className="text-2xl font-bold tracking-tight">Connexion</h1>
                             <p className="text-sm text-muted-foreground">
                                 Entrez vos identifiants pour accéder à votre compte
                             </p>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="space-y-4">
+                        <form onSubmit={handleSubmit} className="space-y-5">
                             <div className="space-y-2">
                                 <Label htmlFor="email">Email</Label>
                                 <Input
@@ -112,7 +101,7 @@ export default function LoginForm({
             </div>
 
             {/* ── Colonne droite : panneau décoratif ── */}
-            <div style={{ viewTransitionName: 'auth-panel' }} className="relative hidden lg:flex lg:flex-col lg:items-center lg:justify-center bg-zinc-900 text-zinc-50 p-12">
+            <div style={{ viewTransitionName: 'auth-panel' }} className="hidden lg:flex lg:flex-col lg:items-center lg:justify-center bg-zinc-900 text-zinc-50 p-12">
                 <blockquote className="max-w-sm space-y-4 text-center">
                     <p className="text-xl font-medium leading-relaxed">
                         "Une interface simple et efficace pour gérer votre activité au quotidien."

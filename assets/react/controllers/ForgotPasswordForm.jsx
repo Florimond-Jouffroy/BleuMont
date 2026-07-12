@@ -10,7 +10,7 @@ export default function ForgotPasswordForm({
     confirmUrl = '/api/auth/reinitialisation-mot-de-passe/confirmation',
     loginUrl   = '/connexion',
 }) {
-    const [step, setStep]                             = useState('request'); // 'request' | 'confirm' | 'done'
+    const [step, setStep]                             = useState('request');
     const [email, setEmail]                           = useState('');
     const [code, setCode]                             = useState('');
     const [newPassword, setNewPassword]               = useState('');
@@ -52,13 +52,12 @@ export default function ForgotPasswordForm({
         if (step === 'done') {
             return (
                 <>
-                    <div className="space-y-2 text-center">
+                    <div className="space-y-1.5 text-center">
                         <h1 className="text-2xl font-bold tracking-tight">Mot de passe réinitialisé</h1>
                         <p className="text-sm text-muted-foreground">
                             Votre mot de passe a été mis à jour avec succès.
                         </p>
                     </div>
-
                     <Button asChild className="w-full">
                         <a href={resolveUrl(loginUrl)}>Se connecter</a>
                     </Button>
@@ -69,15 +68,16 @@ export default function ForgotPasswordForm({
         if (step === 'confirm') {
             return (
                 <>
-                    <div className="space-y-2 text-center">
+                    <div className="space-y-1.5 text-center">
                         <h1 className="text-2xl font-bold tracking-tight">Entrez votre code</h1>
                         <p className="text-sm text-muted-foreground">
-                            Un code à 6 chiffres a été envoyé à <strong>{email}</strong>.
+                            Un code à 6 chiffres a été envoyé à{' '}
+                            <strong className="text-foreground">{email}</strong>.
                             Il est valable 15 minutes.
                         </p>
                     </div>
 
-                    <form onSubmit={handleConfirm} className="space-y-4">
+                    <form onSubmit={handleConfirm} className="space-y-5">
                         <div className="space-y-2">
                             <Label htmlFor="fp-code">Code de vérification</Label>
                             <Input
@@ -142,14 +142,14 @@ export default function ForgotPasswordForm({
 
         return (
             <>
-                <div className="space-y-2 text-center">
+                <div className="space-y-1.5 text-center">
                     <h1 className="text-2xl font-bold tracking-tight">Mot de passe oublié</h1>
                     <p className="text-sm text-muted-foreground">
                         Entrez votre adresse e-mail pour recevoir un code de réinitialisation.
                     </p>
                 </div>
 
-                <form onSubmit={handleRequest} className="space-y-4">
+                <form onSubmit={handleRequest} className="space-y-5">
                     <div className="space-y-2">
                         <Label htmlFor="fp-email">Email</Label>
                         <Input
@@ -187,9 +187,9 @@ export default function ForgotPasswordForm({
     };
 
     return (
-        <div className="grid min-h-svh lg:grid-cols-2">
+        <div className="lg:grid lg:grid-cols-2 min-h-[calc(100vh-4rem)]">
             {/* ── Colonne gauche : panneau décoratif ── */}
-            <div style={{ viewTransitionName: 'auth-panel' }} className="relative hidden lg:flex lg:flex-col lg:items-center lg:justify-center bg-zinc-900 text-zinc-50 p-12">
+            <div style={{ viewTransitionName: 'auth-panel' }} className="hidden lg:flex lg:flex-col lg:items-center lg:justify-center bg-zinc-900 text-zinc-50 p-12">
                 <blockquote className="max-w-sm space-y-4 text-center">
                     <p className="text-xl font-medium leading-relaxed">
                         "Une interface simple et efficace pour gérer votre activité au quotidien."
@@ -199,20 +199,9 @@ export default function ForgotPasswordForm({
             </div>
 
             {/* ── Colonne droite : formulaire ── */}
-            <div className="flex flex-col gap-4 p-6 md:p-10">
-                {/* Logo */}
-                <div className="flex justify-center gap-2 md:justify-start">
-                    <a href="/" className="flex items-center gap-2 font-semibold text-foreground">
-                        <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground text-xs font-bold">
-                            B
-                        </div>
-                        BleuMont
-                    </a>
-                </div>
-
-                {/* Contenu centré verticalement */}
-                <div className="flex flex-1 items-center justify-center">
-                    <div style={{ viewTransitionName: 'auth-form' }} className="w-full max-w-sm space-y-6">
+            <div className="flex items-center justify-center px-6 py-16 lg:px-16 lg:py-24">
+                <div style={{ viewTransitionName: 'auth-form' }} className="w-full max-w-md">
+                    <div className="rounded-2xl border bg-card shadow-sm p-10 space-y-7">
                         {stepContent()}
                     </div>
                 </div>
