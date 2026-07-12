@@ -36,12 +36,13 @@ class ProductCategoryManager
      * Le slug n'est régénéré que si le nom a vraiment changé pour éviter de
      * casser des URLs existantes lors de corrections mineures (casse, espaces…).
      */
-    public function update(ProductCategory $category, string $name): bool
+    public function update(ProductCategory $category, string $name, ?int $taxRate = null): bool
     {
         $category->setName($name);
         if ($this->slugify($name) !== $category->getSlug()) {
             $category->setSlug($this->generateUniqueSlug($name, $category->getId()));
         }
+        $category->setTaxRate($taxRate);
 
         return $this->flush();
     }

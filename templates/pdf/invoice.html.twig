@@ -128,12 +128,14 @@ body { font-family: "DejaVu Sans", sans-serif; font-size: 11px; color: #1a1a1a; 
     </table>
 
     {# ── Articles ── #}
+    {% set multiRate = lines|map(l => l.rate)|unique|length > 1 %}
     <table class="items-table">
         <thead>
             <tr>
-                <th style="width:45%">Désignation</th>
-                <th class="right" style="width:10%">Qté</th>
-                <th class="right" style="width:15%">P.U. HT</th>
+                <th style="width:{% if multiRate %}40%{% else %}45%{% endif %}">Désignation</th>
+                <th class="right" style="width:8%">Qté</th>
+                {% if multiRate %}<th class="right" style="width:8%">TVA</th>{% endif %}
+                <th class="right" style="width:14%">P.U. HT</th>
                 <th class="right" style="width:15%">Total HT</th>
                 <th class="right" style="width:15%">Total TTC</th>
             </tr>
@@ -146,18 +148,19 @@ body { font-family: "DejaVu Sans", sans-serif; font-size: 11px; color: #1a1a1a; 
                     {% if line.variant %}<br><span class="muted">{{ line.variant }}</span>{% endif %}
                 </td>
                 <td class="right">{{ line.qty }}</td>
+                {% if multiRate %}<td class="right muted">{{ line.rate }}%</td>{% endif %}
                 <td class="right">{{ (line.unitPriceHt / 100)|number_format(2, ',', ' ') }} €</td>
                 <td class="right">{{ (line.totalHt / 100)|number_format(2, ',', ' ') }} €</td>
                 <td class="right">{{ (line.totalTtc / 100)|number_format(2, ',', ' ') }} €</td>
             </tr>
             {% endfor %}
             {% if order.shippingAmount > 0 %}
-            {% set shippingHt = invoice.shippingHt %}
             <tr>
                 <td>Frais de livraison</td>
                 <td class="right">1</td>
-                <td class="right">{{ (shippingHt / 100)|number_format(2, ',', ' ') }} €</td>
-                <td class="right">{{ (shippingHt / 100)|number_format(2, ',', ' ') }} €</td>
+                {% if multiRate %}<td class="right muted">—</td>{% endif %}
+                <td class="right">{{ (invoice.shippingHt / 100)|number_format(2, ',', ' ') }} €</td>
+                <td class="right">{{ (invoice.shippingHt / 100)|number_format(2, ',', ' ') }} €</td>
                 <td class="right">{{ (order.shippingAmount / 100)|number_format(2, ',', ' ') }} €</td>
             </tr>
             {% endif %}
@@ -188,10 +191,19 @@ body { font-family: "DejaVu Sans", sans-serif; font-size: 11px; color: #1a1a1a; 
                 <td>Total HT</td>
                 <td>{{ (invoice.totalHt / 100)|number_format(2, ',', ' ') }} €</td>
             </tr>
+            {# Détail TVA par taux #}
+            {% for row in invoice.taxBreakdown %}
             <tr>
-                <td>TVA {{ invoice.taxRate }}%</td>
+                <td>TVA {{ row.rate }}%</td>
+                <td>{{ (row.taxAmount / 100)|number_format(2, ',', ' ') }} €</td>
+            </tr>
+            {% endfor %}
+            {% if invoice.taxBreakdown|length > 1 %}
+            <tr style="border-top: 1px solid #e5e7eb;">
+                <td>Total TVA</td>
                 <td>{{ (invoice.taxAmount / 100)|number_format(2, ',', ' ') }} €</td>
             </tr>
+            {% endif %}
             <tr class="total-final">
                 <td>Total TTC</td>
                 <td>{{ (invoice.totalTtc / 100)|number_format(2, ',', ' ') }} €</td>

@@ -62,11 +62,16 @@ class Invoice
     #[ORM\Column]
     private int $totalHt = 0;
 
-    /** Taux de TVA en % (ex : 20) */
-    #[ORM\Column(options: ['default' => 20])]
-    private int $taxRate = 20;
+    /**
+     * Détail TVA par taux.
+     * Format : [{'rate': 20.0, 'baseHt': 5000, 'taxAmount': 1000}, ...]
+     *
+     * @var array<array{rate: float, baseHt: int, taxAmount: int}>
+     */
+    #[ORM\Column(type: Types::JSON)]
+    private array $taxBreakdown = [];
 
-    /** Montant de TVA en centimes */
+    /** Montant total de TVA en centimes (somme de taxBreakdown[].taxAmount) */
     #[ORM\Column]
     private int $taxAmount = 0;
 
@@ -127,8 +132,10 @@ class Invoice
     public function getTotalHt(): int { return $this->totalHt; }
     public function setTotalHt(int $v): self { $this->totalHt = $v; return $this; }
 
-    public function getTaxRate(): int { return $this->taxRate; }
-    public function setTaxRate(int $v): self { $this->taxRate = $v; return $this; }
+    /** @return array<array{rate: float, baseHt: int, taxAmount: int}> */
+    public function getTaxBreakdown(): array { return $this->taxBreakdown; }
+    /** @param array<array{rate: float, baseHt: int, taxAmount: int}> $v */
+    public function setTaxBreakdown(array $v): self { $this->taxBreakdown = $v; return $this; }
 
     public function getTaxAmount(): int { return $this->taxAmount; }
     public function setTaxAmount(int $v): self { $this->taxAmount = $v; return $this; }

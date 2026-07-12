@@ -23,9 +23,7 @@ class SettingController extends AbstractController
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
-        return $this->json([
-            'invoiceTrigger' => $this->invoiceService->getInvoiceTrigger(),
-        ]);
+        return $this->json($this->buildPayload());
     }
 
     #[Route('', name: 'api_admin_settings_update', methods: ['PATCH'])]
@@ -43,8 +41,23 @@ class SettingController extends AbstractController
             $this->invoiceService->setInvoiceTrigger($trigger);
         }
 
-        return $this->json([
+        if (isset($payload['defaultTaxRate'])) {
+            $rate = (float) $payload['defaultTaxRate'];
+            if ($rate < 0 || $rate > 100) {
+                return $this->json(['message' => 'Taux de TVA invalide.'], Response::HTTP_UNPROCESSABLE_ENTITY);
+            }
+            $this->invoiceService->setDefaultTaxRate($rate);
+        }
+
+        return $this->json($this->buildPayload());
+    }
+
+    /** @return array<string, mixed> */
+    private function buildPayload(): array
+    {
+        return [
             'invoiceTrigger' => $this->invoiceService->getInvoiceTrigger(),
-        ]);
+            'defaultTaxRate' => $this->invoiceService->getDefaultTaxRate(),
+        ];
     }
 }

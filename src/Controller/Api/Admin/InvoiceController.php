@@ -110,7 +110,7 @@ class InvoiceController extends AbstractController
             'shippingHt'     => $invoice->getShippingHt(),
             'discountAmount' => $invoice->getDiscountAmount(),
             'totalHt'        => $invoice->getTotalHt(),
-            'taxRate'        => $invoice->getTaxRate(),
+            'taxBreakdown'   => $invoice->getTaxBreakdown(),
             'taxAmount'      => $invoice->getTaxAmount(),
             'totalTtc'       => $invoice->getTotalTtc(),
             'billingAddress' => $invoice->getBillingAddress(),

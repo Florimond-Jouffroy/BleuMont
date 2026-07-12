@@ -1,31 +1,32 @@
 import React, { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { api, getErrorMessage } from '../../utils/api';
 
+const TAX_RATE_OPTIONS = [
+    { value: 20,  label: '20% — Taux normal (vêtements, électronique, etc.)' },
+    { value: 10,  label: '10% — Taux intermédiaire (restauration, certains services)' },
+    { value: 5.5, label: '5,5% — Taux réduit (alimentation, livres, abonnements)' },
+    { value: 2.1, label: '2,1% — Taux super-réduit (médicaments, presse)' },
+    { value: 0,   label: '0% — Exonéré (exportations, DOM-TOM)' },
+];
+
 export default function Settings({ urls = {} }) {
-    const [settings, setSettings]   = useState(null);
-    const [loading, setLoading]     = useState(true);
-    const [saving, setSaving]       = useState(false);
-    const [feedback, setFeedback]   = useState(null);
+    const [settings, setSettings] = useState(null);
+    const [loading, setLoading]   = useState(true);
+    const [saving, setSaving]     = useState(false);
+    const [feedback, setFeedback] = useState(null);
 
-    const fetchSettings = async () => {
-        try {
-            const data = await api.get(urls.settings ?? '/api/admin/parametres');
-            setSettings(data);
-        } catch {
-            setFeedback({ type: 'error', message: 'Impossible de charger les paramètres.' });
-        } finally {
-            setLoading(false);
-        }
-    };
+    useEffect(() => {
+        api.get(urls.settings ?? '/api/admin/parametres')
+            .then(setSettings)
+            .catch(() => setFeedback({ type: 'error', message: 'Impossible de charger les paramètres.' }))
+            .finally(() => setLoading(false));
+    }, []);
 
-    useEffect(() => { fetchSettings(); }, []);
-
-    const handleTriggerChange = async (value) => {
+    const updateSetting = async (patch) => {
         setSaving(true);
         setFeedback(null);
         try {
-            const data = await api.patch(urls.settings ?? '/api/admin/parametres', { invoiceTrigger: value });
+            const data = await api.patch(urls.settings ?? '/api/admin/parametres', patch);
             setSettings(data);
             setFeedback({ type: 'success', message: 'Paramètre enregistré.' });
         } catch (err) {
@@ -57,27 +58,31 @@ export default function Settings({ urls = {} }) {
                 </p>
             )}
 
-            {/* Facturation */}
+            {/* ── Facturation ── */}
             <div className="rounded-lg border">
                 <div className="px-5 py-4 border-b bg-muted/40">
                     <h3 className="font-semibold text-sm">Facturation</h3>
-                    <p className="text-xs text-muted-foreground mt-0.5">Configurer quand les factures sont générées automatiquement</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">Génération des factures et TVA par défaut</p>
                 </div>
-                <div className="p-5 space-y-4">
-                    <div className="space-y-2">
-                        <p className="text-sm font-medium">Déclencheur de la facture</p>
+                <div className="p-5 space-y-6">
 
+                    {/* Déclencheur */}
+                    <div className="space-y-3">
+                        <div>
+                            <p className="text-sm font-medium">Déclencheur de la facture</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">Quand la facture est générée automatiquement</p>
+                        </div>
                         <div className="space-y-2">
                             {[
                                 {
                                     value: 'on_order',
                                     label: 'À la création de la commande',
-                                    description: 'La facture est générée dès que le client confirme sa commande (statut En attente). Recommandé pour les paiements immédiats.',
+                                    description: 'Facture générée dès la validation du panier (statut En attente). Idéal pour les paiements immédiats.',
                                 },
                                 {
                                     value: 'on_confirm',
                                     label: "Lors de la confirmation par l'admin",
-                                    description: "La facture n'est générée que quand vous passez la commande en statut Confirmée. Recommandé si vous validez les commandes manuellement.",
+                                    description: "Facture générée quand l'admin passe la commande en Confirmée. Recommandé pour les validations manuelles.",
                                 },
                             ].map(({ value, label, description }) => {
                                 const active = settings?.invoiceTrigger === value;
@@ -86,11 +91,9 @@ export default function Settings({ urls = {} }) {
                                         key={value}
                                         type="button"
                                         disabled={saving}
-                                        onClick={() => !active && handleTriggerChange(value)}
+                                        onClick={() => !active && updateSetting({ invoiceTrigger: value })}
                                         className={`w-full text-left rounded-lg border-2 p-4 transition-colors ${
-                                            active
-                                                ? 'border-primary bg-primary/5'
-                                                : 'border-border hover:border-muted-foreground/40'
+                                            active ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground/40'
                                         } ${saving ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
                                     >
                                         <div className="flex items-start gap-3">
@@ -110,9 +113,50 @@ export default function Settings({ urls = {} }) {
                         </div>
                     </div>
 
+                    <div className="border-t" />
+
+                    {/* Taux de TVA par défaut */}
+                    <div className="space-y-3">
+                        <div>
+                            <p className="text-sm font-medium">Taux de TVA par défaut</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                                Appliqué aux produits dont la catégorie n'a pas de taux spécifique, et aux frais de livraison.
+                            </p>
+                        </div>
+                        <div className="space-y-2">
+                            {TAX_RATE_OPTIONS.map(({ value, label }) => {
+                                const active = settings?.defaultTaxRate === value;
+                                return (
+                                    <button
+                                        key={value}
+                                        type="button"
+                                        disabled={saving}
+                                        onClick={() => !active && updateSetting({ defaultTaxRate: value })}
+                                        className={`w-full text-left rounded-lg border-2 px-4 py-3 transition-colors ${
+                                            active ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground/40'
+                                        } ${saving ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div className={`size-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                                                active ? 'border-primary' : 'border-muted-foreground/40'
+                                            }`}>
+                                                {active && <div className="size-2 rounded-full bg-primary" />}
+                                            </div>
+                                            <span className="text-sm">{label}</span>
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
                     <div className="rounded-md bg-muted/60 px-4 py-3 text-xs text-muted-foreground">
-                        <strong>Note :</strong> La TVA appliquée sur les factures est de <strong>20%</strong>.
-                        Les informations de l'entreprise (nom, adresse, SIRET) sont configurables dans <code>config/services.yaml</code> sous la clé <code>app.company</code>.
+                        <strong>Taux par catégorie</strong> — Pour appliquer un taux différent sur certains produits,
+                        configurez-le directement sur la catégorie dans{' '}
+                        <strong>Boutique → Catégories</strong>. Il prend le dessus sur le taux par défaut.
+                        <br /><br />
+                        <strong>Informations entreprise</strong> — Nom, adresse, SIRET visibles sur les factures PDF.
+                        À modifier dans <code>config/services.yaml</code> sous la clé <code>app.company</code>.
                     </div>
                 </div>
             </div>
