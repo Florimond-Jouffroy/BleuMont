@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle, ChevronRight, Lock, Package } from 'lucide-react';
-import { api, getErrorMessage } from '../../utils/api';
+import { CheckCircle, ChevronRight, Lock, Package, ShoppingBag, UserPlus } from 'lucide-react';
+import { api, ApiError, getErrorMessage } from '../../utils/api';
 import { useCart } from '../context/CartContext';
 
 function formatPrice(cents) {
@@ -17,6 +17,7 @@ export default function Checkout({ urls }) {
     const navigate   = useNavigate();
     const { cart, loading: cartLoading } = useCart();
 
+    const [authStatus, setAuthStatus]           = useState('checking'); // 'checking' | 'ok' | 'guest'
     const [step, setStep]                       = useState(1);
     const [address, setAddress]                 = useState(EMPTY_ADDRESS);
     const [customerNote, setCustomerNote]       = useState('');
@@ -27,10 +28,11 @@ export default function Checkout({ urls }) {
     const [error, setError]                     = useState('');
     const [orderNumber, setOrderNumber]         = useState('');
 
-    // Pre-fill form from saved profile
+    // Check auth + pre-fill form from profile
     useEffect(() => {
         api.get(urls.profile)
             .then((profile) => {
+                setAuthStatus('ok');
                 if (profile?.firstName || profile?.lastName) {
                     setAddress((a) => ({
                         ...a,
@@ -40,7 +42,14 @@ export default function Checkout({ urls }) {
                     }));
                 }
             })
-            .catch(() => {});
+            .catch((err) => {
+                if (err instanceof ApiError && err.status === 401) {
+                    setAuthStatus('guest');
+                } else {
+                    // Other error (network, etc.) — allow to proceed, API will reject if needed
+                    setAuthStatus('ok');
+                }
+            });
     }, []);
 
     // Load shipping methods when cart changes
@@ -99,7 +108,12 @@ export default function Checkout({ urls }) {
         }
     };
 
-    if (cartLoading) return <PageSkeleton />;
+    if (cartLoading || authStatus === 'checking') return <PageSkeleton />;
+
+    // Not logged in → show auth gate
+    if (authStatus === 'guest') {
+        return <AuthGate cart={cart} />;
+    }
 
     if (cart.items.length === 0 && step < 3) {
         return (
@@ -489,6 +503,87 @@ function Field({ label, id, value, onChange, type = 'text', required = false, pl
                 placeholder={placeholder}
                 className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
+        </div>
+    );
+}
+
+/* ── Auth gate : shown to non-authenticated users ── */
+function AuthGate({ cart }) {
+    const redirect = encodeURIComponent('/boutique/commander');
+
+    return (
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 py-10">
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-center">
+                {/* Message */}
+                <div className="space-y-6">
+                    <div className="space-y-2">
+                        <h1 className="text-2xl font-bold tracking-tight">
+                            Finalisez votre commande
+                        </h1>
+                        <p className="text-muted-foreground">
+                            Connectez-vous ou créez un compte pour passer commande.
+                            Votre panier est sauvegardé et vous attend.
+                        </p>
+                    </div>
+
+                    <div className="flex items-center gap-2 rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-700">
+                        <ShoppingBag className="h-4 w-4 shrink-0" />
+                        {cart.itemCount} article{cart.itemCount !== 1 ? 's' : ''} dans votre panier — {formatPrice(cart.subtotal)}
+                    </div>
+
+                    <div className="flex flex-col gap-3">
+                        <a
+                            href={`/connexion?redirect=${redirect}`}
+                            className="flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
+                        >
+                            <Lock className="h-4 w-4" />
+                            Se connecter
+                        </a>
+                        <a
+                            href={`/inscription?redirect=${redirect}`}
+                            className="flex items-center justify-center gap-2 rounded-xl border border-border px-6 py-3.5 text-sm font-semibold text-foreground hover:bg-accent transition-colors"
+                        >
+                            <UserPlus className="h-4 w-4" />
+                            Créer un compte
+                        </a>
+                    </div>
+
+                    <p className="text-xs text-muted-foreground">
+                        La création de compte est gratuite et prend moins d'une minute.
+                    </p>
+                </div>
+
+                {/* Cart mini-summary */}
+                {cart.items.length > 0 && (
+                    <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+                        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                            Votre panier
+                        </h2>
+                        <ul className="space-y-3">
+                            {cart.items.map((item) => (
+                                <li key={item.key} className="flex items-center gap-3">
+                                    <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-muted">
+                                        {item.imageUrl
+                                            ? <img src={item.imageUrl} alt={item.productName} className="h-full w-full object-cover" />
+                                            : <div className="h-full w-full flex items-center justify-center text-muted-foreground/30"><ShoppingBag className="h-5 w-5" /></div>
+                                        }
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium truncate">{item.productName}</p>
+                                        {item.variantName && <p className="text-xs text-muted-foreground">{item.variantName}</p>}
+                                        <p className="text-xs text-muted-foreground">× {item.quantity}</p>
+                                    </div>
+                                    <span className="text-sm font-semibold shrink-0">{formatPrice(item.lineTotal)}</span>
+                                </li>
+                            ))}
+                        </ul>
+                        <div className="flex justify-between border-t border-border pt-3 text-sm font-semibold">
+                            <span>Sous-total</span>
+                            <span>{formatPrice(cart.subtotal)}</span>
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

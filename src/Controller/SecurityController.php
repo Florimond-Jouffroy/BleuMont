@@ -15,36 +15,62 @@ use Symfony\Component\Routing\Attribute\Route;
 class SecurityController extends AbstractController
 {
     #[Route('/connexion', name: 'login', methods: ['GET'])]
-    public function login(): Response
+    public function login(Request $request): Response
     {
         if ($this->getUser()) {
             return $this->redirectToRoute('app_home');
         }
 
+        $redirectUrl = $this->sanitizeRedirect($request->query->getString('redirect'), $this->generateUrl('app_home'));
+
         return $this->render('security/login.html.twig', [
             'urls' => [
-                'login' => $this->generateUrl('api_auth_login'),
-                'redirect' => $this->generateUrl('app_home'),
+                'login'          => $this->generateUrl('api_auth_login'),
+                'redirect'       => $redirectUrl,
                 'forgotPassword' => $this->generateUrl('app_security_forgot_password'),
-                'register' => $this->generateUrl('app_security_register'),
+                'register'       => $this->generateUrl('app_security_register')
+                    . ($redirectUrl !== $this->generateUrl('app_home') ? '?redirect=' . urlencode($redirectUrl) : ''),
             ],
         ]);
     }
 
     #[Route('/inscription', name: 'register', methods: ['GET'])]
-    public function register(): Response
+    public function register(Request $request): Response
     {
         if ($this->getUser()) {
             return $this->redirectToRoute('app_home');
         }
 
+        $redirectUrl = $this->sanitizeRedirect($request->query->getString('redirect'), $this->generateUrl('app_home'));
+        $loginWithRedirect = $this->generateUrl('app_security_login')
+            . ($redirectUrl !== $this->generateUrl('app_home') ? '?redirect=' . urlencode($redirectUrl) : '');
+
         return $this->render('security/register.html.twig', [
             'urls' => [
-                'register' => $this->generateUrl('api_auth_register'),
-                'resend' => $this->generateUrl('api_auth_verify_email_resend'),
-                'login' => $this->generateUrl('app_security_login'),
+                'register'     => $this->generateUrl('api_auth_register'),
+                'resend'       => $this->generateUrl('api_auth_verify_email_resend'),
+                'login'        => $loginWithRedirect,
+                'afterLoginUrl' => $redirectUrl,
             ],
         ]);
+    }
+
+    /**
+     * Valide que l'URL de redirect est interne (commence par /) pour éviter un open redirect.
+     * Les URLs vides ou externes retournent la valeur par défaut.
+     */
+    private function sanitizeRedirect(string $redirect, string $default): string
+    {
+        $redirect = trim($redirect);
+        if ('' === $redirect) {
+            return $default;
+        }
+        // Reject external URLs and protocol-relative URLs (//example.com)
+        if (!str_starts_with($redirect, '/') || str_starts_with($redirect, '//')) {
+            return $default;
+        }
+
+        return $redirect;
     }
 
     #[Route('/verification-email', name: 'verify_email', methods: ['GET'])]

@@ -10,6 +10,7 @@ export default function LoginForm({
     redirectUrl       = '/',
     forgotPasswordUrl = '/mot-de-passe-oublie',
     registerUrl       = '/inscription',
+    checkoutContext   = false,
 }) {
     const [email, setEmail]       = useState('');
     const [password, setPassword] = useState('');
@@ -39,9 +40,20 @@ export default function LoginForm({
                         <div className="space-y-1.5 text-center">
                             <h1 className="text-2xl font-bold tracking-tight">Connexion</h1>
                             <p className="text-sm text-muted-foreground">
-                                Entrez vos identifiants pour accéder à votre compte
+                                {checkoutContext
+                                    ? 'Connectez-vous pour finaliser votre commande'
+                                    : 'Entrez vos identifiants pour accéder à votre compte'}
                             </p>
                         </div>
+
+                        {checkoutContext && (
+                            <div className="flex items-center gap-2 rounded-lg bg-primary/8 border border-primary/20 px-4 py-3 text-sm text-primary">
+                                <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.847-7.148a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+                                </svg>
+                                Votre panier est sauvegardé et vous attend.
+                            </div>
+                        )}
 
                         <form onSubmit={handleSubmit} className="space-y-5">
                             <div className="space-y-2">
