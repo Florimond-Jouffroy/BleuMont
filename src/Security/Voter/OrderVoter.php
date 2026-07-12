@@ -10,7 +10,16 @@ use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-/** @extends Voter<string, mixed> */
+/**
+ * Contrôle d'accès pour les opérations sur les commandes.
+ *
+ * Symfony appelle ce voter à chaque denyAccessUnlessGranted() portant sur un
+ * attribut ORDER_*. La décision réelle est déléguée à PermissionService qui lit
+ * config/permissions.yaml et vérifie si l'un des rôles de l'utilisateur est
+ * autorisé pour cette permission.
+ *
+ * @extends Voter<string, mixed>
+ */
 class OrderVoter extends Voter
 {
     public const string VIEW   = 'ORDER_VIEW';

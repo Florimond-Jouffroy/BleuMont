@@ -12,6 +12,14 @@ use App\Repository\OrderRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Florimond\LogBundle\Service\Manager\ApplicationLogManager;
 
+/**
+ * Gère les opérations métier sur les commandes.
+ *
+ * Toutes les méthodes retournent bool ou ?Order pour indiquer le succès.
+ * En cas d'exception lors du flush(), l'erreur est loguée via ApplicationLogManager
+ * et la méthode retourne false/null au lieu de laisser l'exception remonter.
+ * Le contrôleur traduit ce retour en réponse HTTP 500.
+ */
 class OrderManager
 {
     public function __construct(
@@ -22,6 +30,10 @@ class OrderManager
     }
 
     /**
+     * Crée une commande complète avec ses lignes et son premier historique.
+     * Le numéro de commande (ORD-YYYYMMDD-XXXXX) est généré automatiquement.
+     * Le statut initial est toujours "pending".
+     *
      * @param array<array{productName: string, variantName?: string|null, unitPrice: int, quantity: int, productId?: int|null, variantId?: int|null}> $items
      * @param array<string, string> $shippingAddress
      * @param array<string, string>|null $billingAddress
@@ -70,6 +82,12 @@ class OrderManager
         return $this->flush() ? $order : null;
     }
 
+    /**
+     * Applique une transition de statut sur la commande.
+     * Vérifie d'abord que la transition est autorisée (canTransitionTo),
+     * puis crée une entrée dans l'historique pour tracer le changement.
+     * Retourne false si la transition est invalide ou si le flush échoue.
+     */
     public function transition(Order $order, string $newStatus, ?string $comment = null): bool
     {
         if (!$order->canTransitionTo($newStatus)) {
@@ -101,6 +119,11 @@ class OrderManager
         return $this->flush();
     }
 
+    /**
+     * Génère un numéro de commande lisible au format ORD-YYYYMMDD-XXXXX.
+     * Exemple : ORD-20260712-00042
+     * Le séquenceur est basé sur COUNT+1 (voir OrderRepository::getNextSequence).
+     */
     private function generateOrderNumber(): string
     {
         $seq = $this->orderRepository->getNextSequence();

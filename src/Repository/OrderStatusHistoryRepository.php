@@ -8,7 +8,13 @@ use App\Entity\OrderStatusHistory;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/** @extends ServiceEntityRepository<OrderStatusHistory> */
+/**
+ * Requêtes Doctrine pour l'entité OrderStatusHistory.
+ * L'historique est principalement accédé via $order->getStatusHistory(),
+ * ce repository reste donc minimal.
+ *
+ * @extends ServiceEntityRepository<OrderStatusHistory>
+ */
 class OrderStatusHistoryRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)

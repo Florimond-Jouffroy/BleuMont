@@ -9,6 +9,10 @@ use App\Repository\ProductCategoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Florimond\LogBundle\Service\Manager\ApplicationLogManager;
 
+/**
+ * Gère les opérations CRUD sur les catégories de produits.
+ * Génère automatiquement un slug unique à partir du nom.
+ */
 class ProductCategoryManager
 {
     public function __construct(
@@ -27,6 +31,11 @@ class ProductCategoryManager
         return $this->insert($category) ? $category : null;
     }
 
+    /**
+     * Met à jour le nom et, si nécessaire, le slug.
+     * Le slug n'est régénéré que si le nom a vraiment changé pour éviter de
+     * casser des URLs existantes lors de corrections mineures (casse, espaces…).
+     */
     public function update(ProductCategory $category, string $name): bool
     {
         $category->setName($name);

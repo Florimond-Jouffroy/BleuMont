@@ -8,7 +8,11 @@ use App\Entity\Order;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/** @extends ServiceEntityRepository<Order> */
+/**
+ * Requêtes Doctrine pour l'entité Order.
+ *
+ * @extends ServiceEntityRepository<Order>
+ */
 class OrderRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -21,6 +25,12 @@ class OrderRepository extends ServiceEntityRepository
         return $this->findOneBy(['orderNumber' => $number]);
     }
 
+    /**
+     * Retourne le prochain numéro de séquence pour générer un numéro de commande.
+     * Utilise COUNT+1, ce qui suffit pour un usage admin à faible concurrence.
+     * Note : des suppressions de commandes peuvent créer des "trous" dans la séquence,
+     * c'est intentionnel et sans impact fonctionnel.
+     */
     public function getNextSequence(): int
     {
         $result = $this->createQueryBuilder('o')
@@ -32,6 +42,10 @@ class OrderRepository extends ServiceEntityRepository
     }
 
     /**
+     * Recherche paginée avec filtres optionnels.
+     * La jointure sur customer est systématique car la recherche textuelle
+     * porte sur le nom et l'email du client.
+     *
      * @return array{items: list<Order>, total: int}
      */
     public function searchPaginated(
@@ -70,7 +84,12 @@ class OrderRepository extends ServiceEntityRepository
         return ['items' => $items, 'total' => $total];
     }
 
-    /** @return array<string, int> status => count */
+    /**
+     * Retourne le nombre de commandes par statut.
+     * Utilisé par le dashboard e-commerce pour afficher les compteurs rapides.
+     *
+     * @return array<string, int> statut => nombre de commandes
+     */
     public function countByStatus(): array
     {
         $rows = $this->createQueryBuilder('o')

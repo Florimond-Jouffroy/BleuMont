@@ -7,6 +7,15 @@ namespace App\Entity;
 use App\Repository\OrderItemRepository;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * Ligne d'une commande (un produit acheté).
+ *
+ * Applique le "snapshot pattern" : les champs productName, variantName et
+ * unitPrice sont copiés depuis le catalogue au moment de la commande et ne
+ * changent plus jamais, même si le produit est modifié ou supprimé ensuite.
+ * Les FK product et variant sont volontairement nullable (ON DELETE SET NULL)
+ * pour ne pas bloquer la suppression d'un produit du catalogue.
+ */
 #[ORM\Entity(repositoryClass: OrderItemRepository::class)]
 class OrderItem
 {

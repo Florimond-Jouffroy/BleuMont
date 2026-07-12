@@ -7,6 +7,13 @@ namespace App\Entity;
 use App\Repository\OrderStatusHistoryRepository;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * Trace chaque changement de statut d'une commande.
+ *
+ * Chaque transition (ex. pending → confirmed) crée une nouvelle entrée dans
+ * cette table. C'est un log immuable : on n'édite jamais une entrée existante,
+ * on en crée une nouvelle. Cela permet de retracer toute la vie de la commande.
+ */
 #[ORM\Entity(repositoryClass: OrderStatusHistoryRepository::class)]
 class OrderStatusHistory
 {

@@ -7,6 +7,13 @@ namespace App\Entity;
 use App\Repository\ProductImageRepository;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * Image associée à un produit.
+ *
+ * Les images sont triées par `position` (ASC) : la première (position 0)
+ * est la photo principale affichée dans les listes. L'URL pointe vers
+ * une ressource de la médiathèque ou un CDN externe.
+ */
 #[ORM\Entity(repositoryClass: ProductImageRepository::class)]
 class ProductImage
 {

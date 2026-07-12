@@ -14,6 +14,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
+/**
+ * API REST pour la gestion des catégories de produits en back-office.
+ *
+ * Toutes les routes sont protégées par ProductCategoryVoter (VIEW, CREATE, EDIT, DELETE).
+ * Les droits sont configurés dans config/permissions.yaml.
+ */
 #[Route('/api/admin/product-categories')]
 class ProductCategoryController extends AbstractController
 {

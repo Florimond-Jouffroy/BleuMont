@@ -14,6 +14,17 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
+/**
+ * API REST pour la gestion des commandes en back-office.
+ *
+ * Toutes les routes sont protégées par OrderVoter (VIEW, EDIT, DELETE).
+ * Les droits sont configurés dans config/permissions.yaml.
+ *
+ * Conventions de sérialisation :
+ * - serializeList() : données compactes pour le tableau (liste des commandes)
+ * - serializeFull() : données complètes pour la fiche détail, inclut les lignes,
+ *   l'historique des statuts et les transitions autorisées depuis l'état actuel.
+ */
 #[Route('/api/admin/orders')]
 class OrderController extends AbstractController
 {
@@ -50,6 +61,12 @@ class OrderController extends AbstractController
         return $this->json($this->serializeFull($order));
     }
 
+    /**
+     * Change le statut d'une commande.
+     * Deux validations sont effectuées avant d'appeler le manager :
+     * 1. Le statut envoyé doit exister dans Order::STATUSES
+     * 2. La transition doit être autorisée depuis l'état actuel (Order::TRANSITIONS)
+     */
     #[Route('/{id}/transition', name: 'api_admin_orders_transition', methods: ['POST'])]
     public function transition(Order $order, Request $request): JsonResponse
     {
@@ -105,7 +122,12 @@ class OrderController extends AbstractController
         return $this->json(null, Response::HTTP_NO_CONTENT);
     }
 
-    /** @return array<string, mixed> */
+    /**
+     * Sérialisation légère pour le tableau des commandes.
+     * Ne charge pas les lignes ni l'historique pour ne pas surcharger la liste.
+     *
+     * @return array<string, mixed>
+     */
     private function serializeList(Order $order): array
     {
         $customer = $order->getCustomer();
@@ -126,7 +148,13 @@ class OrderController extends AbstractController
         ];
     }
 
-    /** @return array<string, mixed> */
+    /**
+     * Sérialisation complète pour la fiche détail.
+     * Inclut les lignes, l'historique et allowedTransitions (transitions autorisées
+     * depuis le statut actuel) pour que le frontend sache quels boutons afficher.
+     *
+     * @return array<string, mixed>
+     */
     private function serializeFull(Order $order): array
     {
         $items = array_map(static fn (mixed $item) => [

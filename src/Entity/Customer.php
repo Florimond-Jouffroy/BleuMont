@@ -9,6 +9,12 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * Représente un acheteur sur la boutique.
+ *
+ * Un Customer est distinct d'un User (compte admin) : c'est la personne
+ * qui passe commande. Elle peut n'avoir aucun compte sur le site.
+ */
 #[ORM\Entity(repositoryClass: CustomerRepository::class)]
 class Customer
 {

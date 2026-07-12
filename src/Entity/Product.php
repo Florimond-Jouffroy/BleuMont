@@ -10,6 +10,19 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * Produit de la boutique.
+ *
+ * Deux modes de gestion du stock :
+ * - hasVariants = false : stock simple géré directement sur le produit
+ * - hasVariants = true  : stock calculé en sommant les stocks des variantes actives
+ *
+ * Tous les prix sont en centimes d'euro (ex. 1999 = 19,99 €).
+ * compareAtPrice est le "prix barré" affiché avant remise.
+ *
+ * Le statut suit un cycle simple : draft → published (et retour).
+ * Un produit en draft n'est pas visible sur la boutique.
+ */
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
 #[ORM\HasLifecycleCallbacks]
 class Product
@@ -125,6 +138,11 @@ class Product
     /** @return Collection<int, ProductCategory> */
     public function getCategories(): Collection { return $this->categories; }
 
+    /**
+     * Remplace toutes les catégories du produit par le tableau fourni.
+     * On vide d'abord la collection pour gérer proprement les ajouts ET les suppressions
+     * en un seul appel, sans avoir à comparer l'ancienne et la nouvelle liste.
+     */
     public function syncCategories(array $categories): self
     {
         $this->categories->clear();

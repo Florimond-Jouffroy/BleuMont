@@ -8,6 +8,14 @@ use App\Repository\ProductVariantRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * Déclinaison d'un produit (ex. "Rouge / L", "Bleu / XL").
+ *
+ * Utilisée uniquement quand Product::$hasVariants = true. Dans ce cas,
+ * le stock global n'est plus géré au niveau du produit mais par la somme
+ * des stocks de ses variantes actives. Chaque variante peut avoir un prix
+ * propre (priceOverride) ou hériter du prix de base du produit.
+ */
 #[ORM\Entity(repositoryClass: ProductVariantRepository::class)]
 class ProductVariant
 {
@@ -61,6 +69,10 @@ class ProductVariant
     public function getPriceOverride(): ?int { return $this->priceOverride; }
     public function setPriceOverride(?int $priceOverride): self { $this->priceOverride = $priceOverride; return $this; }
 
+    /**
+     * Retourne le prix réel de la variante.
+     * Si aucun prix spécifique n'est défini, on utilise le prix de base du produit.
+     */
     public function getEffectivePrice(): int
     {
         return $this->priceOverride ?? $this->product->getPrice();

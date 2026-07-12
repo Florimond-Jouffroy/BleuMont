@@ -10,7 +10,16 @@ use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-/** @extends Voter<string, mixed> */
+/**
+ * Contrôle d'accès pour les opérations sur les catégories de produits.
+ *
+ * Symfony appelle ce voter à chaque denyAccessUnlessGranted() portant sur un
+ * attribut PRODUCT_CATEGORY_*. La décision réelle est déléguée à PermissionService
+ * qui lit config/permissions.yaml et vérifie si l'un des rôles de l'utilisateur est
+ * autorisé pour cette permission.
+ *
+ * @extends Voter<string, mixed>
+ */
 class ProductCategoryVoter extends Voter
 {
     public const string VIEW   = 'PRODUCT_CATEGORY_VIEW';

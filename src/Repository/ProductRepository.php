@@ -8,7 +8,11 @@ use App\Entity\Product;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/** @extends ServiceEntityRepository<Product> */
+/**
+ * Requêtes Doctrine pour l'entité Product.
+ *
+ * @extends ServiceEntityRepository<Product>
+ */
 class ProductRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -62,7 +66,14 @@ class ProductRepository extends ServiceEntityRepository
         return ['items' => $items, 'total' => $total];
     }
 
-    /** @return list<Product> */
+    /**
+     * Retourne les produits simples (sans variantes) dont le stock est en dessous
+     * du seuil d'alerte. Utilisé par le dashboard pour les alertes stock bas.
+     * Les produits avec variantes ne sont pas inclus : leur stock se calcule
+     * différemment (somme des variantes actives).
+     *
+     * @return list<Product>
+     */
     public function findLowStock(): array
     {
         /** @var list<Product> */

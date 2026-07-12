@@ -9,6 +9,12 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * Catégorie de produits (ex. "Vêtements", "Accessoires").
+ *
+ * Un produit peut appartenir à plusieurs catégories (ManyToMany).
+ * L'inverse de cette relation est géré côté Product via syncCategories().
+ */
 #[ORM\Entity(repositoryClass: ProductCategoryRepository::class)]
 class ProductCategory
 {

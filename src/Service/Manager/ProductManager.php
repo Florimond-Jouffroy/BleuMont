@@ -11,6 +11,13 @@ use App\Repository\ProductRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Florimond\LogBundle\Service\Manager\ApplicationLogManager;
 
+/**
+ * Gère les opérations métier sur les produits.
+ *
+ * Toutes les méthodes retournent bool ou ?Product pour indiquer le succès.
+ * En cas d'exception lors du flush(), l'erreur est loguée et la méthode
+ * retourne false/null pour permettre au contrôleur de renvoyer une 500 propre.
+ */
 class ProductManager
 {
     public function __construct(
@@ -100,6 +107,10 @@ class ProductManager
     }
 
     /**
+     * Remplace toutes les images du produit.
+     * Stratégie "delete all + re-insert" : plus simple qu'un diff,
+     * suffisant car les images sont légères et peu nombreuses.
+     *
      * @param list<array{url: string, alt?: string|null, position?: int}> $images
      */
     private function syncImages(Product $product, array $images): void
@@ -119,6 +130,11 @@ class ProductManager
     }
 
     /**
+     * Synchronise les variantes : met à jour les existantes (par id), supprime celles
+     * absentes du tableau entrant, et crée les nouvelles (id absent ou inconnu).
+     * On construit d'abord un index des variantes existantes par id pour éviter
+     * des requêtes SELECT en boucle.
+     *
      * @param list<array{id?: int|null, name: string, sku?: string|null, priceOverride?: int|null, stock: int, lowStockThreshold?: int, position?: int, attributes?: array<mixed>|null, isActive?: bool}> $variants
      */
     private function syncVariants(Product $product, array $variants): void
@@ -173,6 +189,11 @@ class ProductManager
         return true;
     }
 
+    /**
+     * Génère un slug unique en base. Si "t-shirt" existe déjà, tente "t-shirt-2",
+     * "t-shirt-3", etc. excludeId permet d'exclure le produit lui-même lors d'un
+     * renommage (sinon il se trouverait lui-même et incrémenterait indéfiniment).
+     */
     private function generateUniqueSlug(string $name, ?int $excludeId = null): string
     {
         $base    = $this->slugify($name);
@@ -190,6 +211,11 @@ class ProductManager
         return $slug;
     }
 
+    /**
+     * Convertit un texte en slug ASCII minuscule (ex. "T-Shirt Blanc" → "t-shirt-blanc").
+     * iconv TRANSLIT convertit les accents (é → e, ñ → n, etc.).
+     * IGNORE supprime les caractères qui ne peuvent pas être translittérés.
+     */
     private function slugify(string $text): string
     {
         $text = mb_strtolower($text, 'UTF-8');

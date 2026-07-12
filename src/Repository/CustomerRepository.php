@@ -8,7 +8,11 @@ use App\Entity\Customer;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/** @extends ServiceEntityRepository<Customer> */
+/**
+ * Requêtes Doctrine pour l'entité Customer.
+ *
+ * @extends ServiceEntityRepository<Customer>
+ */
 class CustomerRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)

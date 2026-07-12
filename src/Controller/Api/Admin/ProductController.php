@@ -15,6 +15,16 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
+/**
+ * API REST pour la gestion des produits en back-office.
+ *
+ * Toutes les routes sont protégées par ProductVoter (VIEW, CREATE, EDIT, DELETE, PUBLISH).
+ * Les droits sont configurés dans config/permissions.yaml.
+ *
+ * Conventions de sérialisation :
+ * - serializeList() : données compactes pour le tableau (cover, stock, statut)
+ * - serializeFull() : données complètes pour l'éditeur produit (images, variantes, description)
+ */
 #[Route('/api/admin/products')]
 class ProductController extends AbstractController
 {
@@ -155,7 +165,14 @@ class ProductController extends AbstractController
         return $this->json($this->serializeList($product));
     }
 
-    /** @return array<string, mixed> */
+    /**
+     * Sérialisation légère pour le tableau des produits.
+     * Le stock est calculé dynamiquement : somme des variantes actives si hasVariants,
+     * sinon valeur directe du produit.
+     * La coverImage est la première image (position 0) via une simple boucle break.
+     *
+     * @return array<string, mixed>
+     */
     private function serializeList(Product $product): array
     {
         $categories = array_map(
@@ -163,6 +180,7 @@ class ProductController extends AbstractController
             $product->getCategories()->toArray(),
         );
 
+        // La première image dans la collection triée par position est la photo principale.
         $coverUrl = null;
         foreach ($product->getImages() as $img) {
             $coverUrl = $img->getUrl();

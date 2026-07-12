@@ -10,6 +10,17 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * Commande passée par un client sur la boutique.
+ *
+ * Cycle de vie géré par une machine à états simple (voir TRANSITIONS).
+ * Les montants (subtotal, discountAmount, shippingAmount, total) sont tous
+ * stockés en centimes d'euro (ex. 1999 = 19,99 €) pour éviter les erreurs
+ * d'arrondi liées aux nombres flottants.
+ *
+ * Note : le nom de table est entouré de backticks car "order" est un mot
+ * réservé SQL. Sans ça, toutes les requêtes Doctrine échoueraient.
+ */
 #[ORM\Entity(repositoryClass: OrderRepository::class)]
 #[ORM\Table(name: '`order`')]
 #[ORM\HasLifecycleCallbacks]
@@ -22,6 +33,7 @@ class Order
     public const string STATUS_CANCELLED = 'cancelled';
     public const string STATUS_REFUNDED  = 'refunded';
 
+    /** Liste complète des statuts valides, utilisée pour valider les entrées API. */
     public const array STATUSES = [
         self::STATUS_PENDING,
         self::STATUS_CONFIRMED,
@@ -31,7 +43,13 @@ class Order
         self::STATUS_REFUNDED,
     ];
 
-    /** Allowed forward transitions */
+    /**
+     * Définit les transitions autorisées depuis chaque statut.
+     * Lire comme : "depuis pending, on peut aller vers confirmed ou cancelled".
+     * cancelled et refunded sont des états terminaux : aucune transition possible.
+     * Ce tableau est aussi envoyé au frontend pour afficher uniquement
+     * les boutons d'action pertinents sur la fiche commande.
+     */
     public const array TRANSITIONS = [
         self::STATUS_PENDING   => [self::STATUS_CONFIRMED, self::STATUS_CANCELLED],
         self::STATUS_CONFIRMED => [self::STATUS_SHIPPED,   self::STATUS_CANCELLED],
@@ -127,6 +145,10 @@ class Order
         $this->updatedAt = new \DateTimeImmutable();
     }
 
+    /**
+     * Vérifie si la transition vers le statut donné est autorisée depuis l'état actuel.
+     * À appeler avant tout appel à setStatus() pour respecter la machine à états.
+     */
     public function canTransitionTo(string $status): bool
     {
         return in_array($status, self::TRANSITIONS[$this->status] ?? [], true);
@@ -183,6 +205,12 @@ class Order
     /** @return Collection<int, OrderStatusHistory> */
     public function getStatusHistory(): Collection { return $this->statusHistory; }
 
+    /**
+     * Recalcule subtotal et total à partir des lignes de commande.
+     * À appeler après avoir ajouté/modifié des OrderItem.
+     * Le total est plafonné à 0 pour éviter un montant négatif si la remise
+     * dépasse le sous-total (ex. bon de réduction trop généreux).
+     */
     public function recalculateTotal(): void
     {
         $this->subtotal = array_reduce(
