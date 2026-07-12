@@ -48,7 +48,7 @@ const CONFIRM_ACTIONS = {
         ),
         confirmLabel: 'Envoyer le code',
         variant: 'default',
-        run: (user) => api.post(`/api/admin/users/${user.id}/reset-password`),
+        run: (user) => api.post(`/api/admin/utilisateurs/${user.id}/reinitialiser-mot-de-passe`),
         successMessage: (user) => `Code de réinitialisation envoyé à ${user.email}.`,
     },
     promote: {
@@ -58,7 +58,7 @@ const CONFIRM_ACTIONS = {
         ),
         confirmLabel: 'Promouvoir',
         variant: 'default',
-        run: (user) => api.put(`/api/admin/users/${user.id}/roles`, { roles: ['ROLE_ADMIN'] }),
+        run: (user) => api.put(`/api/admin/utilisateurs/${user.id}/roles`, { roles: ['ROLE_ADMIN'] }),
         successMessage: (user) => `${user.email} est maintenant administrateur.`,
     },
     demote: {
@@ -68,7 +68,7 @@ const CONFIRM_ACTIONS = {
         ),
         confirmLabel: 'Retirer les droits',
         variant: 'default',
-        run: (user) => api.put(`/api/admin/users/${user.id}/roles`, { roles: [] }),
+        run: (user) => api.put(`/api/admin/utilisateurs/${user.id}/roles`, { roles: [] }),
         successMessage: (user) => `${user.email} n'est plus administrateur.`,
     },
     delete: {
@@ -78,7 +78,7 @@ const CONFIRM_ACTIONS = {
         ),
         confirmLabel: 'Supprimer',
         variant: 'destructive',
-        run: (user) => api.delete(`/api/admin/users/${user.id}`),
+        run: (user) => api.delete(`/api/admin/utilisateurs/${user.id}`),
         successMessage: (user) => `Le compte ${user.email} a été supprimé.`,
     },
 };
@@ -115,7 +115,7 @@ export default function UsersList({ permissions = {}, urls = {} }) {
             setRefreshing(true);
         }
         try {
-            const data = await api.get(urls.users ?? '/api/admin/users', {
+            const data = await api.get(urls.users ?? '/api/admin/utilisateurs', {
                 q: query,
                 page: pagination.pageIndex + 1,
                 pageSize: pagination.pageSize,
@@ -241,7 +241,7 @@ export default function UsersList({ permissions = {}, urls = {} }) {
                             {!user.isVerified && permissions.canVerifyUser && (
                                 <DropdownMenuItem
                                     onClick={() => runDirect(
-                                        api.post(`/api/admin/users/${user.id}/verify`),
+                                        api.post(`/api/admin/utilisateurs/${user.id}/verifier`),
                                         `Le compte ${user.email} est maintenant vérifié.`,
                                     )}
                                 >
@@ -253,7 +253,7 @@ export default function UsersList({ permissions = {}, urls = {} }) {
                             {!user.isVerified && permissions.canResendVerification && (
                                 <DropdownMenuItem
                                     onClick={() => runDirect(
-                                        api.post(`/api/admin/users/${user.id}/resend-verification`),
+                                        api.post(`/api/admin/utilisateurs/${user.id}/renvoyer-verification`),
                                         `E-mail de vérification renvoyé à ${user.email}.`,
                                     )}
                                 >

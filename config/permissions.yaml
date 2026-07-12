@@ -25,6 +25,56 @@ permissions:
         roles: [ ROLE_ADMIN ]
         description: "Supprimer une catégorie"
 
+    # --- Commandes ---
+    ORDER_VIEW:
+        roles: [ ROLE_ADMIN ]
+        description: "Voir les commandes"
+
+    ORDER_EDIT:
+        roles: [ ROLE_ADMIN ]
+        description: "Modifier une commande (statut, note)"
+
+    ORDER_DELETE:
+        roles: [ ROLE_ADMIN ]
+        description: "Supprimer une commande"
+
+    # --- Produits ---
+    PRODUCT_VIEW:
+        roles: [ ROLE_ADMIN ]
+        description: "Voir les produits"
+
+    PRODUCT_CREATE:
+        roles: [ ROLE_ADMIN ]
+        description: "Créer un produit"
+
+    PRODUCT_EDIT:
+        roles: [ ROLE_ADMIN ]
+        description: "Modifier un produit"
+
+    PRODUCT_DELETE:
+        roles: [ ROLE_ADMIN ]
+        description: "Supprimer un produit"
+
+    PRODUCT_PUBLISH:
+        roles: [ ROLE_ADMIN ]
+        description: "Publier / dépublier un produit"
+
+    PRODUCT_CATEGORY_VIEW:
+        roles: [ ROLE_ADMIN ]
+        description: "Voir les catégories produits"
+
+    PRODUCT_CATEGORY_CREATE:
+        roles: [ ROLE_ADMIN ]
+        description: "Créer une catégorie produit"
+
+    PRODUCT_CATEGORY_EDIT:
+        roles: [ ROLE_ADMIN ]
+        description: "Modifier une catégorie produit"
+
+    PRODUCT_CATEGORY_DELETE:
+        roles: [ ROLE_ADMIN ]
+        description: "Supprimer une catégorie produit"
+
     # --- Articles ---
     ARTICLE_VIEW:
         roles: [ ROLE_ADMIN ]

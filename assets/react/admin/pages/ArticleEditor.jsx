@@ -98,7 +98,7 @@ export default function ArticleEditor({ permissions = {}, urls = {} }) {
         const formData = new FormData();
         formData.append('file', file);
         try {
-            const media = await api.post(urls.mediaUpload ?? '/api/admin/media', formData);
+            const media = await api.post(urls.mediaUpload ?? '/api/admin/medias', formData);
             return { success: 1, file: { url: media.url } };
         } catch {
             return { success: 0, message: 'Upload échoué.' };
@@ -135,7 +135,7 @@ export default function ArticleEditor({ permissions = {}, urls = {} }) {
                 const created = await api.post(urls.articles ?? '/api/admin/articles', payload);
                 setSavedId(created.id);
                 setStatus(created.status);
-                navigate(`/articles/${created.id}/edit`, { replace: true });
+                navigate(`/articles/${created.id}/modifier`, { replace: true });
                 setFeedback({ type: 'success', message: 'Article créé.' });
             }
         } catch (err) {
@@ -155,8 +155,8 @@ export default function ArticleEditor({ permissions = {}, urls = {} }) {
         setFeedback(null);
 
         const endpoint = status === 'published'
-            ? `/api/admin/articles/${savedId}/unpublish`
-            : `/api/admin/articles/${savedId}/publish`;
+            ? `/api/admin/articles/${savedId}/depublier`
+            : `/api/admin/articles/${savedId}/publier`;
 
         try {
             const updated = await api.post(endpoint);

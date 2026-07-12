@@ -127,7 +127,7 @@ class ArticleController extends AbstractController
         return $this->json(null, Response::HTTP_NO_CONTENT);
     }
 
-    #[Route('/{id}/publish', name: 'api_admin_articles_publish', methods: ['POST'])]
+    #[Route('/{id}/publier', name: 'api_admin_articles_publish', methods: ['POST'])]
     public function publish(Article $article): JsonResponse
     {
         $this->denyAccessUnlessGranted(ArticleVoter::PUBLISH, $article);
@@ -143,7 +143,7 @@ class ArticleController extends AbstractController
         return $this->json($this->serializeArticle($article));
     }
 
-    #[Route('/{id}/unpublish', name: 'api_admin_articles_unpublish', methods: ['POST'])]
+    #[Route('/{id}/depublier', name: 'api_admin_articles_unpublish', methods: ['POST'])]
     public function unpublish(Article $article): JsonResponse
     {
         $this->denyAccessUnlessGranted(ArticleVoter::PUBLISH, $article);

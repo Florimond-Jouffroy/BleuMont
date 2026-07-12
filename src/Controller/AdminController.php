@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Security\Voter\ArticleVoter;
+use App\Security\Voter\OrderVoter;
 use App\Security\Voter\CategoryVoter;
 use App\Security\Voter\MediaVoter;
+use App\Security\Voter\ProductCategoryVoter;
+use App\Security\Voter\ProductVoter;
 use App\Security\Voter\UserVoter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,9 +32,12 @@ class AdminController extends AbstractController
             'urls' => [
                 'users'       => $this->generateUrl('api_admin_users_list'),
                 'articles'    => $this->generateUrl('api_admin_articles_list'),
-                'categories'  => $this->generateUrl('api_admin_categories_list'),
-                'media'       => $this->generateUrl('api_admin_media_list'),
-                'mediaUpload' => $this->generateUrl('api_admin_media_upload'),
+                'categories'        => $this->generateUrl('api_admin_categories_list'),
+                'media'             => $this->generateUrl('api_admin_media_list'),
+                'mediaUpload'       => $this->generateUrl('api_admin_media_upload'),
+                'products'          => $this->generateUrl('api_admin_products_list'),
+                'productCategories' => $this->generateUrl('api_admin_product_categories_list'),
+                'orders'            => $this->generateUrl('api_admin_orders_list'),
             ],
             'permissions' => [
                 'canViewUsers'          => $this->isGranted(UserVoter::VIEW),
@@ -48,6 +54,18 @@ class AdminController extends AbstractController
                 'canViewCategories'     => $this->isGranted(CategoryVoter::VIEW),
                 'canCreateCategory'     => $this->isGranted(CategoryVoter::CREATE),
                 'canDeleteCategory'     => $this->isGranted(CategoryVoter::DELETE),
+                'canViewOrders'         => $this->isGranted(OrderVoter::VIEW),
+                'canEditOrder'          => $this->isGranted(OrderVoter::EDIT),
+                'canDeleteOrder'        => $this->isGranted(OrderVoter::DELETE),
+                'canViewProducts'       => $this->isGranted(ProductVoter::VIEW),
+                'canCreateProduct'      => $this->isGranted(ProductVoter::CREATE),
+                'canEditProduct'        => $this->isGranted(ProductVoter::EDIT),
+                'canDeleteProduct'      => $this->isGranted(ProductVoter::DELETE),
+                'canPublishProduct'     => $this->isGranted(ProductVoter::PUBLISH),
+                'canViewProductCategories'   => $this->isGranted(ProductCategoryVoter::VIEW),
+                'canCreateProductCategory'   => $this->isGranted(ProductCategoryVoter::CREATE),
+                'canEditProductCategory'     => $this->isGranted(ProductCategoryVoter::EDIT),
+                'canDeleteProductCategory'   => $this->isGranted(ProductCategoryVoter::DELETE),
                 'canViewMedia'          => $this->isGranted(MediaVoter::VIEW),
                 'canUploadMedia'        => $this->isGranted(MediaVoter::UPLOAD),
                 'canDeleteMedia'        => $this->isGranted(MediaVoter::DELETE),

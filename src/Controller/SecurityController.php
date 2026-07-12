@@ -47,7 +47,7 @@ class SecurityController extends AbstractController
         ]);
     }
 
-    #[Route('/verify-email', name: 'verify_email', methods: ['GET'])]
+    #[Route('/verification-email', name: 'verify_email', methods: ['GET'])]
     public function verifyEmail(
         Request $request,
         UserRepository $userRepository,

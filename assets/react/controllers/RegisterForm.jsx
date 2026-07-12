@@ -6,8 +6,8 @@ import { api, extractValidationErrors, getErrorMessage } from '../utils/api';
 import { resolveUrl } from '../utils/url';
 
 export default function RegisterForm({
-    registerUrl = '/api/auth/register',
-    resendUrl   = '/api/auth/verify-email/resend',
+    registerUrl = '/api/auth/inscription',
+    resendUrl   = '/api/auth/verification-email/renvoyer',
     loginUrl    = '/connexion',
 }) {
     const [email, setEmail]                     = useState('');

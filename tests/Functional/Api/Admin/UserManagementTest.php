@@ -15,7 +15,7 @@ class UserManagementTest extends AbstractApiTestCase
 
     public function testListRequiresAuthentication(): void
     {
-        $this->client->request('GET', '/api/admin/users');
+        $this->client->request('GET', '/api/admin/utilisateurs');
 
         self::assertResponseRedirects('/connexion');
     }
@@ -24,7 +24,7 @@ class UserManagementTest extends AbstractApiTestCase
     {
         $this->loginAs($this->createUser('simple@example.com'));
 
-        $this->client->request('GET', '/api/admin/users');
+        $this->client->request('GET', '/api/admin/utilisateurs');
 
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
@@ -34,7 +34,7 @@ class UserManagementTest extends AbstractApiTestCase
         $target = $this->createUser('cible@example.com');
         $this->loginAs($this->createUser('simple@example.com'));
 
-        $this->postJson('/api/admin/users/'.$target->getId().'/reset-password', []);
+        $this->postJson('/api/admin/utilisateurs/'.$target->getId().'/reinitialiser-mot-de-passe', []);
 
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
@@ -44,7 +44,7 @@ class UserManagementTest extends AbstractApiTestCase
         $target = $this->createUser('cible@example.com', verified: false);
         $this->loginAs($this->createUser('simple@example.com'));
 
-        $this->postJson('/api/admin/users/'.$target->getId().'/verify', []);
+        $this->postJson('/api/admin/utilisateurs/'.$target->getId().'/verifier', []);
 
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
@@ -54,7 +54,7 @@ class UserManagementTest extends AbstractApiTestCase
         $target = $this->createUser('cible@example.com', verified: false);
         $this->loginAs($this->createUser('simple@example.com'));
 
-        $this->postJson('/api/admin/users/'.$target->getId().'/resend-verification', []);
+        $this->postJson('/api/admin/utilisateurs/'.$target->getId().'/renvoyer-verification', []);
 
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
@@ -64,7 +64,7 @@ class UserManagementTest extends AbstractApiTestCase
         $target = $this->createUser('cible@example.com');
         $this->loginAs($this->createUser('simple@example.com'));
 
-        $this->putJson('/api/admin/users/'.$target->getId().'/roles', ['roles' => ['ROLE_ADMIN']]);
+        $this->putJson('/api/admin/utilisateurs/'.$target->getId().'/roles', ['roles' => ['ROLE_ADMIN']]);
 
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
@@ -74,7 +74,7 @@ class UserManagementTest extends AbstractApiTestCase
         $target = $this->createUser('cible@example.com');
         $this->loginAs($this->createUser('simple@example.com'));
 
-        $this->client->request('DELETE', '/api/admin/users/'.$target->getId());
+        $this->client->request('DELETE', '/api/admin/utilisateurs/'.$target->getId());
 
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
@@ -87,7 +87,7 @@ class UserManagementTest extends AbstractApiTestCase
         $this->createUser('alice@example.com');
         $this->createUser('bob@example.com');
 
-        $this->client->request('GET', '/api/admin/users');
+        $this->client->request('GET', '/api/admin/utilisateurs');
 
         self::assertResponseIsSuccessful();
         $data = $this->getJson();
@@ -104,7 +104,7 @@ class UserManagementTest extends AbstractApiTestCase
         $this->createUser('alice@example.com');
         $this->createUser('bob@example.com');
 
-        $this->client->request('GET', '/api/admin/users', ['q' => 'alice']);
+        $this->client->request('GET', '/api/admin/utilisateurs', ['q' => 'alice']);
 
         self::assertResponseIsSuccessful();
         $data = $this->getJson();
@@ -119,7 +119,7 @@ class UserManagementTest extends AbstractApiTestCase
         $this->loginAs($this->createAdmin());
         $user = $this->createUser('cible@example.com');
 
-        $this->postJson('/api/admin/users/'.$user->getId().'/reset-password', []);
+        $this->postJson('/api/admin/utilisateurs/'.$user->getId().'/reinitialiser-mot-de-passe', []);
 
         self::assertResponseIsSuccessful();
         self::assertEmailCount(1);
@@ -135,7 +135,7 @@ class UserManagementTest extends AbstractApiTestCase
         $this->loginAs($this->createAdmin());
         $user = $this->createUser('nonverifie@example.com', verified: false);
 
-        $this->postJson('/api/admin/users/'.$user->getId().'/verify', []);
+        $this->postJson('/api/admin/utilisateurs/'.$user->getId().'/verifier', []);
 
         self::assertResponseIsSuccessful();
         $this->refreshUser($user);
@@ -148,7 +148,7 @@ class UserManagementTest extends AbstractApiTestCase
         $this->loginAs($this->createAdmin());
         $user = $this->createUser('verifie@example.com', verified: true);
 
-        $this->postJson('/api/admin/users/'.$user->getId().'/verify', []);
+        $this->postJson('/api/admin/utilisateurs/'.$user->getId().'/verifier', []);
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
@@ -158,7 +158,7 @@ class UserManagementTest extends AbstractApiTestCase
         $this->loginAs($this->createAdmin());
         $user = $this->createUser('nonverifie@example.com', verified: false);
 
-        $this->postJson('/api/admin/users/'.$user->getId().'/resend-verification', []);
+        $this->postJson('/api/admin/utilisateurs/'.$user->getId().'/renvoyer-verification', []);
 
         self::assertResponseIsSuccessful();
         self::assertEmailCount(1);
@@ -169,7 +169,7 @@ class UserManagementTest extends AbstractApiTestCase
         $this->loginAs($this->createAdmin());
         $user = $this->createUser('verifie@example.com', verified: true);
 
-        $this->postJson('/api/admin/users/'.$user->getId().'/resend-verification', []);
+        $this->postJson('/api/admin/utilisateurs/'.$user->getId().'/renvoyer-verification', []);
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
@@ -181,7 +181,7 @@ class UserManagementTest extends AbstractApiTestCase
         $this->loginAs($this->createAdmin());
         $user = $this->createUser('cible@example.com');
 
-        $this->putJson('/api/admin/users/'.$user->getId().'/roles', ['roles' => ['ROLE_ADMIN']]);
+        $this->putJson('/api/admin/utilisateurs/'.$user->getId().'/roles', ['roles' => ['ROLE_ADMIN']]);
 
         self::assertResponseIsSuccessful();
         $this->refreshUser($user);
@@ -193,7 +193,7 @@ class UserManagementTest extends AbstractApiTestCase
         $this->loginAs($this->createAdmin());
         $user = $this->createAdmin('autre-admin@example.com');
 
-        $this->putJson('/api/admin/users/'.$user->getId().'/roles', ['roles' => []]);
+        $this->putJson('/api/admin/utilisateurs/'.$user->getId().'/roles', ['roles' => []]);
 
         self::assertResponseIsSuccessful();
         $this->refreshUser($user);
@@ -205,7 +205,7 @@ class UserManagementTest extends AbstractApiTestCase
         $this->loginAs($this->createAdmin());
         $user = $this->createUser('cible@example.com');
 
-        $this->putJson('/api/admin/users/'.$user->getId().'/roles', ['roles' => ['ROLE_SUPER_ADMIN', 'ROLE_HACK']]);
+        $this->putJson('/api/admin/utilisateurs/'.$user->getId().'/roles', ['roles' => ['ROLE_SUPER_ADMIN', 'ROLE_HACK']]);
 
         self::assertResponseIsSuccessful();
         $this->refreshUser($user);
@@ -217,7 +217,7 @@ class UserManagementTest extends AbstractApiTestCase
         $admin = $this->createAdmin();
         $this->loginAs($admin);
 
-        $this->putJson('/api/admin/users/'.$admin->getId().'/roles', ['roles' => []]);
+        $this->putJson('/api/admin/utilisateurs/'.$admin->getId().'/roles', ['roles' => []]);
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
         $this->refreshUser($admin);
@@ -232,7 +232,7 @@ class UserManagementTest extends AbstractApiTestCase
         $user = $this->createUser('a-supprimer@example.com');
         $userId = $user->getId();
 
-        $this->client->request('DELETE', '/api/admin/users/'.$userId);
+        $this->client->request('DELETE', '/api/admin/utilisateurs/'.$userId);
 
         self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
         self::assertNull($this->em->getRepository(User::class)->find($userId));
@@ -243,7 +243,7 @@ class UserManagementTest extends AbstractApiTestCase
         $admin = $this->createAdmin();
         $this->loginAs($admin);
 
-        $this->client->request('DELETE', '/api/admin/users/'.$admin->getId());
+        $this->client->request('DELETE', '/api/admin/utilisateurs/'.$admin->getId());
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
         self::assertNotNull($this->em->getRepository(User::class)->find($admin->getId()));

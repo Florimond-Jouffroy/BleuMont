@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MoreHorizontal, Pencil, Plus, Search, Tag, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Package, Pencil, Plus, Search, Tag, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/data-table';
@@ -31,99 +31,91 @@ import { api, getErrorMessage } from '../../utils/api';
 
 const PAGE_SIZE = 20;
 
-function formatDate(iso) {
-    if (!iso) return '—';
-    return new Intl.DateTimeFormat('fr-FR', { dateStyle: 'medium' }).format(new Date(iso));
+function formatPrice(cents) {
+    return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(cents / 100);
 }
 
-export default function ArticlesList({ permissions = {}, urls = {} }) {
+export default function ProductsList({ permissions = {}, urls = {} }) {
     const navigate = useNavigate();
 
-    const [articles, setArticles]  = useState([]);
-    const [total, setTotal]        = useState(0);
+    const [products, setProducts]     = useState([]);
+    const [total, setTotal]           = useState(0);
     const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: PAGE_SIZE });
-    const [search, setSearch]      = useState('');
-    const [query, setQuery]        = useState('');
+    const [search, setSearch]         = useState('');
+    const [query, setQuery]           = useState('');
+    const [statusFilter, setStatusFilter]     = useState('');
     const [categoryFilter, setCategoryFilter] = useState('');
     const [categories, setCategories] = useState([]);
-    const [loading, setLoading]    = useState(true);
+    const [loading, setLoading]       = useState(true);
     const [refreshing, setRefreshing] = useState(false);
-    const isFirstLoad              = useRef(true);
-    const [feedback, setFeedback]  = useState(null);
+    const isFirstLoad                 = useRef(true);
+    const [feedback, setFeedback]     = useState(null);
     const [deleteTarget, setDeleteTarget] = useState(null);
-    const [deleting, setDeleting]  = useState(false);
-
-    const pageCount = Math.max(1, Math.ceil(total / pagination.pageSize));
+    const [deleting, setDeleting]     = useState(false);
 
     useEffect(() => {
-        api.get(urls.categories ?? '/api/admin/categories')
+        api.get(urls.productCategories ?? '/api/admin/categories-produits')
             .then(setCategories)
             .catch(() => {});
-    }, [urls.categories]);
+    }, [urls.productCategories]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
             setQuery(search.trim());
             setPagination((p) => (p.pageIndex === 0 ? p : { ...p, pageIndex: 0 }));
         }, 350);
-
         return () => clearTimeout(timer);
     }, [search]);
 
-    const fetchArticles = useCallback(async () => {
-        if (isFirstLoad.current) {
-            setLoading(true);
-        } else {
-            setRefreshing(true);
-        }
+    const fetchProducts = useCallback(async () => {
+        if (isFirstLoad.current) setLoading(true);
+        else setRefreshing(true);
+
         try {
-            const params = {
-                q: query,
-                page: pagination.pageIndex + 1,
-                pageSize: pagination.pageSize,
-            };
+            const params = { q: query, page: pagination.pageIndex + 1, pageSize: pagination.pageSize };
+            if (statusFilter) params.status = statusFilter;
             if (categoryFilter) params.categoryId = categoryFilter;
 
-            const data = await api.get(urls.articles ?? '/api/admin/articles', params);
+            const data = await api.get(urls.products ?? '/api/admin/produits', params);
             if (data.items.length === 0 && data.total > 0 && pagination.pageIndex > 0) {
                 setPagination((p) => ({ ...p, pageIndex: 0 }));
                 return;
             }
-            setArticles(data.items);
+            setProducts(data.items);
             setTotal(data.total);
         } catch (err) {
-            setFeedback({ type: 'error', message: getErrorMessage(err, 'Impossible de charger les articles.') });
+            setFeedback({ type: 'error', message: getErrorMessage(err, 'Impossible de charger les produits.') });
         } finally {
             isFirstLoad.current = false;
             setLoading(false);
             setRefreshing(false);
         }
-    }, [query, pagination, categoryFilter]);
+    }, [query, pagination, statusFilter, categoryFilter, urls.products]);
 
-    useEffect(() => { fetchArticles(); }, [fetchArticles]);
+    useEffect(() => { fetchProducts(); }, [fetchProducts]);
 
-    const handleTogglePublish = useCallback(async (article) => {
+    const handleTogglePublish = useCallback(async (product) => {
         setFeedback(null);
-        const endpoint = article.status === 'published'
-            ? `/api/admin/articles/${article.id}/depublier`
-            : `/api/admin/articles/${article.id}/publier`;
+        const endpoint = product.status === 'published'
+            ? `/api/admin/produits/${product.id}/depublier`
+            : `/api/admin/produits/${product.id}/publier`;
         try {
             await api.post(endpoint);
-            fetchArticles();
+            fetchProducts();
         } catch (err) {
             setFeedback({ type: 'error', message: getErrorMessage(err) });
         }
-    }, [fetchArticles]);
+    }, [fetchProducts]);
 
     const handleDelete = async () => {
         if (!deleteTarget) return;
         setDeleting(true);
         setFeedback(null);
         try {
-            await api.delete(`/api/admin/articles/${deleteTarget.id}`);
-            setFeedback({ type: 'success', message: `L'article « ${deleteTarget.title} » a été supprimé.` });
+            await api.delete(`/api/admin/produits/${deleteTarget.id}`);
+            setFeedback({ type: 'success', message: `Le produit « ${deleteTarget.name} » a été supprimé.` });
             setDeleteTarget(null);
-            fetchArticles();
+            fetchProducts();
         } catch (err) {
             setFeedback({ type: 'error', message: getErrorMessage(err) });
             setDeleteTarget(null);
@@ -134,16 +126,62 @@ export default function ArticlesList({ permissions = {}, urls = {} }) {
 
     const columns = useMemo(() => [
         {
-            accessorKey: 'title',
-            header: 'Titre',
-            cell: ({ row }) => (
-                <span className="font-medium">{row.original.title}</span>
-            ),
+            id: 'product',
+            header: 'Produit',
+            cell: ({ row }) => {
+                const p = row.original;
+                return (
+                    <div className="flex items-center gap-3">
+                        {p.coverImage ? (
+                            <img src={p.coverImage} alt={p.name} className="size-10 rounded-md object-cover shrink-0 border" />
+                        ) : (
+                            <div className="size-10 rounded-md bg-muted flex items-center justify-center shrink-0">
+                                <Package className="size-4 text-muted-foreground" />
+                            </div>
+                        )}
+                        <div>
+                            <p className="font-medium">{p.name}</p>
+                            <p className="text-xs text-muted-foreground font-mono">{p.slug}</p>
+                        </div>
+                    </div>
+                );
+            },
+        },
+        {
+            id: 'price',
+            header: 'Prix',
+            meta: { headerClassName: 'w-32' },
+            cell: ({ row }) => {
+                const p = row.original;
+                return (
+                    <div>
+                        <span className="font-medium">{formatPrice(p.price)}</span>
+                        {p.compareAtPrice && (
+                            <span className="ml-2 text-xs text-muted-foreground line-through">{formatPrice(p.compareAtPrice)}</span>
+                        )}
+                    </div>
+                );
+            },
+        },
+        {
+            id: 'stock',
+            header: 'Stock',
+            meta: { headerClassName: 'w-24' },
+            cell: ({ row }) => {
+                const p = row.original;
+                const isLow = p.stock <= 5 && p.stock > 0;
+                const isEmpty = p.stock === 0;
+                return (
+                    <span className={`text-sm font-medium ${isEmpty ? 'text-destructive' : isLow ? 'text-amber-600' : ''}`}>
+                        {p.hasVariants ? `${p.stock} (var.)` : p.stock}
+                    </span>
+                );
+            },
         },
         {
             id: 'status',
             header: 'Statut',
-            meta: { headerClassName: 'w-32' },
+            meta: { headerClassName: 'w-28' },
             cell: ({ row }) => (
                 <Badge variant={row.original.status === 'published' ? 'default' : 'secondary'}>
                     {row.original.status === 'published' ? 'Publié' : 'Brouillon'}
@@ -151,69 +189,35 @@ export default function ArticlesList({ permissions = {}, urls = {} }) {
             ),
         },
         {
-            id: 'categories',
-            header: 'Catégories',
-            meta: { headerClassName: 'w-48' },
-            cell: ({ row }) => {
-                const cats = row.original.categories ?? [];
-                if (cats.length === 0) return <span className="text-muted-foreground text-xs">—</span>;
-                return (
-                    <div className="flex flex-wrap gap-1">
-                        {cats.map((c) => (
-                            <Badge key={c.id} variant="outline" className="text-xs py-0 px-1.5">{c.name}</Badge>
-                        ))}
-                    </div>
-                );
-            },
-        },
-        {
-            accessorKey: 'authorEmail',
-            header: 'Auteur',
-            meta: { headerClassName: 'w-48', cellClassName: 'text-muted-foreground text-sm' },
-        },
-        {
-            id: 'createdAt',
-            header: 'Créé le',
-            meta: { headerClassName: 'w-32', cellClassName: 'text-muted-foreground text-sm' },
-            cell: ({ row }) => formatDate(row.original.createdAt),
-        },
-        {
             id: 'actions',
             header: () => <span className="sr-only">Actions</span>,
             meta: { headerClassName: 'w-16', cellClassName: 'text-right' },
             cell: ({ row }) => {
-                const article = row.original;
-                const isPublished = article.status === 'published';
-
+                const product = row.original;
                 return (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon" className="size-8">
                                 <MoreHorizontal className="size-4" />
-                                <span className="sr-only">Actions pour {article.title}</span>
+                                <span className="sr-only">Actions pour {product.name}</span>
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-56">
-                            {permissions.canEditArticle && (
-                                <DropdownMenuItem onClick={() => navigate(`/articles/${article.id}/modifier`)}>
+                            {permissions.canEditProduct && (
+                                <DropdownMenuItem onClick={() => navigate(`/produits/${product.id}/modifier`)}>
                                     <Pencil className="size-4" />
                                     Modifier
                                 </DropdownMenuItem>
                             )}
-
-                            {permissions.canPublishArticle && (
-                                <DropdownMenuItem onClick={() => handleTogglePublish(article)}>
-                                    {isPublished ? 'Repasser en brouillon' : 'Publier'}
+                            {permissions.canPublishProduct && (
+                                <DropdownMenuItem onClick={() => handleTogglePublish(product)}>
+                                    {product.status === 'published' ? 'Repasser en brouillon' : 'Publier'}
                                 </DropdownMenuItem>
                             )}
-
-                            {permissions.canDeleteArticle && (
+                            {permissions.canDeleteProduct && (
                                 <>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuItem
-                                        variant="destructive"
-                                        onClick={() => setDeleteTarget(article)}
-                                    >
+                                    <DropdownMenuItem variant="destructive" onClick={() => setDeleteTarget(product)}>
                                         <Trash2 className="size-4" />
                                         Supprimer
                                     </DropdownMenuItem>
@@ -230,14 +234,13 @@ export default function ArticlesList({ permissions = {}, urls = {} }) {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-2xl font-bold tracking-tight">Articles</h2>
-                    <p className="text-muted-foreground">Gestion des articles du blog.</p>
+                    <h2 className="text-2xl font-bold tracking-tight">Produits</h2>
+                    <p className="text-muted-foreground">Gestion du catalogue produits.</p>
                 </div>
-
-                {permissions.canCreateArticle && (
-                    <Button onClick={() => navigate('/articles/nouveau')}>
+                {permissions.canCreateProduct && (
+                    <Button onClick={() => navigate('/produits/nouveau')}>
                         <Plus className="size-4" />
-                        Nouvel article
+                        Nouveau produit
                     </Button>
                 )}
             </div>
@@ -248,10 +251,27 @@ export default function ArticlesList({ permissions = {}, urls = {} }) {
                     <Input
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        placeholder="Rechercher par titre…"
+                        placeholder="Rechercher par nom…"
                         className="pl-8"
                     />
                 </div>
+
+                <Select
+                    value={statusFilter}
+                    onValueChange={(v) => {
+                        setStatusFilter(v === '__all__' ? '' : v);
+                        setPagination((p) => ({ ...p, pageIndex: 0 }));
+                    }}
+                >
+                    <SelectTrigger className="w-40">
+                        <SelectValue placeholder="Tous les statuts" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="__all__">Tous les statuts</SelectItem>
+                        <SelectItem value="published">Publié</SelectItem>
+                        <SelectItem value="draft">Brouillon</SelectItem>
+                    </SelectContent>
+                </Select>
 
                 {categories.length > 0 && (
                     <Select
@@ -283,30 +303,27 @@ export default function ArticlesList({ permissions = {}, urls = {} }) {
 
             <DataTable
                 columns={columns}
-                data={articles}
-                pageCount={pageCount}
+                data={products}
+                pageCount={Math.max(1, Math.ceil(total / pagination.pageSize))}
                 totalItems={total}
                 pagination={pagination}
                 onPaginationChange={setPagination}
                 loading={loading}
                 refreshing={refreshing}
-                emptyMessage={query ? `Aucun article pour « ${query} ».` : 'Aucun article à afficher.'}
+                emptyMessage={query ? `Aucun produit pour « ${query} ».` : 'Aucun produit à afficher.'}
             />
 
             <Dialog open={deleteTarget !== null} onOpenChange={(open) => !open && setDeleteTarget(null)}>
                 {deleteTarget && (
                     <DialogContent>
                         <DialogHeader>
-                            <DialogTitle>Supprimer l'article</DialogTitle>
+                            <DialogTitle>Supprimer le produit</DialogTitle>
                             <DialogDescription>
-                                L'article <strong>{deleteTarget.title}</strong> sera définitivement supprimé.
-                                Cette action est irréversible.
+                                Le produit <strong>{deleteTarget.name}</strong> sera définitivement supprimé. Cette action est irréversible.
                             </DialogDescription>
                         </DialogHeader>
                         <DialogFooter>
-                            <Button variant="outline" onClick={() => setDeleteTarget(null)} disabled={deleting}>
-                                Annuler
-                            </Button>
+                            <Button variant="outline" onClick={() => setDeleteTarget(null)} disabled={deleting}>Annuler</Button>
                             <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
                                 {deleting ? 'Suppression…' : 'Supprimer'}
                             </Button>

@@ -32,7 +32,7 @@ class AuthController extends AbstractController
     ) {
     }
 
-    #[Route('/login', name: 'api_auth_login', methods: ['POST'])]
+    #[Route('/connexion', name: 'api_auth_login', methods: ['POST'])]
     public function login(
         #[MapRequestPayload] LoginDto $dto,
         UserRepository $userRepository,
@@ -64,7 +64,7 @@ class AuthController extends AbstractController
         ]);
     }
 
-    #[Route('/register', name: 'api_auth_register', methods: ['POST'])]
+    #[Route('/inscription', name: 'api_auth_register', methods: ['POST'])]
     public function register(
         #[MapRequestPayload] RegisterDto $dto,
     ): JsonResponse {
@@ -85,7 +85,7 @@ class AuthController extends AbstractController
         );
     }
 
-    #[Route('/verify-email/resend', name: 'api_auth_verify_email_resend', methods: ['POST'])]
+    #[Route('/verification-email/renvoyer', name: 'api_auth_verify_email_resend', methods: ['POST'])]
     public function resendVerification(
         #[MapRequestPayload] RequestPasswordResetDto $dto,
         UserRepository $userRepository,
@@ -99,7 +99,7 @@ class AuthController extends AbstractController
         return $this->json(['message' => 'Si ce compte existe et n\'est pas encore vérifié, un nouvel e-mail a été envoyé.']);
     }
 
-    #[Route('/reset-password/request', name: 'api_auth_reset_password_request', methods: ['POST'])]
+    #[Route('/reinitialisation-mot-de-passe/demande', name: 'api_auth_reset_password_request', methods: ['POST'])]
     public function requestPasswordReset(
         #[MapRequestPayload] RequestPasswordResetDto $dto,
         UserRepository $userRepository,
@@ -117,7 +117,7 @@ class AuthController extends AbstractController
         return $this->json(['message' => 'Si cette adresse est associée à un compte, un code vous a été envoyé.']);
     }
 
-    #[Route('/reset-password/confirm', name: 'api_auth_reset_password_confirm', methods: ['POST'])]
+    #[Route('/reinitialisation-mot-de-passe/confirmation', name: 'api_auth_reset_password_confirm', methods: ['POST'])]
     public function confirmPasswordReset(
         #[MapRequestPayload] ConfirmPasswordResetDto $dto,
         UserRepository $userRepository,

@@ -6,7 +6,7 @@ import { api, getErrorMessage } from '../utils/api';
 import { resolveUrl } from '../utils/url';
 
 export default function LoginForm({
-    loginUrl          = '/api/auth/login',
+    loginUrl          = '/api/auth/connexion',
     redirectUrl       = '/',
     forgotPasswordUrl = '/mot-de-passe-oublie',
     registerUrl       = '/inscription',

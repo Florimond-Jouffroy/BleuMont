@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional;
 
+use App\Entity\Customer;
+use App\Entity\Order;
 use App\Entity\PasswordResetToken;
+use App\Entity\Product;
+use App\Entity\ProductCategory;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -87,6 +91,89 @@ abstract class AbstractApiTestCase extends WebTestCase
             ['CONTENT_TYPE' => 'application/json'],
             json_encode($payload),
         );
+    }
+
+    protected function patchJson(string $url, array $payload): void
+    {
+        $this->client->request(
+            'PATCH',
+            $url,
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode($payload),
+        );
+    }
+
+    protected function createCustomer(
+        string $email = 'client@example.com',
+        string $firstName = 'Jean',
+        string $lastName = 'Dupont',
+    ): Customer {
+        $customer = new Customer();
+        $customer->setEmail($email);
+        $customer->setFirstName($firstName);
+        $customer->setLastName($lastName);
+
+        $this->em->persist($customer);
+        $this->em->flush();
+
+        return $customer;
+    }
+
+    protected function createProductCategory(
+        string $name = 'Vêtements',
+        string $slug = 'vetements',
+    ): ProductCategory {
+        $category = new ProductCategory();
+        $category->setName($name);
+        $category->setSlug($slug);
+
+        $this->em->persist($category);
+        $this->em->flush();
+
+        return $category;
+    }
+
+    protected function createProduct(
+        string $name = 'T-shirt blanc',
+        string $slug = 't-shirt-blanc',
+        string $status = Product::STATUS_DRAFT,
+    ): Product {
+        $product = new Product();
+        $product->setName($name);
+        $product->setSlug($slug);
+        $product->setStatus($status);
+        $product->setPrice(1999);
+
+        $this->em->persist($product);
+        $this->em->flush();
+
+        return $product;
+    }
+
+    protected function createOrder(
+        Customer $customer,
+        string $orderNumber = 'ORD-20240101-00001',
+        string $status = Order::STATUS_PENDING,
+    ): Order {
+        $order = new Order();
+        $order->setOrderNumber($orderNumber);
+        $order->setCustomer($customer);
+        $order->setStatus($status);
+        $order->setShippingAddress([
+            'firstName'  => $customer->getFirstName(),
+            'lastName'   => $customer->getLastName(),
+            'line1'      => '1 rue de la Paix',
+            'city'       => 'Paris',
+            'postalCode' => '75001',
+            'country'    => 'FR',
+        ]);
+
+        $this->em->persist($order);
+        $this->em->flush();
+
+        return $order;
     }
 
     protected function createPasswordResetToken(User $user, string $code = '123456', int $ttlMinutes = 15): PasswordResetToken

@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { ChevronRight, ChevronsUpDown, FileText, Image, LayoutDashboard, LogOut, Tag, Users } from 'lucide-react';
+import { ChevronRight, ChevronsUpDown, FileText, Image, LayoutDashboard, LogOut, Package, ShoppingCart, Tag, Users } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
@@ -29,14 +29,20 @@ import {
 } from '@/components/ui/sidebar';
 
 const navItems = [
-    { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { to: '/users',     icon: Users,           label: 'Utilisateurs' },
-    { to: '/media',     icon: Image,           label: 'Médiathèque' },
+    { to: '/dashboard',    icon: LayoutDashboard, label: 'Dashboard' },
+    { to: '/utilisateurs', icon: Users,           label: 'Utilisateurs' },
+    { to: '/medias',       icon: Image,           label: 'Médiathèque' },
 ];
 
 const blogItems = [
     { to: '/articles',   icon: FileText, label: 'Articles' },
     { to: '/categories', icon: Tag,      label: 'Catégories' },
+];
+
+const shopItems = [
+    { to: '/commandes',          icon: ShoppingCart, label: 'Commandes' },
+    { to: '/produits',           icon: Package,      label: 'Produits' },
+    { to: '/categories-produits', icon: Tag,         label: 'Catégories' },
 ];
 
 function getInitials(email) {
@@ -46,6 +52,36 @@ function getInitials(email) {
     return parts.length >= 2
         ? (parts[0][0] + parts[1][0]).toUpperCase()
         : local.slice(0, 2).toUpperCase();
+}
+
+function CollapsibleNavGroup({ label, icon: Icon, groupKey, isActive, items, pathname }) {
+    return (
+        <SidebarMenuItem>
+            <Collapsible defaultOpen={isActive} className={`group/${groupKey} w-full`}>
+                <CollapsibleTrigger asChild>
+                    <SidebarMenuButton tooltip={label} isActive={isActive}>
+                        <Icon />
+                        <span>{label}</span>
+                        <ChevronRight className={`ml-auto size-4 transition-transform duration-200 group-data-[state=open]/${groupKey}:rotate-90`} />
+                    </SidebarMenuButton>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                    <SidebarMenuSub>
+                        {items.map(({ to, label: itemLabel }) => {
+                            const active = pathname === to || pathname.startsWith(to + '/');
+                            return (
+                                <SidebarMenuSubItem key={to}>
+                                    <SidebarMenuSubButton asChild isActive={active}>
+                                        <NavLink to={to}>{itemLabel}</NavLink>
+                                    </SidebarMenuSubButton>
+                                </SidebarMenuSubItem>
+                            );
+                        })}
+                    </SidebarMenuSub>
+                </CollapsibleContent>
+            </Collapsible>
+        </SidebarMenuItem>
+    );
 }
 
 function NavItem({ to, icon: Icon, label }) {
@@ -67,6 +103,7 @@ function NavItem({ to, icon: Icon, label }) {
 export default function AppSidebar({ userEmail = '', logoutUrl = '/deconnexion' }) {
     const { pathname } = useLocation();
     const isBlogActive = pathname.startsWith('/articles') || pathname.startsWith('/categories');
+    const isShopActive = pathname.startsWith('/commandes') || pathname.startsWith('/produits') || pathname.startsWith('/categories-produits');
 
     return (
         <Sidebar collapsible="icon">
@@ -100,31 +137,24 @@ export default function AppSidebar({ userEmail = '', logoutUrl = '/deconnexion' 
                             ))}
 
                             {/* Blog (collapsible) */}
-                            <SidebarMenuItem>
-                                <Collapsible defaultOpen={isBlogActive} className="group/blog w-full">
-                                    <CollapsibleTrigger asChild>
-                                        <SidebarMenuButton tooltip="Blog" isActive={isBlogActive}>
-                                            <FileText />
-                                            <span>Blog</span>
-                                            <ChevronRight className="ml-auto size-4 transition-transform duration-200 group-data-[state=open]/blog:rotate-90" />
-                                        </SidebarMenuButton>
-                                    </CollapsibleTrigger>
-                                    <CollapsibleContent>
-                                        <SidebarMenuSub>
-                                            {blogItems.map(({ to, label }) => {
-                                                const isActive = pathname === to || pathname.startsWith(to + '/');
-                                                return (
-                                                    <SidebarMenuSubItem key={to}>
-                                                        <SidebarMenuSubButton asChild isActive={isActive}>
-                                                            <NavLink to={to}>{label}</NavLink>
-                                                        </SidebarMenuSubButton>
-                                                    </SidebarMenuSubItem>
-                                                );
-                                            })}
-                                        </SidebarMenuSub>
-                                    </CollapsibleContent>
-                                </Collapsible>
-                            </SidebarMenuItem>
+                            <CollapsibleNavGroup
+                                label="Blog"
+                                icon={FileText}
+                                groupKey="blog"
+                                isActive={isBlogActive}
+                                items={blogItems}
+                                pathname={pathname}
+                            />
+
+                            {/* Boutique (collapsible) */}
+                            <CollapsibleNavGroup
+                                label="Boutique"
+                                icon={ShoppingCart}
+                                groupKey="shop"
+                                isActive={isShopActive}
+                                items={shopItems}
+                                pathname={pathname}
+                            />
                         </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>

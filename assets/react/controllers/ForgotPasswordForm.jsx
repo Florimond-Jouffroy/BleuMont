@@ -6,8 +6,8 @@ import { api, extractValidationErrors, getErrorMessage } from '../utils/api';
 import { resolveUrl } from '../utils/url';
 
 export default function ForgotPasswordForm({
-    requestUrl = '/api/auth/reset-password/request',
-    confirmUrl = '/api/auth/reset-password/confirm',
+    requestUrl = '/api/auth/reinitialisation-mot-de-passe/demande',
+    confirmUrl = '/api/auth/reinitialisation-mot-de-passe/confirmation',
     loginUrl   = '/connexion',
 }) {
     const [step, setStep]                             = useState('request'); // 'request' | 'confirm' | 'done'
