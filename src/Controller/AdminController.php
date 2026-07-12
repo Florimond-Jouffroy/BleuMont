@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Security\Voter\ArticleVoter;
+use App\Security\Voter\OrderVoter;
 use App\Security\Voter\CategoryVoter;
 use App\Security\Voter\MediaVoter;
 use App\Security\Voter\ProductCategoryVoter;
@@ -36,6 +37,7 @@ class AdminController extends AbstractController
                 'mediaUpload'       => $this->generateUrl('api_admin_media_upload'),
                 'products'          => $this->generateUrl('api_admin_products_list'),
                 'productCategories' => $this->generateUrl('api_admin_product_categories_list'),
+                'orders'            => $this->generateUrl('api_admin_orders_list'),
             ],
             'permissions' => [
                 'canViewUsers'          => $this->isGranted(UserVoter::VIEW),
@@ -52,6 +54,9 @@ class AdminController extends AbstractController
                 'canViewCategories'     => $this->isGranted(CategoryVoter::VIEW),
                 'canCreateCategory'     => $this->isGranted(CategoryVoter::CREATE),
                 'canDeleteCategory'     => $this->isGranted(CategoryVoter::DELETE),
+                'canViewOrders'         => $this->isGranted(OrderVoter::VIEW),
+                'canEditOrder'          => $this->isGranted(OrderVoter::EDIT),
+                'canDeleteOrder'        => $this->isGranted(OrderVoter::DELETE),
                 'canViewProducts'       => $this->isGranted(ProductVoter::VIEW),
                 'canCreateProduct'      => $this->isGranted(ProductVoter::CREATE),
                 'canEditProduct'        => $this->isGranted(ProductVoter::EDIT),

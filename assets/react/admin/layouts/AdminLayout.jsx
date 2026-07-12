@@ -12,6 +12,7 @@ const pageTitles = {
     '/articles/new':       'Nouvel article',
     '/media':              'Médiathèque',
     '/categories':         'Catégories',
+    '/orders':             'Commandes',
     '/products':           'Produits',
     '/products/new':       'Nouveau produit',
     '/product-categories': 'Catégories produits',
@@ -21,6 +22,7 @@ function getTitle(pathname) {
     if (pageTitles[pathname]) return pageTitles[pathname];
     if (/^\/articles\/\d+\/edit$/.test(pathname)) return "Modifier l'article";
     if (/^\/products\/\d+\/edit$/.test(pathname)) return 'Modifier le produit';
+    if (/^\/orders\/\d+$/.test(pathname)) return 'Détail commande';
     return 'Administration';
 }
 

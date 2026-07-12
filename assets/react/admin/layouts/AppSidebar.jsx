@@ -40,6 +40,7 @@ const blogItems = [
 ];
 
 const shopItems = [
+    { to: '/orders',             icon: ShoppingCart, label: 'Commandes' },
     { to: '/products',           icon: Package,      label: 'Produits' },
     { to: '/product-categories', icon: Tag,          label: 'Catégories' },
 ];
@@ -102,7 +103,7 @@ function NavItem({ to, icon: Icon, label }) {
 export default function AppSidebar({ userEmail = '', logoutUrl = '/deconnexion' }) {
     const { pathname } = useLocation();
     const isBlogActive = pathname.startsWith('/articles') || pathname.startsWith('/categories');
-    const isShopActive = pathname.startsWith('/products') || pathname.startsWith('/product-categories');
+    const isShopActive = pathname.startsWith('/orders') || pathname.startsWith('/products') || pathname.startsWith('/product-categories');
 
     return (
         <Sidebar collapsible="icon">

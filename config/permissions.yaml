@@ -25,6 +25,19 @@ permissions:
         roles: [ ROLE_ADMIN ]
         description: "Supprimer une catégorie"
 
+    # --- Commandes ---
+    ORDER_VIEW:
+        roles: [ ROLE_ADMIN ]
+        description: "Voir les commandes"
+
+    ORDER_EDIT:
+        roles: [ ROLE_ADMIN ]
+        description: "Modifier une commande (statut, note)"
+
+    ORDER_DELETE:
+        roles: [ ROLE_ADMIN ]
+        description: "Supprimer une commande"
+
     # --- Produits ---
     PRODUCT_VIEW:
         roles: [ ROLE_ADMIN ]
