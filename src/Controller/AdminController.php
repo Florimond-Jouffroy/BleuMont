@@ -41,6 +41,7 @@ class AdminController extends AbstractController
                 'orders'            => $this->generateUrl('api_admin_orders_list'),
                 'shippingMethods'   => $this->generateUrl('api_admin_shipping_list'),
                 'invoices'          => $this->generateUrl('api_admin_invoices_list'),
+                'promoCodes'        => $this->generateUrl('api_admin_promo_list'),
                 'settings'          => $this->generateUrl('api_admin_settings_get'),
                 'statistics'        => $this->generateUrl('api_admin_stats_dashboard'),
             ],

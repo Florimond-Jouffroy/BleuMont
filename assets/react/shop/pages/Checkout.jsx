@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle, ChevronRight, Lock, Package, ShoppingBag, UserPlus } from 'lucide-react';
+import { CheckCircle, ChevronRight, Lock, Package, ShoppingBag, Tag, UserPlus, X } from 'lucide-react';
 import { api, ApiError, getErrorMessage } from '../../utils/api';
 import { useCart } from '../context/CartContext';
 
 function formatPrice(cents) {
     return (cents / 100).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
+}
+
+function computePromoDiscount(promo, subtotalCents) {
+    if (!promo || !subtotalCents) return 0;
+    if (promo.type === 'percent') return Math.round(subtotalCents * Number(promo.value) / 100);
+    return Math.min(Number(promo.value), subtotalCents);
 }
 
 const EMPTY_ADDRESS = {
@@ -27,6 +33,7 @@ export default function Checkout({ urls }) {
     const [submitting, setSubmitting]           = useState(false);
     const [error, setError]                     = useState('');
     const [orderNumber, setOrderNumber]         = useState('');
+    const [promo, setPromo]                     = useState(null); // {code, type, value}
 
     // Check auth + pre-fill form from profile
     useEffect(() => {
@@ -66,6 +73,13 @@ export default function Checkout({ urls }) {
             .catch(() => {})
             .finally(() => setLoadingShipping(false));
     }, [cart.subtotal, cartLoading]);
+
+    // Fetch promo actif en session (utile après refresh de page)
+    useEffect(() => {
+        api.get(urls.promo ?? '/api/boutique/panier/promo')
+            .then(data => { if (data) setPromo(data); })
+            .catch(() => {});
+    }, []);
 
     const addrField = (key, value) => setAddress((a) => ({ ...a, [key]: value }));
 
@@ -142,6 +156,9 @@ export default function Checkout({ urls }) {
                     setSelectedShipping={setSelectedShipping}
                     loadingShipping={loadingShipping}
                     cart={cart}
+                    promo={promo}
+                    setPromo={setPromo}
+                    promoUrl={urls.promo}
                     error={error}
                     onSubmit={handleStep1Submit}
                     onBack={() => navigate('/panier')}
@@ -154,6 +171,7 @@ export default function Checkout({ urls }) {
                     selectedShipping={selectedShipping}
                     customerNote={customerNote}
                     cart={cart}
+                    promo={promo}
                     error={error}
                     submitting={submitting}
                     onConfirm={handleConfirm}
@@ -201,8 +219,78 @@ function StepBar({ step }) {
     );
 }
 
+/* ── Promo code input ── */
+function PromoInput({ promo, setPromo, promoUrl }) {
+    const [input, setInput]     = useState('');
+    const [loading, setLoading] = useState(false);
+    const [promoError, setPromoError] = useState('');
+
+    const handleApply = async () => {
+        if (!input.trim() || loading) return;
+        setLoading(true);
+        setPromoError('');
+        try {
+            const data = await api.post(promoUrl ?? '/api/boutique/panier/promo', { code: input.trim() });
+            setPromo(data);
+            setInput('');
+        } catch (err) {
+            setPromoError(getErrorMessage(err));
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleRemove = async () => {
+        try {
+            await api.delete(promoUrl ?? '/api/boutique/panier/promo');
+        } catch { /* ignore */ }
+        setPromo(null);
+        setPromoError('');
+    };
+
+    if (promo) {
+        return (
+            <div className="flex items-center justify-between rounded-lg bg-green-50 border border-green-200 px-3 py-2 text-sm">
+                <div className="flex items-center gap-2 text-green-700">
+                    <Tag className="size-3.5 shrink-0" />
+                    <span className="font-mono font-semibold">{promo.code}</span>
+                    <span className="text-green-600">
+                        − {promo.type === 'percent' ? `${promo.value} %` : formatPrice(promo.value)}
+                    </span>
+                </div>
+                <button type="button" onClick={handleRemove} className="text-green-600 hover:text-green-800 transition-colors">
+                    <X className="size-4" />
+                </button>
+            </div>
+        );
+    }
+
+    return (
+        <div className="space-y-1.5">
+            <div className="flex gap-2">
+                <input
+                    value={input}
+                    onChange={e => setInput(e.target.value.toUpperCase())}
+                    onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleApply())}
+                    placeholder="Code promo"
+                    className="flex-1 rounded-lg border border-input bg-background px-3 py-2 text-sm font-mono uppercase placeholder:normal-case placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+                <button
+                    type="button"
+                    onClick={handleApply}
+                    disabled={loading || !input.trim()}
+                    className="rounded-lg border px-3 py-2 text-sm font-medium hover:bg-accent transition-colors disabled:opacity-50"
+                >
+                    {loading ? '…' : 'Appliquer'}
+                </button>
+            </div>
+            {promoError && <p className="text-xs text-destructive">{promoError}</p>}
+        </div>
+    );
+}
+
 /* ── Step 1 : Adresse + livraison ── */
-function Step1({ address, addrField, customerNote, setCustomerNote, shippingMethods, selectedShipping, setSelectedShipping, loadingShipping, cart, error, onSubmit, onBack }) {
+function Step1({ address, addrField, customerNote, setCustomerNote, shippingMethods, selectedShipping, setSelectedShipping, loadingShipping, cart, promo, setPromo, promoUrl, error, onSubmit, onBack }) {
     return (
         <form onSubmit={onSubmit}>
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-3 lg:items-start">
@@ -282,7 +370,7 @@ function Step1({ address, addrField, customerNote, setCustomerNote, shippingMeth
                 </div>
 
                 {/* Order summary sidebar */}
-                <OrderSummary cart={cart} selectedShipping={selectedShipping} error={error}>
+                <OrderSummary cart={cart} selectedShipping={selectedShipping} promo={promo} setPromo={setPromo} promoUrl={promoUrl} error={error}>
                     <button
                         type="button"
                         onClick={onBack}
@@ -304,9 +392,10 @@ function Step1({ address, addrField, customerNote, setCustomerNote, shippingMeth
 }
 
 /* ── Step 2 : Récapitulatif ── */
-function Step2({ address, selectedShipping, customerNote, cart, error, submitting, onConfirm, onBack }) {
+function Step2({ address, selectedShipping, customerNote, cart, promo, error, submitting, onConfirm, onBack }) {
     const shippingCost = selectedShipping?.effectivePrice ?? 0;
-    const total        = cart.subtotal + shippingCost;
+    const discount     = computePromoDiscount(promo, cart.subtotal);
+    const total        = Math.max(0, cart.subtotal - discount + shippingCost);
 
     return (
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3 lg:items-start">
@@ -376,6 +465,12 @@ function Step2({ address, selectedShipping, customerNote, cart, error, submittin
                         <dt className="text-muted-foreground">Sous-total</dt>
                         <dd>{formatPrice(cart.subtotal)}</dd>
                     </div>
+                    {discount > 0 && (
+                        <div className="flex justify-between text-green-600">
+                            <dt>Réduction{promo ? ` (${promo.code})` : ''}</dt>
+                            <dd>− {formatPrice(discount)}</dd>
+                        </div>
+                    )}
                     <div className="flex justify-between">
                         <dt className="text-muted-foreground">Livraison</dt>
                         <dd className={shippingCost === 0 ? 'text-green-600' : ''}>{shippingCost === 0 ? 'Gratuite' : formatPrice(shippingCost)}</dd>
@@ -446,9 +541,10 @@ function Step3({ orderNumber, navigate }) {
 }
 
 /* ── Shared: Order summary sidebar ── */
-function OrderSummary({ cart, selectedShipping, error, children }) {
+function OrderSummary({ cart, selectedShipping, promo, setPromo, promoUrl, error, children }) {
     const shippingCost = selectedShipping?.effectivePrice ?? null;
-    const total        = shippingCost !== null ? cart.subtotal + shippingCost : null;
+    const discount     = computePromoDiscount(promo, cart.subtotal);
+    const total        = shippingCost !== null ? Math.max(0, cart.subtotal - discount + shippingCost) : null;
 
     return (
         <div className="rounded-xl border border-border bg-card p-5 space-y-4 lg:sticky lg:top-24">
@@ -470,6 +566,12 @@ function OrderSummary({ cart, selectedShipping, error, children }) {
                     <dt>Sous-total</dt>
                     <dd>{formatPrice(cart.subtotal)}</dd>
                 </div>
+                {discount > 0 && (
+                    <div className="flex justify-between text-green-600">
+                        <dt>Réduction</dt>
+                        <dd>− {formatPrice(discount)}</dd>
+                    </div>
+                )}
                 {shippingCost !== null && (
                     <div className="flex justify-between text-muted-foreground">
                         <dt>Livraison</dt>
@@ -483,6 +585,9 @@ function OrderSummary({ cart, selectedShipping, error, children }) {
                     </div>
                 )}
             </dl>
+            {setPromo && (
+                <PromoInput promo={promo} setPromo={setPromo} promoUrl={promoUrl} />
+            )}
             {error && <p className="rounded-lg bg-destructive/10 px-3 py-2 text-xs text-destructive">{error}</p>}
             <div className="space-y-2">{children}</div>
         </div>

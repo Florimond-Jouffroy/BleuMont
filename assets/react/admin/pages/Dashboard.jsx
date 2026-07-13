@@ -77,7 +77,7 @@ export default function Dashboard({ urls = {} }) {
         return <p className="text-destructive text-sm">{error}</p>;
     }
 
-    const { kpis, ordersByStatus, revenueByMonth, recentOrders } = data;
+    const { kpis, ordersByStatus, revenueByMonth, recentOrders, lowStockProducts } = data;
 
     const chartData = revenueByMonth.map(r => ({ ...r, label: r.label, display: formatMonth(r.label) }));
 
@@ -207,6 +207,58 @@ export default function Dashboard({ urls = {} }) {
                     </CardContent>
                 </Card>
             </div>
+
+            {/* Alertes stock bas */}
+            {lowStockProducts.length > 0 && (
+                <Card className="border-orange-200">
+                    <CardHeader className="flex flex-row items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <CardTitle className="text-sm font-medium">Alertes stock</CardTitle>
+                            <span className="inline-flex items-center rounded-full bg-orange-100 px-2 py-0.5 text-xs font-medium text-orange-700">
+                                {lowStockProducts.length} produit{lowStockProducts.length > 1 ? 's' : ''}
+                            </span>
+                        </div>
+                        <Link to="/produits" className="text-xs text-primary underline">Gérer les stocks</Link>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                        <table className="w-full text-sm">
+                            <thead>
+                                <tr className="border-b text-xs text-muted-foreground">
+                                    <th className="px-6 py-3 text-left font-medium">Produit</th>
+                                    <th className="px-6 py-3 text-right font-medium">Stock</th>
+                                    <th className="px-6 py-3 text-right font-medium">Seuil d'alerte</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {lowStockProducts.map(p => {
+                                    const isEmpty = p.stock === 0;
+                                    return (
+                                        <tr key={p.id} className="border-b last:border-0 hover:bg-muted/40 transition-colors">
+                                            <td className="px-6 py-3 font-medium">
+                                                <Link to={`/produits/${p.id}/modifier`} className="hover:underline text-foreground">
+                                                    {p.name}
+                                                </Link>
+                                            </td>
+                                            <td className="px-6 py-3 text-right">
+                                                <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                                                    isEmpty
+                                                        ? 'bg-red-100 text-red-700'
+                                                        : 'bg-orange-100 text-orange-700'
+                                                }`}>
+                                                    {isEmpty ? 'Rupture' : p.stock}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-3 text-right text-muted-foreground tabular-nums">
+                                                {p.lowStockThreshold}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </CardContent>
+                </Card>
+            )}
 
             {/* Commandes récentes */}
             <Card>

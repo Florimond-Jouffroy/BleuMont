@@ -7,6 +7,7 @@ namespace App\Controller\Api\Admin;
 use App\Entity\Order;
 use App\Repository\CustomerRepository;
 use App\Repository\OrderRepository;
+use App\Repository\ProductRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -17,6 +18,7 @@ class StatisticsController extends AbstractController
     public function __construct(
         private readonly OrderRepository    $orderRepo,
         private readonly CustomerRepository $customerRepo,
+        private readonly ProductRepository  $productRepo,
     ) {
     }
 
@@ -52,6 +54,13 @@ class StatisticsController extends AbstractController
             'revenue' => $r['revenue'],
         ], $this->orderRepo->revenueByMonth(6));
 
+        $lowStockProducts = array_map(fn($p) => [
+            'id'                => $p->getId(),
+            'name'              => $p->getName(),
+            'stock'             => $p->getStock(),
+            'lowStockThreshold' => $p->getLowStockThreshold(),
+        ], $this->productRepo->findLowStock());
+
         return $this->json([
             'kpis' => [
                 'revenueThisMonth' => $revenueThisMonth,
@@ -62,7 +71,8 @@ class StatisticsController extends AbstractController
             ],
             'ordersByStatus'  => $byStatus,
             'revenueByMonth'  => $revenueByMonth,
-            'recentOrders'    => $recentOrders,
+            'recentOrders'      => $recentOrders,
+            'lowStockProducts'  => $lowStockProducts,
         ]);
     }
 }

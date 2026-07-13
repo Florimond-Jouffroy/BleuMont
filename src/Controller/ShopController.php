@@ -21,6 +21,7 @@ class ShopController extends AbstractController
                 'cart'       => $this->generateUrl('api_shop_cart_get'),
                 'shipping'   => $this->generateUrl('api_shop_shipping_list'),
                 'checkout'   => $this->generateUrl('api_shop_checkout'),
+                'promo'      => $this->generateUrl('api_shop_promo_apply'),
                 'profile'    => $this->generateUrl('api_account_profile_get'),
             ],
         ]);

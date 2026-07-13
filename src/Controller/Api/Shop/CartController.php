@@ -57,8 +57,21 @@ class CartController extends AbstractController
             break;
         }
 
+        // Vérification du stock
+        $availableStock = $variant ? $variant->getStock() : ($product->hasVariants() ? PHP_INT_MAX : $product->getStock());
+        if ($availableStock <= 0) {
+            return $this->json(['message' => 'Ce produit est en rupture de stock.'], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
         $key  = $this->buildKey($productId, $variantId);
         $cart = $this->getCart($request);
+
+        $currentQty    = $cart[$key]['quantity'] ?? 0;
+        $quantity      = min($quantity, max(0, $availableStock - $currentQty));
+
+        if ($quantity <= 0) {
+            return $this->json(['message' => 'Stock insuffisant pour ajouter cette quantité.'], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
 
         if (isset($cart[$key])) {
             $cart[$key]['quantity'] += $quantity;

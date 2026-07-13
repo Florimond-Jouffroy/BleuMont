@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { ChevronRight, ChevronsUpDown, FileText, Image, LayoutDashboard, LogOut, Package, Receipt, Settings, ShoppingCart, Tag, Truck, Users } from 'lucide-react';
+import { ChevronRight, ChevronsUpDown, FileText, Image, LayoutDashboard, LogOut, Package, Receipt, Settings, ShoppingCart, Tag, Ticket, Truck, Users } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
@@ -42,6 +42,7 @@ const blogItems = [
 const shopItems = [
     { to: '/commandes',           icon: ShoppingCart, label: 'Commandes' },
     { to: '/factures',            icon: Receipt,      label: 'Factures' },
+    { to: '/codes-promo',         icon: Ticket,       label: 'Codes promo' },
     { to: '/produits',            icon: Package,      label: 'Produits' },
     { to: '/categories-produits', icon: Tag,          label: 'Catégories' },
     { to: '/livraison',           icon: Truck,        label: 'Livraison' },

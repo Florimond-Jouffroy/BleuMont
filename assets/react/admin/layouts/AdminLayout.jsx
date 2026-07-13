@@ -19,6 +19,7 @@ const pageTitles = {
     '/produits':           'Produits',
     '/categories-produits': 'Catégories produits',
     '/livraison':          'Livraison',
+    '/codes-promo':        'Codes promo',
     '/parametres':         'Paramètres',
 };
 
