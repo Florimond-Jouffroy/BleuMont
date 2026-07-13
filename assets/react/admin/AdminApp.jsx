@@ -28,7 +28,7 @@ export default function AdminApp() {
             <Routes>
                 <Route element={<AdminLayout userEmail={userEmail} logoutUrl={logoutUrl} />}>
                     <Route index element={<Navigate to="/dashboard" replace />} />
-                    <Route path="dashboard" element={<Dashboard />} />
+                    <Route path="dashboard" element={<Dashboard urls={urls} />} />
                     <Route path="utilisateurs" element={<UsersList permissions={permissions} urls={urls} />} />
                     <Route path="articles" element={<ArticlesList permissions={permissions} urls={urls} />} />
                     <Route path="articles/nouveau" element={<ArticleEditor permissions={permissions} urls={urls} />} />
