@@ -56,6 +56,10 @@ class SettingController extends AbstractController
             $this->settingRepo->setValue('shop.enabled', $payload['shopEnabled'] ? 'true' : 'false');
         }
 
+        if (array_key_exists('maintenanceMode', $payload)) {
+            $this->settingRepo->setValue('site.maintenance', $payload['maintenanceMode'] ? 'true' : 'false');
+        }
+
         return $this->json($this->buildPayload());
     }
 
@@ -63,9 +67,10 @@ class SettingController extends AbstractController
     private function buildPayload(): array
     {
         return [
-            'shopEnabled'    => $this->settingRepo->getValue('shop.enabled', 'true') === 'true',
-            'invoiceTrigger' => $this->invoiceService->getInvoiceTrigger(),
-            'defaultTaxRate' => $this->invoiceService->getDefaultTaxRate(),
+            'maintenanceMode' => $this->settingRepo->getValue('site.maintenance', 'false') === 'true',
+            'shopEnabled'     => $this->settingRepo->getValue('shop.enabled', 'true') === 'true',
+            'invoiceTrigger'  => $this->invoiceService->getInvoiceTrigger(),
+            'defaultTaxRate'  => $this->invoiceService->getDefaultTaxRate(),
         ];
     }
 }

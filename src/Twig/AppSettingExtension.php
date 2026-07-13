@@ -21,7 +21,8 @@ class AppSettingExtension extends AbstractExtension implements GlobalsInterface
     public function getGlobals(): array
     {
         return [
-            'shopEnabled' => $this->settingRepo->getValue('shop.enabled', 'true') === 'true',
+            'shopEnabled'     => $this->settingRepo->getValue('shop.enabled', 'true') === 'true',
+            'maintenanceMode' => $this->settingRepo->getValue('site.maintenance', 'false') === 'true',
         ];
     }
 }
