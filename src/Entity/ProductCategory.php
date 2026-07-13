@@ -35,6 +35,10 @@ class ProductCategory
     #[ORM\Column(options: ['default' => true])]
     private bool $isActive = true;
 
+    /** Taux de TVA en % (ex : 20). Null = utilise le taux par défaut global. */
+    #[ORM\Column(nullable: true)]
+    private ?int $taxRate = null;
+
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
@@ -61,6 +65,9 @@ class ProductCategory
 
     public function isActive(): bool { return $this->isActive; }
     public function setIsActive(bool $isActive): self { $this->isActive = $isActive; return $this; }
+
+    public function getTaxRate(): ?int { return $this->taxRate; }
+    public function setTaxRate(?int $taxRate): self { $this->taxRate = $taxRate; return $this; }
 
     public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
 

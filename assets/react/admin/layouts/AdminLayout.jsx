@@ -1,34 +1,61 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
+import { Globe, WrenchIcon } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { api } from '../../utils/api';
 import AppSidebar from './AppSidebar';
 
 const pageTitles = {
     '/dashboard':          'Dashboard',
-    '/users':              'Utilisateurs',
+    '/utilisateurs':       'Utilisateurs',
     '/articles':           'Articles',
-    '/articles/new':       'Nouvel article',
-    '/media':              'Médiathèque',
+    '/medias':             'Médiathèque',
     '/categories':         'Catégories',
-    '/orders':             'Commandes',
-    '/products':           'Produits',
-    '/products/new':       'Nouveau produit',
-    '/product-categories': 'Catégories produits',
+    '/commandes':          'Commandes',
+    '/factures':           'Factures',
+    '/produits':           'Produits',
+    '/categories-produits': 'Catégories produits',
+    '/livraison':          'Livraison',
+    '/parametres':         'Paramètres',
 };
 
 function getTitle(pathname) {
     if (pageTitles[pathname]) return pageTitles[pathname];
-    if (/^\/articles\/\d+\/edit$/.test(pathname)) return "Modifier l'article";
-    if (/^\/products\/\d+\/edit$/.test(pathname)) return 'Modifier le produit';
-    if (/^\/orders\/\d+$/.test(pathname)) return 'Détail commande';
+    if (/^\/articles\/\d+\/modifier$/.test(pathname)) return "Modifier l'article";
+    if (/^\/produits\/\d+\/modifier$/.test(pathname)) return 'Modifier le produit';
+    if (/^\/commandes\/\d+$/.test(pathname)) return 'Détail commande';
     return 'Administration';
 }
 
-export default function AdminLayout({ userEmail = '', logoutUrl = '/deconnexion' }) {
+export default function AdminLayout({ userEmail = '', logoutUrl = '/deconnexion', settingsUrl = '/api/admin/parametres' }) {
     const { pathname } = useLocation();
     const title = getTitle(pathname);
+
+    const [maintenanceMode, setMaintenanceMode] = useState(null);
+    const [confirmOpen, setConfirmOpen]         = useState(false);
+    const [toggling, setToggling]               = useState(false);
+
+    useEffect(() => {
+        api.get(settingsUrl)
+            .then(data => setMaintenanceMode(data.maintenanceMode))
+            .catch(() => {});
+    }, []);
+
+    const handleToggle = async () => {
+        setToggling(true);
+        try {
+            const data = await api.patch(settingsUrl, { maintenanceMode: !maintenanceMode });
+            setMaintenanceMode(data.maintenanceMode);
+        } catch {
+            // silently ignore — the Settings page will show the error if needed
+        } finally {
+            setToggling(false);
+            setConfirmOpen(false);
+        }
+    };
 
     return (
         <TooltipProvider>
@@ -40,7 +67,66 @@ export default function AdminLayout({ userEmail = '', logoutUrl = '/deconnexion'
                         <SidebarTrigger className="-ml-1" />
                         <Separator orientation="vertical" className="mr-2 h-4" />
                         <span className="text-sm font-medium text-foreground">{title}</span>
+
+                        <div className="ml-auto flex items-center gap-2">
+                            {maintenanceMode !== null && (
+                                <button
+                                    type="button"
+                                    onClick={() => setConfirmOpen(true)}
+                                    className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                                        maintenanceMode
+                                            ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
+                                            : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                                    }`}
+                                >
+                                    <WrenchIcon className="size-4" />
+                                    <span>{maintenanceMode ? 'Maintenance active' : 'Maintenance'}</span>
+                                </button>
+                            )}
+                            <a
+                                href="/"
+                                className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                            >
+                                <Globe className="size-4" />
+                                <span>Voir le site</span>
+                            </a>
+                        </div>
                     </header>
+
+                    <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>
+                                    {maintenanceMode ? 'Désactiver le mode maintenance ?' : 'Activer le mode maintenance ?'}
+                                </DialogTitle>
+                                <DialogDescription>
+                                    {maintenanceMode
+                                        ? 'Le site redeviendra accessible à tous les visiteurs.'
+                                        : 'Tous les visiteurs verront une page de maintenance. Vous continuerez à accéder au site normalement en tant qu\'administrateur.'
+                                    }
+                                </DialogDescription>
+                            </DialogHeader>
+                            <DialogFooter>
+                                <button
+                                    type="button"
+                                    onClick={() => setConfirmOpen(false)}
+                                    className="rounded-md px-4 py-2 text-sm border hover:bg-accent transition-colors"
+                                >
+                                    Annuler
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleToggle}
+                                    disabled={toggling}
+                                    className={`rounded-md px-4 py-2 text-sm font-medium text-white transition-colors disabled:opacity-60 ${
+                                        maintenanceMode ? 'bg-green-600 hover:bg-green-700' : 'bg-yellow-500 hover:bg-yellow-600'
+                                    }`}
+                                >
+                                    {toggling ? 'En cours…' : maintenanceMode ? 'Désactiver' : 'Activer'}
+                                </button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
 
                     {/* key sur le pathname : relance l'animation d'entrée à chaque changement de page */}
                     <div

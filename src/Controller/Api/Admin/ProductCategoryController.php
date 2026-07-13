@@ -42,12 +42,18 @@ class ProductCategoryController extends AbstractController
 
         $payload = $request->toArray();
         $name    = trim((string) ($payload['name'] ?? ''));
+        $taxRate = isset($payload['taxRate']) && '' !== (string) $payload['taxRate']
+            ? (int) $payload['taxRate']
+            : null;
 
         if ('' === $name) {
             return $this->json(['message' => 'Le nom est obligatoire.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $category = $this->manager->create($name);
+        if (null !== $category && null !== $taxRate) {
+            $category->setTaxRate($taxRate);
+        }
         if (null === $category) {
             return $this->json(['message' => 'Une erreur est survenue.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -62,12 +68,15 @@ class ProductCategoryController extends AbstractController
 
         $payload = $request->toArray();
         $name    = trim((string) ($payload['name'] ?? ''));
+        $taxRate = array_key_exists('taxRate', $payload)
+            ? ('' !== (string) ($payload['taxRate'] ?? '') ? (int) $payload['taxRate'] : null)
+            : $category->getTaxRate();
 
         if ('' === $name) {
             return $this->json(['message' => 'Le nom est obligatoire.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        if (!$this->manager->update($category, $name)) {
+        if (!$this->manager->update($category, $name, $taxRate)) {
             return $this->json(['message' => 'Une erreur est survenue.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
@@ -86,7 +95,7 @@ class ProductCategoryController extends AbstractController
         return $this->json(null, Response::HTTP_NO_CONTENT);
     }
 
-    /** @return array{id: int|null, name: string, slug: string, position: int, isActive: bool, productCount: int} */
+    /** @return array<string, mixed> */
     private function serialize(ProductCategory $category): array
     {
         return [
@@ -95,6 +104,7 @@ class ProductCategoryController extends AbstractController
             'slug'         => $category->getSlug(),
             'position'     => $category->getPosition(),
             'isActive'     => $category->isActive(),
+            'taxRate'      => $category->getTaxRate(),
             'productCount' => $category->getProducts()->count(),
         ];
     }

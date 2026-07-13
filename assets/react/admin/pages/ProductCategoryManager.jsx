@@ -12,7 +12,30 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { api, getErrorMessage } from '../../utils/api';
+
+const TAX_RATE_OPTIONS = [
+    { value: '',    label: 'Taux par défaut global' },
+    { value: '20',  label: '20% — Taux normal' },
+    { value: '10',  label: '10% — Taux intermédiaire' },
+    { value: '5.5', label: '5,5% — Taux réduit' },
+    { value: '2.1', label: '2,1% — Taux super-réduit' },
+    { value: '0',   label: '0% — Exonéré' },
+];
+
+function TaxRateBadge({ taxRate }) {
+    if (taxRate === null || taxRate === undefined) {
+        return <Badge variant="outline" className="text-xs font-normal text-muted-foreground">TVA par défaut</Badge>;
+    }
+    return <Badge variant="secondary" className="text-xs font-mono">TVA {taxRate}%</Badge>;
+}
 
 export default function ProductCategoryManager({ permissions = {}, urls = {} }) {
     const [categories, setCategories] = useState([]);
@@ -24,6 +47,7 @@ export default function ProductCategoryManager({ permissions = {}, urls = {} }) 
     const [deleting, setDeleting]     = useState(false);
     const [editTarget, setEditTarget] = useState(null);
     const [editName, setEditName]     = useState('');
+    const [editTaxRate, setEditTaxRate] = useState('');
     const [saving, setSaving]         = useState(false);
 
     const fetchCategories = async () => {
@@ -64,10 +88,11 @@ export default function ProductCategoryManager({ permissions = {}, urls = {} }) 
         setSaving(true);
         setFeedback(null);
         try {
-            await api.put(`/api/admin/categories-produits/${editTarget.id}`, { name });
+            const taxRate = editTaxRate !== '' ? editTaxRate : null;
+            await api.put(`/api/admin/categories-produits/${editTarget.id}`, { name, taxRate });
             setEditTarget(null);
             await fetchCategories();
-            setFeedback({ type: 'success', message: `Catégorie renommée en « ${name} ».` });
+            setFeedback({ type: 'success', message: `Catégorie « ${name} » mise à jour.` });
         } catch (err) {
             setFeedback({ type: 'error', message: getErrorMessage(err) });
         } finally {
@@ -92,11 +117,17 @@ export default function ProductCategoryManager({ permissions = {}, urls = {} }) 
         }
     };
 
+    const openEdit = (cat) => {
+        setEditTarget(cat);
+        setEditName(cat.name);
+        setEditTaxRate(cat.taxRate !== null && cat.taxRate !== undefined ? String(cat.taxRate) : '');
+    };
+
     return (
         <div className="space-y-6">
             <div>
                 <h2 className="text-2xl font-bold tracking-tight">Catégories produits</h2>
-                <p className="text-muted-foreground">Organisez votre catalogue par catégorie.</p>
+                <p className="text-muted-foreground">Organisez votre catalogue par catégorie et configurez le taux de TVA par type de produit.</p>
             </div>
 
             {permissions.canCreateProductCategory && (
@@ -145,6 +176,7 @@ export default function ProductCategoryManager({ permissions = {}, urls = {} }) 
                                 {!cat.isActive && <Badge variant="outline" className="text-xs">Inactif</Badge>}
                             </div>
                             <div className="flex items-center gap-3">
+                                <TaxRateBadge taxRate={cat.taxRate} />
                                 <Badge variant="secondary">
                                     {cat.productCount} produit{cat.productCount !== 1 ? 's' : ''}
                                 </Badge>
@@ -153,7 +185,7 @@ export default function ProductCategoryManager({ permissions = {}, urls = {} }) 
                                         variant="ghost"
                                         size="icon"
                                         className="size-8 text-muted-foreground hover:text-foreground"
-                                        onClick={() => { setEditTarget(cat); setEditName(cat.name); }}
+                                        onClick={() => openEdit(cat)}
                                     >
                                         <Pencil className="size-4" />
                                     </Button>
@@ -179,17 +211,39 @@ export default function ProductCategoryManager({ permissions = {}, urls = {} }) 
                 {editTarget && (
                     <DialogContent>
                         <DialogHeader>
-                            <DialogTitle>Renommer la catégorie</DialogTitle>
+                            <DialogTitle>Modifier la catégorie</DialogTitle>
                         </DialogHeader>
-                        <div className="space-y-1.5 py-2">
-                            <Label htmlFor="edit-cat-name">Nom</Label>
-                            <Input
-                                id="edit-cat-name"
-                                value={editName}
-                                onChange={(e) => setEditName(e.target.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && handleEdit()}
-                                disabled={saving}
-                            />
+                        <div className="space-y-4 py-2">
+                            <div className="space-y-1.5">
+                                <Label htmlFor="edit-cat-name">Nom</Label>
+                                <Input
+                                    id="edit-cat-name"
+                                    value={editName}
+                                    onChange={(e) => setEditName(e.target.value)}
+                                    onKeyDown={(e) => e.key === 'Enter' && handleEdit()}
+                                    disabled={saving}
+                                />
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label htmlFor="edit-cat-tax">Taux de TVA</Label>
+                                <Select
+                                    value={editTaxRate}
+                                    onValueChange={setEditTaxRate}
+                                    disabled={saving}
+                                >
+                                    <SelectTrigger id="edit-cat-tax">
+                                        <SelectValue placeholder="Taux par défaut global" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {TAX_RATE_OPTIONS.map(({ value, label }) => (
+                                            <SelectItem key={value} value={value}>{label}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <p className="text-xs text-muted-foreground">
+                                    Laissez sur « Taux par défaut global » pour hériter du taux configuré dans les Paramètres.
+                                </p>
+                            </div>
                         </div>
                         <DialogFooter>
                             <Button variant="outline" onClick={() => setEditTarget(null)} disabled={saving}>Annuler</Button>

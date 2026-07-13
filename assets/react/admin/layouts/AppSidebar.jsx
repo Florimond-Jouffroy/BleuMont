@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { ChevronRight, ChevronsUpDown, FileText, Image, LayoutDashboard, LogOut, Package, ShoppingCart, Tag, Users } from 'lucide-react';
+import { ChevronRight, ChevronsUpDown, FileText, Image, LayoutDashboard, LogOut, Package, Receipt, Settings, ShoppingCart, Tag, Truck, Users } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
@@ -40,9 +40,12 @@ const blogItems = [
 ];
 
 const shopItems = [
-    { to: '/commandes',          icon: ShoppingCart, label: 'Commandes' },
-    { to: '/produits',           icon: Package,      label: 'Produits' },
-    { to: '/categories-produits', icon: Tag,         label: 'Catégories' },
+    { to: '/commandes',           icon: ShoppingCart, label: 'Commandes' },
+    { to: '/factures',            icon: Receipt,      label: 'Factures' },
+    { to: '/produits',            icon: Package,      label: 'Produits' },
+    { to: '/categories-produits', icon: Tag,          label: 'Catégories' },
+    { to: '/livraison',           icon: Truck,        label: 'Livraison' },
+    { to: '/parametres',          icon: Settings,     label: 'Paramètres' },
 ];
 
 function getInitials(email) {
@@ -103,7 +106,7 @@ function NavItem({ to, icon: Icon, label }) {
 export default function AppSidebar({ userEmail = '', logoutUrl = '/deconnexion' }) {
     const { pathname } = useLocation();
     const isBlogActive = pathname.startsWith('/articles') || pathname.startsWith('/categories');
-    const isShopActive = pathname.startsWith('/commandes') || pathname.startsWith('/produits') || pathname.startsWith('/categories-produits');
+    const isShopActive = pathname.startsWith('/commandes') || pathname.startsWith('/factures') || pathname.startsWith('/produits') || pathname.startsWith('/categories-produits') || pathname.startsWith('/livraison') || pathname.startsWith('/parametres');
 
     return (
         <Sidebar collapsible="icon">

@@ -26,6 +26,7 @@
         "doctrine/doctrine-bundle": "^3.2.4",
         "doctrine/doctrine-migrations-bundle": "^4.0",
         "doctrine/orm": "^3.6.7",
+        "dompdf/dompdf": "^3.1",
         "florimond/core-bundle": "^1.0",
         "florimond/log-bundle": "^1.1",
         "florimond/multi-db-migrations-bundle": "^1.0",

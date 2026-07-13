@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, CheckCircle2, ChevronRight, Clock, MapPin, MessageSquare, Package, User } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, ChevronRight, Clock, FileDown, MapPin, MessageSquare, Package, Receipt, User } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -73,6 +73,8 @@ export default function OrderDetail({ permissions = {} }) {
     const [transitionComment, setTransitionComment] = useState('');
     const [internalNote, setInternalNote] = useState('');
     const [savingNote, setSavingNote] = useState(false);
+    const [invoice, setInvoice]           = useState(undefined); // undefined = not yet fetched
+    const [generatingInvoice, setGeneratingInvoice] = useState(false);
 
     const fetchOrder = async () => {
         try {
@@ -86,7 +88,40 @@ export default function OrderDetail({ permissions = {} }) {
         }
     };
 
-    useEffect(() => { fetchOrder(); }, [id]);
+    const fetchInvoice = async () => {
+        try {
+            const data = await api.get(`/api/admin/factures/commande/${id}`);
+            setInvoice(data); // null = no invoice yet
+        } catch {
+            setInvoice(null);
+        }
+    };
+
+    const handleGenerateInvoice = async () => {
+        setGeneratingInvoice(true);
+        setFeedback(null);
+        try {
+            const data = await api.post(`/api/admin/factures/commande/${id}/generer`);
+            setInvoice(data);
+            setFeedback({ type: 'success', message: `Facture ${data.invoiceNumber} générée.` });
+        } catch (err) {
+            setFeedback({ type: 'error', message: getErrorMessage(err) });
+        } finally {
+            setGeneratingInvoice(false);
+        }
+    };
+
+    const handleInvoiceStatus = async (status) => {
+        if (!invoice) return;
+        try {
+            const data = await api.patch(`/api/admin/factures/${invoice.id}/statut`, { status });
+            setInvoice(data);
+        } catch (err) {
+            setFeedback({ type: 'error', message: getErrorMessage(err) });
+        }
+    };
+
+    useEffect(() => { fetchOrder(); fetchInvoice(); }, [id]);
 
     const handleTransition = async () => {
         if (!transitionTarget) return;
@@ -298,6 +333,89 @@ export default function OrderDetail({ permissions = {} }) {
                             <p className="text-sm text-muted-foreground">{order.customerNote}</p>
                         </div>
                     )}
+
+                    {/* Facture */}
+                    <div className="rounded-lg border p-4 space-y-3">
+                        <div className="flex items-center gap-2">
+                            <Receipt className="size-4 text-muted-foreground" />
+                            <h3 className="font-medium text-sm">Facture</h3>
+                        </div>
+
+                        {invoice === undefined && (
+                            <p className="text-sm text-muted-foreground">Chargement…</p>
+                        )}
+
+                        {invoice === null && (
+                            <div className="space-y-2">
+                                <p className="text-sm text-muted-foreground">Aucune facture générée.</p>
+                                <Button
+                                    size="sm"
+                                    className="w-full"
+                                    onClick={handleGenerateInvoice}
+                                    disabled={generatingInvoice}
+                                >
+                                    {generatingInvoice ? 'Génération…' : 'Générer la facture'}
+                                </Button>
+                            </div>
+                        )}
+
+                        {invoice && (
+                            <div className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <span className="font-mono text-sm font-medium">{invoice.invoiceNumber}</span>
+                                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                                        invoice.status === 'paid'      ? 'bg-green-100 text-green-700' :
+                                        invoice.status === 'cancelled' ? 'bg-red-100 text-red-700' :
+                                        'bg-yellow-100 text-yellow-700'
+                                    }`}>{invoice.statusLabel}</span>
+                                </div>
+                                <p className="text-xs text-muted-foreground">
+                                    Émise le {new Intl.DateTimeFormat('fr-FR', { dateStyle: 'long' }).format(new Date(invoice.issuedAt))}
+                                </p>
+                                <p className="text-sm font-semibold">{formatPrice(invoice.totalTtc)}</p>
+                                <a
+                                    href={`/api/admin/factures/${invoice.id}/pdf`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="flex items-center justify-center gap-2 w-full rounded-md border px-3 py-1.5 text-sm font-medium hover:bg-accent transition-colors"
+                                >
+                                    <FileDown className="size-4" />
+                                    Télécharger le PDF
+                                </a>
+                                {invoice.status === 'pending' && (
+                                    <div className="flex gap-2">
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="flex-1 text-green-700 border-green-200 hover:bg-green-50"
+                                            onClick={() => handleInvoiceStatus('paid')}
+                                        >
+                                            Marquer payée
+                                        </Button>
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="flex-1 text-destructive"
+                                            onClick={() => handleInvoiceStatus('cancelled')}
+                                        >
+                                            Annuler
+                                        </Button>
+                                    </div>
+                                )}
+                                {invoice.status === 'cancelled' && (
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="w-full"
+                                        onClick={handleGenerateInvoice}
+                                        disabled={generatingInvoice}
+                                    >
+                                        Regénérer
+                                    </Button>
+                                )}
+                            </div>
+                        )}
+                    </div>
 
                     {/* Note interne */}
                     {permissions.canEditOrder && (

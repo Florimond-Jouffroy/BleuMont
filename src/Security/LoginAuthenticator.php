@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Security;
 
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,6 +26,12 @@ class LoginAuthenticator extends AbstractAuthenticator implements Authentication
 
     public function start(Request $request, ?AuthenticationException $authException = null): Response
     {
+        // XHR calls and /api/* paths get a 401 JSON response so fetch() can detect auth failures.
+        // Regular browser requests get the standard login redirect.
+        if ($request->isXmlHttpRequest() || str_starts_with($request->getPathInfo(), '/api/')) {
+            return new JsonResponse(['message' => 'Authentification requise.'], Response::HTTP_UNAUTHORIZED);
+        }
+
         return new RedirectResponse($this->urlGenerator->generate('app_security_login'));
     }
 
