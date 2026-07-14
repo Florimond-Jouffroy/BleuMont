@@ -30,7 +30,7 @@ export default function AdminApp() {
     return (
         <BrowserRouter basename="/admin">
             <Routes>
-                <Route element={<AdminLayout userEmail={userEmail} logoutUrl={logoutUrl} />}>
+                <Route element={<AdminLayout userEmail={userEmail} logoutUrl={logoutUrl} notificationsUrl={urls.notifications} />}>
                     <Route index element={<Navigate to="/dashboard" replace />} />
                     <Route path="dashboard" element={<Dashboard urls={urls} />} />
                     <Route path="utilisateurs" element={<UsersList permissions={permissions} urls={urls} />} />

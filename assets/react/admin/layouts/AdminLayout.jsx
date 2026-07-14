@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
-import { Globe, WrenchIcon } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Bell, Globe, ShoppingCart, MessageCircle, WrenchIcon } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -34,7 +34,83 @@ function getTitle(pathname) {
     return 'Administration';
 }
 
-export default function AdminLayout({ userEmail = '', logoutUrl = '/deconnexion', settingsUrl = '/api/admin/parametres' }) {
+function NotificationBell({ notificationsUrl }) {
+    const navigate = useNavigate();
+    const [counts, setCounts]       = useState({ pendingOrders: 0, openTickets: 0 });
+    const [open, setOpen]           = useState(false);
+    const ref                       = useRef(null);
+    const total = counts.pendingOrders + counts.openTickets;
+
+    const fetchCounts = () => {
+        if (!notificationsUrl) return;
+        api.get(notificationsUrl).then(data => setCounts(data)).catch(() => {});
+    };
+
+    useEffect(() => {
+        fetchCounts();
+        const id = setInterval(fetchCounts, 30_000);
+        return () => clearInterval(id);
+    }, [notificationsUrl]);
+
+    useEffect(() => {
+        if (!open) return;
+        const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, [open]);
+
+    const go = (path) => { setOpen(false); navigate(path); };
+
+    return (
+        <div ref={ref} className="relative">
+            <button
+                type="button"
+                onClick={() => setOpen(v => !v)}
+                className="relative flex items-center rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                aria-label="Notifications"
+            >
+                <Bell className="size-4" />
+                {total > 0 && (
+                    <span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-white leading-none">
+                        {total > 99 ? '99+' : total}
+                    </span>
+                )}
+            </button>
+
+            {open && (
+                <div className="absolute right-0 top-full z-50 mt-2 w-64 rounded-lg border bg-popover shadow-lg">
+                    <p className="border-b px-4 py-2.5 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                        Notifications
+                    </p>
+                    <button
+                        type="button"
+                        onClick={() => go('/commandes?status=pending')}
+                        className="flex w-full items-center gap-3 px-4 py-3 text-sm hover:bg-accent transition-colors"
+                    >
+                        <ShoppingCart className="size-4 shrink-0 text-muted-foreground" />
+                        <span className="flex-1 text-left">Commandes en attente</span>
+                        <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${counts.pendingOrders > 0 ? 'bg-orange-100 text-orange-700' : 'bg-muted text-muted-foreground'}`}>
+                            {counts.pendingOrders}
+                        </span>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => go('/support?status=open')}
+                        className="flex w-full items-center gap-3 px-4 py-3 text-sm hover:bg-accent transition-colors rounded-b-lg"
+                    >
+                        <MessageCircle className="size-4 shrink-0 text-muted-foreground" />
+                        <span className="flex-1 text-left">Tickets ouverts</span>
+                        <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${counts.openTickets > 0 ? 'bg-blue-100 text-blue-700' : 'bg-muted text-muted-foreground'}`}>
+                            {counts.openTickets}
+                        </span>
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+}
+
+export default function AdminLayout({ userEmail = '', logoutUrl = '/deconnexion', notificationsUrl = null, settingsUrl = '/api/admin/parametres' }) {
     const { pathname } = useLocation();
     const title = getTitle(pathname);
 
@@ -73,6 +149,7 @@ export default function AdminLayout({ userEmail = '', logoutUrl = '/deconnexion'
                         <span className="text-sm font-medium text-foreground">{title}</span>
 
                         <div className="ml-auto flex items-center gap-2">
+                            <NotificationBell notificationsUrl={notificationsUrl} />
                             {maintenanceMode !== null && (
                                 <button
                                     type="button"

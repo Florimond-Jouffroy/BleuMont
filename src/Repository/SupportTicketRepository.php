@@ -79,4 +79,14 @@ class SupportTicketRepository extends ServiceEntityRepository
     {
         return $this->findOneBy(['token' => $token]);
     }
+
+    public function countOpen(): int
+    {
+        return (int) $this->createQueryBuilder('t')
+            ->select('COUNT(t.id)')
+            ->andWhere('t.status = :status')
+            ->setParameter('status', SupportTicket::STATUS_OPEN)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }
