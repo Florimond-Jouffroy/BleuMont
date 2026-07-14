@@ -184,4 +184,17 @@ class OrderRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /** @return \App\Entity\Order[] */
+    public function findRecentByCustomer(int $customerId, int $limit = 5): array
+    {
+        return $this->createQueryBuilder('o')
+            ->join('o.customer', 'c')
+            ->andWhere('c.id = :cid')
+            ->setParameter('cid', $customerId)
+            ->orderBy('o.createdAt', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
 }

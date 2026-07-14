@@ -1,10 +1,11 @@
 import React from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { LayoutDashboard, Package, User, LogOut } from 'lucide-react';
+import { LayoutDashboard, MessageCircle, Package, User, LogOut } from 'lucide-react';
 
 const navItems = [
     { to: '/tableau-de-bord', icon: LayoutDashboard, label: 'Tableau de bord' },
     { to: '/commandes',       icon: Package,         label: 'Mes commandes' },
+    { to: '/support',         icon: MessageCircle,   label: 'Mes demandes' },
     { to: '/profil',          icon: User,            label: 'Mon profil' },
 ];
 

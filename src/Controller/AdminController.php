@@ -45,6 +45,7 @@ class AdminController extends AbstractController
                 'settings'          => $this->generateUrl('api_admin_settings_get'),
                 'statistics'        => $this->generateUrl('api_admin_stats_dashboard'),
                 'faq'               => $this->generateUrl('api_admin_faq_list'),
+                'support'           => $this->generateUrl('api_admin_support_list'),
             ],
             'permissions' => [
                 'canViewUsers'          => $this->isGranted(UserVoter::VIEW),
