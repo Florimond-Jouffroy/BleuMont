@@ -6,6 +6,7 @@ import ArticlesList from './pages/ArticlesList';
 import CategoryManager from './pages/CategoryManager';
 import InvoicesList from './pages/InvoicesList';
 import FaqManager from './pages/FaqManager';
+import StaticPageManager from './pages/StaticPageManager';
 import SupportManager from './pages/SupportManager';
 import PromoCodeManager from './pages/PromoCodeManager';
 import OrderDetail from './pages/OrderDetail';
@@ -48,6 +49,7 @@ export default function AdminApp() {
                     <Route path="medias" element={<MediaLibrary permissions={permissions} urls={urls} />} />
                     <Route path="faq" element={<FaqManager urls={urls} />} />
                     <Route path="support" element={<SupportManager urls={urls} />} />
+                    <Route path="pages" element={<StaticPageManager urls={urls} />} />
                     <Route path="livraison" element={<ShippingMethods urls={urls} />} />
                     <Route path="parametres" element={<Settings urls={urls} />} />
                 </Route>
