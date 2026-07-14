@@ -128,7 +128,8 @@ body { font-family: "DejaVu Sans", sans-serif; font-size: 11px; color: #1a1a1a; 
     </table>
 
     {# ── Articles ── #}
-    {% set multiRate = lines|map(l => l.rate)|unique|length > 1 %}
+    {% set rateMap = {} %}{% for l in lines %}{% set rateMap = rateMap|merge({(l.rate): 1}) %}{% endfor %}
+    {% set multiRate = rateMap|length > 1 %}
     <table class="items-table">
         <thead>
             <tr>
