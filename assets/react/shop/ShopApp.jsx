@@ -7,8 +7,9 @@ import Produit from './pages/Produit';
 import Panier from './pages/Panier';
 import Checkout from './pages/Checkout';
 
-const root = document.getElementById('shop-root');
-const urls = JSON.parse(root?.dataset.urls ?? '{}');
+const root        = document.getElementById('shop-root');
+const urls        = JSON.parse(root?.dataset.urls ?? '{}');
+const isConnected = root?.dataset.isConnected === 'true';
 
 export default function ShopApp() {
     return (
@@ -17,7 +18,7 @@ export default function ShopApp() {
                 <CartDrawer />
                 <Routes>
                     <Route index element={<Catalogue urls={urls} />} />
-                    <Route path="produit/:slug" element={<Produit urls={urls} />} />
+                    <Route path="produit/:slug" element={<Produit urls={urls} isConnected={isConnected} />} />
                     <Route path="panier" element={<Panier />} />
                     <Route path="commander" element={<Checkout urls={urls} />} />
                 </Routes>

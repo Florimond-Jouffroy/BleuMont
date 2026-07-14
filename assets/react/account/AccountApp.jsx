@@ -7,6 +7,7 @@ import CommandeDetail from './pages/CommandeDetail';
 import Profil from './pages/Profil';
 import Support from './pages/Support';
 import SupportDetail from './pages/SupportDetail';
+import Avis from './pages/Avis';
 
 const root      = document.getElementById('account-root');
 const urls      = JSON.parse(root?.dataset.urls      ?? '{}');
@@ -29,6 +30,7 @@ export default function AccountApp() {
                     <Route path="profil"           element={<Profil urls={urls} />} />
                     <Route path="support"          element={<Support urls={urls} />} />
                     <Route path="support/:id"      element={<SupportDetailWrapper />} />
+                    <Route path="avis"             element={<Avis urls={urls} />} />
                 </Route>
             </Routes>
         </BrowserRouter>

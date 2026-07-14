@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { BookOpen, ChevronRight, ChevronsUpDown, FileText, HelpCircle, Image, LayoutDashboard, LogOut, MessageCircle, Package, Receipt, Settings, ShoppingCart, Tag, Ticket, Truck, Users } from 'lucide-react';
+import { BookOpen, ChevronRight, ChevronsUpDown, FileText, HelpCircle, Image, LayoutDashboard, LogOut, MessageCircle, Package, Receipt, Settings, ShoppingCart, Star, Tag, Ticket, Truck, Users } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
@@ -35,6 +35,7 @@ const navItems = [
     { to: '/faq',          icon: HelpCircle,      label: 'FAQ' },
     { to: '/support',      icon: MessageCircle,   label: 'Support' },
     { to: '/pages',        icon: BookOpen,        label: 'Pages statiques' },
+    { to: '/avis',         icon: Star,            label: 'Avis clients' },
 ];
 
 const blogItems = [

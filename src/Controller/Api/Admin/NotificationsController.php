@@ -6,6 +6,7 @@ namespace App\Controller\Api\Admin;
 
 use App\Entity\Order;
 use App\Repository\OrderRepository;
+use App\Repository\ProductReviewRepository;
 use App\Repository\SupportTicketRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,14 +18,16 @@ class NotificationsController extends AbstractController
     public function __invoke(
         OrderRepository $orderRepo,
         SupportTicketRepository $ticketRepo,
+        ProductReviewRepository $reviewRepo,
     ): JsonResponse {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
         $byStatus = $orderRepo->countByStatus();
 
         return $this->json([
-            'pendingOrders' => $byStatus[Order::STATUS_PENDING] ?? 0,
-            'openTickets'   => $ticketRepo->countOpen(),
+            'pendingOrders'  => $byStatus[Order::STATUS_PENDING] ?? 0,
+            'openTickets'    => $ticketRepo->countOpen(),
+            'pendingReviews' => $reviewRepo->countPendingApproval(),
         ]);
     }
 }

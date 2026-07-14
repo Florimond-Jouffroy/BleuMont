@@ -3,12 +3,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { api, ApiError } from '../../utils/api';
 import BlockRenderer from '../../admin/components/BlockRenderer';
 import { useCart } from '../context/CartContext';
+import ProductReviews from '../components/ProductReviews';
 
 function formatPrice(cents) {
     return (cents / 100).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
 }
 
-export default function Produit({ urls }) {
+export default function Produit({ urls, isConnected = false }) {
     const { slug }    = useParams();
     const navigate    = useNavigate();
     const { addItem } = useCart();
@@ -217,6 +218,8 @@ export default function Produit({ urls }) {
                     )}
                 </div>
             </div>
+
+            <ProductReviews product={product} urls={urls} isConnected={isConnected} />
         </div>
     );
 }

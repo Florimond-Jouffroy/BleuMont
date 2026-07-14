@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Bell, Globe, ShoppingCart, MessageCircle, WrenchIcon } from 'lucide-react';
+import { Bell, Globe, ShoppingCart, MessageCircle, Star, WrenchIcon } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -23,6 +23,7 @@ const pageTitles = {
     '/faq':                'FAQ',
     '/support':            'Support',
     '/pages':              'Pages statiques',
+    '/avis':               'Avis clients',
     '/parametres':         'Paramètres',
 };
 
@@ -36,10 +37,10 @@ function getTitle(pathname) {
 
 function NotificationBell({ notificationsUrl }) {
     const navigate = useNavigate();
-    const [counts, setCounts]       = useState({ pendingOrders: 0, openTickets: 0 });
+    const [counts, setCounts]       = useState({ pendingOrders: 0, openTickets: 0, pendingReviews: 0 });
     const [open, setOpen]           = useState(false);
     const ref                       = useRef(null);
-    const total = counts.pendingOrders + counts.openTickets;
+    const total = counts.pendingOrders + counts.openTickets + counts.pendingReviews;
 
     const fetchCounts = () => {
         if (!notificationsUrl) return;
@@ -96,12 +97,23 @@ function NotificationBell({ notificationsUrl }) {
                     <button
                         type="button"
                         onClick={() => go('/support?status=open')}
-                        className="flex w-full items-center gap-3 px-4 py-3 text-sm hover:bg-accent transition-colors rounded-b-lg"
+                        className="flex w-full items-center gap-3 px-4 py-3 text-sm hover:bg-accent transition-colors"
                     >
                         <MessageCircle className="size-4 shrink-0 text-muted-foreground" />
                         <span className="flex-1 text-left">Tickets ouverts</span>
                         <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${counts.openTickets > 0 ? 'bg-blue-100 text-blue-700' : 'bg-muted text-muted-foreground'}`}>
                             {counts.openTickets}
+                        </span>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => go('/avis?approved=false')}
+                        className="flex w-full items-center gap-3 px-4 py-3 text-sm hover:bg-accent transition-colors rounded-b-lg"
+                    >
+                        <Star className="size-4 shrink-0 text-muted-foreground" />
+                        <span className="flex-1 text-left">Avis en attente</span>
+                        <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${counts.pendingReviews > 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-muted text-muted-foreground'}`}>
+                            {counts.pendingReviews}
                         </span>
                     </button>
                 </div>

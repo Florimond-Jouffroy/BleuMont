@@ -197,4 +197,27 @@ class OrderRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function hasCustomerEmailOrderedProduct(string $email, int $productId): bool
+    {
+        $count = $this->getEntityManager()->createQueryBuilder()
+            ->select('COUNT(oi.id)')
+            ->from(\App\Entity\OrderItem::class, 'oi')
+            ->join('oi.order', 'o')
+            ->join('o.customer', 'c')
+            ->where('c.email = :email')
+            ->andWhere('oi.product = :pid')
+            ->andWhere('o.status IN (:statuses)')
+            ->setParameter('email', $email)
+            ->setParameter('pid', $productId)
+            ->setParameter('statuses', [
+                \App\Entity\Order::STATUS_CONFIRMED,
+                \App\Entity\Order::STATUS_SHIPPED,
+                \App\Entity\Order::STATUS_DELIVERED,
+            ])
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return (int) $count > 0;
+    }
 }
