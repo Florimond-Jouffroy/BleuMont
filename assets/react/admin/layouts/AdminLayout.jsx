@@ -35,7 +35,7 @@ function getTitle(pathname) {
     return 'Administration';
 }
 
-function NotificationBell({ notificationsUrl }) {
+function NotificationBell({ notificationsUrl, permissions = {} }) {
     const navigate = useNavigate();
     const [counts, setCounts]       = useState({ pendingOrders: 0, openTickets: 0, pendingReviews: 0 });
     const [open, setOpen]           = useState(false);
@@ -83,46 +83,52 @@ function NotificationBell({ notificationsUrl }) {
                     <p className="border-b px-4 py-2.5 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                         Notifications
                     </p>
-                    <button
-                        type="button"
-                        onClick={() => go('/commandes?status=pending')}
-                        className="flex w-full items-center gap-3 px-4 py-3 text-sm hover:bg-accent transition-colors"
-                    >
-                        <ShoppingCart className="size-4 shrink-0 text-muted-foreground" />
-                        <span className="flex-1 text-left">Commandes en attente</span>
-                        <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${counts.pendingOrders > 0 ? 'bg-orange-100 text-orange-700' : 'bg-muted text-muted-foreground'}`}>
-                            {counts.pendingOrders}
-                        </span>
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => go('/support?status=open')}
-                        className="flex w-full items-center gap-3 px-4 py-3 text-sm hover:bg-accent transition-colors"
-                    >
-                        <MessageCircle className="size-4 shrink-0 text-muted-foreground" />
-                        <span className="flex-1 text-left">Tickets ouverts</span>
-                        <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${counts.openTickets > 0 ? 'bg-blue-100 text-blue-700' : 'bg-muted text-muted-foreground'}`}>
-                            {counts.openTickets}
-                        </span>
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => go('/avis?approved=false')}
-                        className="flex w-full items-center gap-3 px-4 py-3 text-sm hover:bg-accent transition-colors rounded-b-lg"
-                    >
-                        <Star className="size-4 shrink-0 text-muted-foreground" />
-                        <span className="flex-1 text-left">Avis en attente</span>
-                        <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${counts.pendingReviews > 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-muted text-muted-foreground'}`}>
-                            {counts.pendingReviews}
-                        </span>
-                    </button>
+                    {permissions.canViewOrders !== false && (
+                        <button
+                            type="button"
+                            onClick={() => go('/commandes?status=pending')}
+                            className="flex w-full items-center gap-3 px-4 py-3 text-sm hover:bg-accent transition-colors"
+                        >
+                            <ShoppingCart className="size-4 shrink-0 text-muted-foreground" />
+                            <span className="flex-1 text-left">Commandes en attente</span>
+                            <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${counts.pendingOrders > 0 ? 'bg-orange-100 text-orange-700' : 'bg-muted text-muted-foreground'}`}>
+                                {counts.pendingOrders}
+                            </span>
+                        </button>
+                    )}
+                    {permissions.canViewSupport !== false && (
+                        <button
+                            type="button"
+                            onClick={() => go('/support?status=open')}
+                            className="flex w-full items-center gap-3 px-4 py-3 text-sm hover:bg-accent transition-colors"
+                        >
+                            <MessageCircle className="size-4 shrink-0 text-muted-foreground" />
+                            <span className="flex-1 text-left">Tickets ouverts</span>
+                            <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${counts.openTickets > 0 ? 'bg-blue-100 text-blue-700' : 'bg-muted text-muted-foreground'}`}>
+                                {counts.openTickets}
+                            </span>
+                        </button>
+                    )}
+                    {permissions.canViewReviews !== false && (
+                        <button
+                            type="button"
+                            onClick={() => go('/avis?approved=false')}
+                            className="flex w-full items-center gap-3 px-4 py-3 text-sm hover:bg-accent transition-colors rounded-b-lg"
+                        >
+                            <Star className="size-4 shrink-0 text-muted-foreground" />
+                            <span className="flex-1 text-left">Avis en attente</span>
+                            <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${counts.pendingReviews > 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-muted text-muted-foreground'}`}>
+                                {counts.pendingReviews}
+                            </span>
+                        </button>
+                    )}
                 </div>
             )}
         </div>
     );
 }
 
-export default function AdminLayout({ userEmail = '', logoutUrl = '/deconnexion', notificationsUrl = null, settingsUrl = '/api/admin/parametres' }) {
+export default function AdminLayout({ userEmail = '', logoutUrl = '/deconnexion', notificationsUrl = null, settingsUrl = '/api/admin/parametres', permissions = {} }) {
     const { pathname } = useLocation();
     const title = getTitle(pathname);
 
@@ -152,7 +158,7 @@ export default function AdminLayout({ userEmail = '', logoutUrl = '/deconnexion'
     return (
         <TooltipProvider>
             <SidebarProvider>
-                <AppSidebar userEmail={userEmail} logoutUrl={logoutUrl} />
+                <AppSidebar userEmail={userEmail} logoutUrl={logoutUrl} permissions={permissions} />
 
                 <SidebarInset>
                     <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
@@ -161,7 +167,7 @@ export default function AdminLayout({ userEmail = '', logoutUrl = '/deconnexion'
                         <span className="text-sm font-medium text-foreground">{title}</span>
 
                         <div className="ml-auto flex items-center gap-2">
-                            <NotificationBell notificationsUrl={notificationsUrl} />
+                            <NotificationBell notificationsUrl={notificationsUrl} permissions={permissions} />
                             {maintenanceMode !== null && (
                                 <button
                                     type="button"

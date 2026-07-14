@@ -26,7 +26,7 @@ function formatDate(iso) {
     return new Intl.DateTimeFormat('fr-FR', { dateStyle: 'medium' }).format(new Date(iso));
 }
 
-export default function InvoicesList({ urls = {} }) {
+export default function InvoicesList({ urls = {}, permissions = {} }) {
     const navigate = useNavigate();
     const [invoices, setInvoices] = useState([]);
     const [loading, setLoading]   = useState(true);
@@ -77,12 +77,16 @@ export default function InvoicesList({ urls = {} }) {
                                 <tr key={inv.id} className="hover:bg-muted/20 transition-colors">
                                     <td className="px-4 py-3 font-mono font-medium">{inv.invoiceNumber}</td>
                                     <td className="px-4 py-3">
-                                        <button
-                                            className="text-primary hover:underline font-mono text-xs"
-                                            onClick={() => navigate(`/commandes/${inv.order.id}`)}
-                                        >
-                                            {inv.order.orderNumber}
-                                        </button>
+                                        {permissions.canViewOrders !== false ? (
+                                            <button
+                                                className="text-primary hover:underline font-mono text-xs"
+                                                onClick={() => navigate(`/commandes/${inv.order.id}`)}
+                                            >
+                                                {inv.order.orderNumber}
+                                            </button>
+                                        ) : (
+                                            <span className="font-mono text-xs">{inv.order.orderNumber}</span>
+                                        )}
                                     </td>
                                     <td className="px-4 py-3">
                                         <p className="font-medium">{inv.order.customer.fullName}</p>
@@ -96,15 +100,17 @@ export default function InvoicesList({ urls = {} }) {
                                         </Badge>
                                     </td>
                                     <td className="px-4 py-3 text-right">
-                                        <a
-                                            href={`/api/admin/factures/${inv.id}/pdf`}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                        >
-                                            <Button variant="ghost" size="icon" title="Télécharger PDF">
-                                                <FileDown className="size-4" />
-                                            </Button>
-                                        </a>
+                                        {permissions.canDownloadInvoice !== false && (
+                                            <a
+                                                href={`/api/admin/factures/${inv.id}/pdf`}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                            >
+                                                <Button variant="ghost" size="icon" title="Télécharger PDF">
+                                                    <FileDown className="size-4" />
+                                                </Button>
+                                            </a>
+                                        )}
                                     </td>
                                 </tr>
                             ))}

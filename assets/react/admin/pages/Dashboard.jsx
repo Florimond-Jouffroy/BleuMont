@@ -46,7 +46,7 @@ const CustomTooltip = ({ active, payload, label }) => {
     );
 };
 
-export default function Dashboard({ urls = {} }) {
+export default function Dashboard({ urls = {}, permissions = {} }) {
     const [data, setData]       = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError]     = useState(null);
@@ -124,7 +124,7 @@ export default function Dashboard({ urls = {} }) {
                     </CardHeader>
                     <CardContent>
                         <p className="text-2xl font-bold">{kpis.ordersPending}</p>
-                        {kpis.ordersPending > 0 && (
+                        {kpis.ordersPending > 0 && permissions.canViewOrders !== false && (
                             <Link to="/commandes?status=pending" className="text-xs text-primary underline mt-1 block">
                                 Voir les commandes
                             </Link>
@@ -218,7 +218,7 @@ export default function Dashboard({ urls = {} }) {
                                 {lowStockProducts.length} produit{lowStockProducts.length > 1 ? 's' : ''}
                             </span>
                         </div>
-                        <Link to="/produits" className="text-xs text-primary underline">Gérer les stocks</Link>
+                        {permissions.canViewProducts !== false && <Link to="/produits" className="text-xs text-primary underline">Gérer les stocks</Link>}
                     </CardHeader>
                     <CardContent className="p-0">
                         <table className="w-full text-sm">
@@ -235,9 +235,10 @@ export default function Dashboard({ urls = {} }) {
                                     return (
                                         <tr key={p.id} className="border-b last:border-0 hover:bg-muted/40 transition-colors">
                                             <td className="px-6 py-3 font-medium">
-                                                <Link to={`/produits/${p.id}/modifier`} className="hover:underline text-foreground">
-                                                    {p.name}
-                                                </Link>
+                                                {permissions.canEditProduct !== false
+                                                    ? <Link to={`/produits/${p.id}/modifier`} className="hover:underline text-foreground">{p.name}</Link>
+                                                    : p.name
+                                                }
                                             </td>
                                             <td className="px-6 py-3 text-right">
                                                 <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
@@ -264,7 +265,7 @@ export default function Dashboard({ urls = {} }) {
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle className="text-sm font-medium">Dernières commandes</CardTitle>
-                    <Link to="/commandes" className="text-xs text-primary underline">Voir tout</Link>
+                    {permissions.canViewOrders !== false && <Link to="/commandes" className="text-xs text-primary underline">Voir tout</Link>}
                 </CardHeader>
                 <CardContent className="p-0">
                     {recentOrders.length === 0 ? (
@@ -286,9 +287,10 @@ export default function Dashboard({ urls = {} }) {
                                     return (
                                         <tr key={o.id} className="border-b last:border-0 hover:bg-muted/40 transition-colors">
                                             <td className="px-6 py-3">
-                                                <Link to={`/commandes/${o.id}`} className="font-mono text-xs text-primary hover:underline">
-                                                    {o.orderNumber}
-                                                </Link>
+                                                {permissions.canViewOrders !== false
+                                                    ? <Link to={`/commandes/${o.id}`} className="font-mono text-xs text-primary hover:underline">{o.orderNumber}</Link>
+                                                    : <span className="font-mono text-xs">{o.orderNumber}</span>
+                                                }
                                             </td>
                                             <td className="px-6 py-3 text-muted-foreground">
                                                 {o.customer ? `${o.customer.firstName} ${o.customer.lastName}` : '—'}

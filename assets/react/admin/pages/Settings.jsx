@@ -9,7 +9,7 @@ const TAX_RATE_OPTIONS = [
     { value: 0,   label: '0% — Exonéré (exportations, DOM-TOM)' },
 ];
 
-export default function Settings({ urls = {} }) {
+export default function Settings({ urls = {}, permissions = {} }) {
     const [settings, setSettings] = useState(null);
     const [loading, setLoading]   = useState(true);
     const [saving, setSaving]     = useState(false);
@@ -77,7 +77,7 @@ export default function Settings({ urls = {} }) {
                             type="button"
                             role="switch"
                             aria-checked={settings?.maintenanceMode}
-                            disabled={saving}
+                            disabled={saving || permissions.canEditSettings === false}
                             onClick={() => updateSetting({ maintenanceMode: !settings?.maintenanceMode })}
                             className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                                 settings?.maintenanceMode ? 'bg-destructive' : 'bg-muted'
@@ -118,7 +118,7 @@ export default function Settings({ urls = {} }) {
                             type="button"
                             role="switch"
                             aria-checked={settings?.shopEnabled}
-                            disabled={saving}
+                            disabled={saving || permissions.canEditSettings === false}
                             onClick={() => updateSetting({ shopEnabled: !settings?.shopEnabled })}
                             className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                                 settings?.shopEnabled ? 'bg-primary' : 'bg-muted'
@@ -171,8 +171,8 @@ export default function Settings({ urls = {} }) {
                                     <button
                                         key={value}
                                         type="button"
-                                        disabled={saving}
-                                        onClick={() => !active && updateSetting({ invoiceTrigger: value })}
+                                        disabled={saving || permissions.canEditSettings === false}
+                                        onClick={() => !active && permissions.canEditSettings !== false && updateSetting({ invoiceTrigger: value })}
                                         className={`w-full text-left rounded-lg border-2 p-4 transition-colors ${
                                             active ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground/40'
                                         } ${saving ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
@@ -211,8 +211,8 @@ export default function Settings({ urls = {} }) {
                                     <button
                                         key={value}
                                         type="button"
-                                        disabled={saving}
-                                        onClick={() => !active && updateSetting({ defaultTaxRate: value })}
+                                        disabled={saving || permissions.canEditSettings === false}
+                                        onClick={() => !active && permissions.canEditSettings !== false && updateSetting({ defaultTaxRate: value })}
                                         className={`w-full text-left rounded-lg border-2 px-4 py-3 transition-colors ${
                                             active ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground/40'
                                         } ${saving ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}

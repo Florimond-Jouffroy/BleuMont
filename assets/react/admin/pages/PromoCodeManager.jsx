@@ -127,7 +127,7 @@ function PromoForm({ initial = EMPTY_FORM, onSave, onCancel, saving, error }) {
     );
 }
 
-export default function PromoCodeManager({ urls = {} }) {
+export default function PromoCodeManager({ urls = {}, permissions = {} }) {
     const [codes, setCodes]       = useState([]);
     const [loading, setLoading]   = useState(true);
     const [panel, setPanel]       = useState(null); // null | 'create' | {code}
@@ -190,13 +190,15 @@ export default function PromoCodeManager({ urls = {} }) {
                     <h2 className="text-2xl font-bold tracking-tight">Codes promo</h2>
                     <p className="text-sm text-muted-foreground mt-1">Gérez les codes de réduction applicables à la boutique</p>
                 </div>
-                <button
-                    onClick={openCreate}
-                    className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-                >
-                    <Plus className="size-4" />
-                    Nouveau code
-                </button>
+                {permissions.canCreatePromoCode !== false && (
+                    <button
+                        onClick={openCreate}
+                        className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+                    >
+                        <Plus className="size-4" />
+                        Nouveau code
+                    </button>
+                )}
             </div>
 
             {/* Formulaire création / édition */}
@@ -257,35 +259,47 @@ export default function PromoCodeManager({ urls = {} }) {
                                         {c.usedCount}{c.maxUses != null ? ` / ${c.maxUses}` : ''}
                                     </td>
                                     <td className="px-4 py-3">
-                                        <button
-                                            type="button"
-                                            onClick={() => handleToggle(c)}
-                                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors ${
-                                                c.isUsable
-                                                    ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                                                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                                            }`}
-                                        >
-                                            {c.isUsable ? 'Actif' : (c.isActive ? 'Expiré / épuisé' : 'Désactivé')}
-                                        </button>
+                                        {permissions.canEditPromoCode !== false ? (
+                                            <button
+                                                type="button"
+                                                onClick={() => handleToggle(c)}
+                                                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors ${
+                                                    c.isUsable
+                                                        ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                                                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                                                }`}
+                                            >
+                                                {c.isUsable ? 'Actif' : (c.isActive ? 'Expiré / épuisé' : 'Désactivé')}
+                                            </button>
+                                        ) : (
+                                            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                                                c.isUsable ? 'bg-green-100 text-green-700' : 'bg-muted text-muted-foreground'
+                                            }`}>
+                                                {c.isUsable ? 'Actif' : (c.isActive ? 'Expiré / épuisé' : 'Désactivé')}
+                                            </span>
+                                        )}
                                     </td>
                                     <td className="px-4 py-3">
                                         <div className="flex items-center justify-end gap-1">
-                                            <button
-                                                type="button"
-                                                onClick={() => openEdit(c)}
-                                                className="rounded-md p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-                                            >
-                                                <PencilLine className="size-4" />
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => handleDelete(c)}
-                                                disabled={deleting === c.id}
-                                                className="rounded-md p-1.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors disabled:opacity-40"
-                                            >
-                                                <Trash2 className="size-4" />
-                                            </button>
+                                            {permissions.canEditPromoCode !== false && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => openEdit(c)}
+                                                    className="rounded-md p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                                                >
+                                                    <PencilLine className="size-4" />
+                                                </button>
+                                            )}
+                                            {permissions.canDeletePromoCode !== false && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleDelete(c)}
+                                                    disabled={deleting === c.id}
+                                                    className="rounded-md p-1.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors disabled:opacity-40"
+                                                >
+                                                    <Trash2 className="size-4" />
+                                                </button>
+                                            )}
                                         </div>
                                     </td>
                                 </tr>

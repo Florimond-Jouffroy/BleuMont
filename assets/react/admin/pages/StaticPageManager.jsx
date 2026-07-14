@@ -147,7 +147,7 @@ function PageEditor({ page, pagesUrl, onSaved, onCancel }) {
     );
 }
 
-export default function StaticPageManager({ urls }) {
+export default function StaticPageManager({ urls, permissions = {} }) {
     const pagesUrl = urls.pages;
     const [pages, setPages]     = useState([]);
     const [loading, setLoading] = useState(true);
@@ -230,14 +230,16 @@ export default function StaticPageManager({ urls }) {
 
             <div className="flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">{pages.length} page{pages.length !== 1 ? 's' : ''}</p>
-                <button
-                    type="button"
-                    onClick={() => setEditing(false)}
-                    className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-                >
-                    <Plus className="size-4" />
-                    Nouvelle page
-                </button>
+                {permissions.canCreatePage !== false && (
+                    <button
+                        type="button"
+                        onClick={() => setEditing(false)}
+                        className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+                    >
+                        <Plus className="size-4" />
+                        Nouvelle page
+                    </button>
+                )}
             </div>
 
             {pages.length === 0 && (
@@ -254,17 +256,19 @@ export default function StaticPageManager({ urls }) {
                             <p className="text-xs text-muted-foreground font-mono mt-0.5">/pages/{page.slug}</p>
                         </div>
                         <div className="flex shrink-0 items-center gap-2">
-                            <button
-                                type="button"
-                                onClick={() => handleToggleActive(page)}
-                                className={`rounded-full px-2 py-0.5 text-xs font-medium transition-colors ${
-                                    page.isActive
-                                        ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                                        : 'bg-muted text-muted-foreground hover:bg-accent'
-                                }`}
-                            >
-                                {page.isActive ? 'Visible' : 'Masquée'}
-                            </button>
+                            {permissions.canEditPage !== false && (
+                                <button
+                                    type="button"
+                                    onClick={() => handleToggleActive(page)}
+                                    className={`rounded-full px-2 py-0.5 text-xs font-medium transition-colors ${
+                                        page.isActive
+                                            ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                                            : 'bg-muted text-muted-foreground hover:bg-accent'
+                                    }`}
+                                >
+                                    {page.isActive ? 'Visible' : 'Masquée'}
+                                </button>
+                            )}
                             <a
                                 href={`/pages/${page.slug}`}
                                 target="_blank"
@@ -273,20 +277,24 @@ export default function StaticPageManager({ urls }) {
                             >
                                 <ExternalLink className="size-3.5" />
                             </a>
-                            <button
-                                type="button"
-                                onClick={() => openEdit(page)}
-                                className="rounded p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-                            >
-                                <Pencil className="size-3.5" />
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => handleDelete(page)}
-                                className="rounded p-1.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
-                            >
-                                <Trash2 className="size-3.5" />
-                            </button>
+                            {permissions.canEditPage !== false && (
+                                <button
+                                    type="button"
+                                    onClick={() => openEdit(page)}
+                                    className="rounded p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                                >
+                                    <Pencil className="size-3.5" />
+                                </button>
+                            )}
+                            {permissions.canDeletePage !== false && (
+                                <button
+                                    type="button"
+                                    onClick={() => handleDelete(page)}
+                                    className="rounded p-1.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+                                >
+                                    <Trash2 className="size-3.5" />
+                                </button>
+                            )}
                         </div>
                     </div>
                 ))}

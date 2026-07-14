@@ -22,7 +22,7 @@ function formatPrice(cents) {
         : (cents / 100).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
 }
 
-export default function ShippingMethods({ urls = {} }) {
+export default function ShippingMethods({ urls = {}, permissions = {} }) {
     const [methods, setMethods]     = useState([]);
     const [loading, setLoading]     = useState(true);
     const [feedback, setFeedback]   = useState(null);
@@ -130,10 +130,12 @@ export default function ShippingMethods({ urls = {} }) {
                         Configurez les méthodes de livraison proposées lors de la commande.
                     </p>
                 </div>
-                <Button onClick={openCreate} className="gap-1.5">
-                    <Plus className="h-4 w-4" />
-                    Nouvelle méthode
-                </Button>
+                {permissions.canCreateShipping !== false && (
+                    <Button onClick={openCreate} className="gap-1.5">
+                        <Plus className="h-4 w-4" />
+                        Nouvelle méthode
+                    </Button>
+                )}
             </div>
 
             {/* Feedback */}
@@ -179,13 +181,17 @@ export default function ShippingMethods({ urls = {} }) {
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-1 shrink-0">
-                                    <Button variant="ghost" size="icon" onClick={() => openEdit(method)}>
-                                        <Pencil className="h-4 w-4" />
-                                    </Button>
-                                    <Button variant="ghost" size="icon" onClick={() => setDeleteTarget(method)}
-                                        className="text-muted-foreground hover:text-destructive hover:bg-destructive/10">
-                                        <Trash2 className="h-4 w-4" />
-                                    </Button>
+                                    {permissions.canEditShipping !== false && (
+                                        <Button variant="ghost" size="icon" onClick={() => openEdit(method)}>
+                                            <Pencil className="h-4 w-4" />
+                                        </Button>
+                                    )}
+                                    {permissions.canDeleteShipping !== false && (
+                                        <Button variant="ghost" size="icon" onClick={() => setDeleteTarget(method)}
+                                            className="text-muted-foreground hover:text-destructive hover:bg-destructive/10">
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    )}
                                 </div>
                             </li>
                         ))}

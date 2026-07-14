@@ -72,7 +72,7 @@ function FaqForm({ initial = empty, onSave, onCancel, saving }) {
     );
 }
 
-export default function FaqManager({ urls }) {
+export default function FaqManager({ urls, permissions = {} }) {
     const [items, setItems]       = useState([]);
     const [loading, setLoading]   = useState(true);
     const [creating, setCreating] = useState(false);
@@ -167,7 +167,7 @@ export default function FaqManager({ urls }) {
                 <p className="text-sm text-muted-foreground">
                     {items.length} entrée{items.length !== 1 ? 's' : ''}
                 </p>
-                {!creating && (
+                {!creating && permissions.canCreateFaq !== false && (
                     <button
                         type="button"
                         onClick={() => setCreating(true)}
@@ -179,7 +179,7 @@ export default function FaqManager({ urls }) {
                 )}
             </div>
 
-            {creating && (
+            {creating && permissions.canCreateFaq !== false && (
                 <FaqForm
                     onSave={handleCreate}
                     onCancel={() => setCreating(false)}
@@ -196,7 +196,7 @@ export default function FaqManager({ urls }) {
             <div className="space-y-3">
                 {items.map((item, idx) => (
                     <div key={item.id} className="rounded-lg border bg-card">
-                        {editId === item.id ? (
+                        {editId === item.id && permissions.canEditFaq !== false ? (
                             <div className="p-4">
                                 <FaqForm
                                     initial={{ question: item.question, answer: item.answer, isActive: item.isActive }}
@@ -208,56 +208,64 @@ export default function FaqManager({ urls }) {
                         ) : (
                             <div className="flex items-start gap-3 p-4">
                                 {/* Boutons de déplacement */}
-                                <div className="flex flex-col gap-0.5 pt-0.5">
-                                    <button
-                                        type="button"
-                                        disabled={idx === 0}
-                                        onClick={() => handleMove(item.id, 'up')}
-                                        className="rounded p-0.5 text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-30 transition-colors"
-                                    >
-                                        <ChevronUp className="size-4" />
-                                    </button>
-                                    <button
-                                        type="button"
-                                        disabled={idx === items.length - 1}
-                                        onClick={() => handleMove(item.id, 'down')}
-                                        className="rounded p-0.5 text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-30 transition-colors"
-                                    >
-                                        <ChevronDown className="size-4" />
-                                    </button>
-                                </div>
+                                {permissions.canEditFaq !== false && (
+                                    <div className="flex flex-col gap-0.5 pt-0.5">
+                                        <button
+                                            type="button"
+                                            disabled={idx === 0}
+                                            onClick={() => handleMove(item.id, 'up')}
+                                            className="rounded p-0.5 text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-30 transition-colors"
+                                        >
+                                            <ChevronUp className="size-4" />
+                                        </button>
+                                        <button
+                                            type="button"
+                                            disabled={idx === items.length - 1}
+                                            onClick={() => handleMove(item.id, 'down')}
+                                            className="rounded p-0.5 text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-30 transition-colors"
+                                        >
+                                            <ChevronDown className="size-4" />
+                                        </button>
+                                    </div>
+                                )}
 
                                 {/* Contenu */}
                                 <div className="min-w-0 flex-1">
                                     <div className="flex items-start justify-between gap-2">
                                         <p className="font-medium text-sm leading-snug">{item.question}</p>
                                         <div className="flex shrink-0 items-center gap-1">
-                                            <button
-                                                type="button"
-                                                onClick={() => handleToggleActive(item)}
-                                                title={item.isActive ? 'Masquer' : 'Afficher'}
-                                                className={`rounded-full px-2 py-0.5 text-xs font-medium transition-colors ${
-                                                    item.isActive
-                                                        ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                                                        : 'bg-muted text-muted-foreground hover:bg-accent'
-                                                }`}
-                                            >
-                                                {item.isActive ? 'Visible' : 'Masqué'}
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => setEditId(item.id)}
-                                                className="rounded p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-                                            >
-                                                <Pencil className="size-3.5" />
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => handleDelete(item.id)}
-                                                className="rounded p-1.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
-                                            >
-                                                <Trash2 className="size-3.5" />
-                                            </button>
+                                            {permissions.canEditFaq !== false && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleToggleActive(item)}
+                                                    title={item.isActive ? 'Masquer' : 'Afficher'}
+                                                    className={`rounded-full px-2 py-0.5 text-xs font-medium transition-colors ${
+                                                        item.isActive
+                                                            ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                                                            : 'bg-muted text-muted-foreground hover:bg-accent'
+                                                    }`}
+                                                >
+                                                    {item.isActive ? 'Visible' : 'Masqué'}
+                                                </button>
+                                            )}
+                                            {permissions.canEditFaq !== false && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setEditId(item.id)}
+                                                    className="rounded p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                                                >
+                                                    <Pencil className="size-3.5" />
+                                                </button>
+                                            )}
+                                            {permissions.canDeleteFaq !== false && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleDelete(item.id)}
+                                                    className="rounded p-1.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+                                                >
+                                                    <Trash2 className="size-3.5" />
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                     <p className="mt-1.5 text-xs text-muted-foreground line-clamp-2 whitespace-pre-line">

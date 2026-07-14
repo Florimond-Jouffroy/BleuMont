@@ -32,9 +32,9 @@ export default function AdminApp() {
     return (
         <BrowserRouter basename="/admin">
             <Routes>
-                <Route element={<AdminLayout userEmail={userEmail} logoutUrl={logoutUrl} notificationsUrl={urls.notifications} />}>
+                <Route element={<AdminLayout userEmail={userEmail} logoutUrl={logoutUrl} notificationsUrl={urls.notifications} permissions={permissions} settingsUrl={urls.settings} />}>
                     <Route index element={<Navigate to="/dashboard" replace />} />
-                    <Route path="dashboard" element={<Dashboard urls={urls} />} />
+                    <Route path="dashboard" element={<Dashboard permissions={permissions} urls={urls} />} />
                     <Route path="utilisateurs" element={<UsersList permissions={permissions} urls={urls} />} />
                     <Route path="articles" element={<ArticlesList permissions={permissions} urls={urls} />} />
                     <Route path="articles/nouveau" element={<ArticleEditor permissions={permissions} urls={urls} />} />
@@ -42,19 +42,19 @@ export default function AdminApp() {
                     <Route path="categories" element={<CategoryManager permissions={permissions} urls={urls} />} />
                     <Route path="commandes" element={<OrdersList permissions={permissions} urls={urls} />} />
                     <Route path="commandes/:id" element={<OrderDetail permissions={permissions} />} />
-                    <Route path="factures" element={<InvoicesList urls={urls} />} />
-                    <Route path="codes-promo" element={<PromoCodeManager urls={urls} />} />
+                    <Route path="factures" element={<InvoicesList permissions={permissions} urls={urls} />} />
+                    <Route path="codes-promo" element={<PromoCodeManager permissions={permissions} urls={urls} />} />
                     <Route path="produits" element={<ProductsList permissions={permissions} urls={urls} />} />
                     <Route path="produits/nouveau" element={<ProductEditor permissions={permissions} urls={urls} />} />
                     <Route path="produits/:id/modifier" element={<ProductEditor permissions={permissions} urls={urls} />} />
                     <Route path="categories-produits" element={<ProductCategoryManager permissions={permissions} urls={urls} />} />
                     <Route path="medias" element={<MediaLibrary permissions={permissions} urls={urls} />} />
-                    <Route path="faq" element={<FaqManager urls={urls} />} />
-                    <Route path="support" element={<SupportManager urls={urls} />} />
-                    <Route path="pages" element={<StaticPageManager urls={urls} />} />
-                    <Route path="avis" element={<ReviewManager urls={urls} />} />
-                    <Route path="livraison" element={<ShippingMethods urls={urls} />} />
-                    <Route path="parametres" element={<Settings urls={urls} />} />
+                    <Route path="faq" element={<FaqManager permissions={permissions} urls={urls} />} />
+                    <Route path="support" element={<SupportManager permissions={permissions} urls={urls} />} />
+                    <Route path="pages" element={<StaticPageManager permissions={permissions} urls={urls} />} />
+                    <Route path="avis" element={<ReviewManager permissions={permissions} urls={urls} />} />
+                    <Route path="livraison" element={<ShippingMethods permissions={permissions} urls={urls} />} />
+                    <Route path="parametres" element={<Settings permissions={permissions} urls={urls} />} />
                     <Route path="journal" element={<ActivityLog urls={urls} />} />
                 </Route>
             </Routes>

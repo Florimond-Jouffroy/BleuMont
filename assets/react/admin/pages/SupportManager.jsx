@@ -48,7 +48,7 @@ function Message({ msg }) {
     );
 }
 
-function TicketDetail({ ticket: initial, supportUrl, onUpdate, onBack, onSelectTicket }) {
+function TicketDetail({ ticket: initial, supportUrl, onUpdate, onBack, onSelectTicket, permissions = {} }) {
     const [ticket, setTicket]   = useState(initial);
     const [reply, setReply]     = useState('');
     const [sending, setSending] = useState(false);
@@ -118,7 +118,7 @@ function TicketDetail({ ticket: initial, supportUrl, onUpdate, onBack, onSelectT
                 </div>
 
                 {/* Zone de réponse */}
-                {ticket.status !== 'closed' ? (
+                {ticket.status !== 'closed' && permissions.canReplySupport !== false ? (
                     <div className="space-y-2">
                         {error && <p className="text-sm text-destructive">{error}</p>}
                         <textarea
@@ -142,7 +142,9 @@ function TicketDetail({ ticket: initial, supportUrl, onUpdate, onBack, onSelectT
                         </div>
                     </div>
                 ) : (
-                    <p className="text-center text-sm text-muted-foreground py-2">Ce ticket est fermé.</p>
+                    <p className="text-center text-sm text-muted-foreground py-2">
+                        {ticket.status === 'closed' ? 'Ce ticket est fermé.' : ''}
+                    </p>
                 )}
             </div>
 
@@ -160,7 +162,7 @@ function TicketDetail({ ticket: initial, supportUrl, onUpdate, onBack, onSelectT
                                 <button
                                     key={o.value}
                                     type="button"
-                                    disabled={changingStatus || isActive}
+                                    disabled={changingStatus || isActive || permissions.canEditSupport === false}
                                     onClick={() => handleStatus(o.value)}
                                     className={`w-full rounded-md px-3 py-2 text-left text-xs font-medium transition-colors disabled:cursor-default ${
                                         isActive
@@ -253,10 +255,14 @@ function TicketDetail({ ticket: initial, supportUrl, onUpdate, onBack, onSelectT
                             <div className="space-y-2">
                                 {ticket.recentOrders.map(order => {
                                     const { label, cls } = ORDER_STATUS_LABELS[order.status] ?? { label: order.status, cls: 'bg-muted text-muted-foreground' };
+                                    const Tag = permissions.canViewOrders !== false ? 'a' : 'div';
+                                    const linkProps = permissions.canViewOrders !== false
+                                        ? { href: `/admin/commandes/${order.id}` }
+                                        : {};
                                     return (
-                                        <a
+                                        <Tag
                                             key={order.id}
-                                            href={`/admin/commandes/${order.id}`}
+                                            {...linkProps}
                                             className="flex items-start justify-between gap-2 rounded-md p-2 hover:bg-accent transition-colors group"
                                         >
                                             <div className="min-w-0">
@@ -269,7 +275,7 @@ function TicketDetail({ ticket: initial, supportUrl, onUpdate, onBack, onSelectT
                                                 <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${cls}`}>{label}</span>
                                                 <span className="text-[10px] font-medium text-foreground">{euros(order.total)}</span>
                                             </div>
-                                        </a>
+                                        </Tag>
                                     );
                                 })}
                             </div>
@@ -281,7 +287,7 @@ function TicketDetail({ ticket: initial, supportUrl, onUpdate, onBack, onSelectT
     );
 }
 
-export default function SupportManager({ urls }) {
+export default function SupportManager({ urls, permissions = {} }) {
     const supportUrl = urls.support;
     const [tickets, setTickets]       = useState([]);
     const [loading, setLoading]       = useState(true);
@@ -352,6 +358,7 @@ export default function SupportManager({ urls }) {
                 onUpdate={handleUpdate}
                 onBack={() => setSelected(null)}
                 onSelectTicket={handleSelectTicket}
+                permissions={permissions}
             />
         );
     }

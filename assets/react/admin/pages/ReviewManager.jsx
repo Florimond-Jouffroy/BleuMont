@@ -22,7 +22,7 @@ const TABS = [
     { key: 'approved', label: 'Approuvés' },
 ];
 
-export default function ReviewManager({ urls }) {
+export default function ReviewManager({ urls, permissions = {} }) {
     const reviewsUrl = urls.reviews;
     const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -137,25 +137,29 @@ export default function ReviewManager({ urls }) {
                                 </div>
 
                                 <div className="flex shrink-0 items-center gap-1">
-                                    <button
-                                        type="button"
-                                        onClick={() => handleApprove(review)}
-                                        title={review.isApproved ? 'Dépublier' : 'Approuver'}
-                                        className={`rounded p-1.5 transition-colors ${
-                                            review.isApproved
-                                                ? 'text-green-600 hover:bg-green-50'
-                                                : 'text-muted-foreground hover:bg-green-50 hover:text-green-600'
-                                        }`}
-                                    >
-                                        <Check className="size-4" />
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => handleDelete(review)}
-                                        className="rounded p-1.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
-                                    >
-                                        <Trash2 className="size-4" />
-                                    </button>
+                                    {permissions.canEditReview !== false && (
+                                        <button
+                                            type="button"
+                                            onClick={() => handleApprove(review)}
+                                            title={review.isApproved ? 'Dépublier' : 'Approuver'}
+                                            className={`rounded p-1.5 transition-colors ${
+                                                review.isApproved
+                                                    ? 'text-green-600 hover:bg-green-50'
+                                                    : 'text-muted-foreground hover:bg-green-50 hover:text-green-600'
+                                            }`}
+                                        >
+                                            <Check className="size-4" />
+                                        </button>
+                                    )}
+                                    {permissions.canDeleteReview !== false && (
+                                        <button
+                                            type="button"
+                                            onClick={() => handleDelete(review)}
+                                            className="rounded p-1.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+                                        >
+                                            <Trash2 className="size-4" />
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         </div>
