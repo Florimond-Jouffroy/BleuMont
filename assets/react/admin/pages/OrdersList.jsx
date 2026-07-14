@@ -168,7 +168,7 @@ export default function OrdersList({ permissions = {}, urls = {} }) {
                 return (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="size-8">
+                            <Button variant="ghost" size="icon" className="size-8" onClick={e => e.stopPropagation()}>
                                 <MoreHorizontal className="size-4" />
                             </Button>
                         </DropdownMenuTrigger>
@@ -243,6 +243,7 @@ export default function OrdersList({ permissions = {}, urls = {} }) {
                 totalItems={total}
                 pagination={pagination}
                 onPaginationChange={setPagination}
+                onRowClick={(order) => navigate(`/commandes/${order.id}`)}
                 loading={loading}
                 refreshing={refreshing}
                 emptyMessage={query ? `Aucune commande pour « ${query} ».` : 'Aucune commande à afficher.'}
