@@ -8,6 +8,7 @@ use App\Entity\Product;
 use App\Repository\ProductCategoryRepository;
 use App\Repository\ProductRepository;
 use App\Security\Voter\ProductVoter;
+use App\Service\ActivityLogger;
 use App\Service\Manager\ProductManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -28,8 +29,10 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/api/admin/produits')]
 class ProductController extends AbstractController
 {
-    public function __construct(private readonly ProductManager $manager)
-    {
+    public function __construct(
+        private readonly ProductManager $manager,
+        private readonly ActivityLogger $activityLogger,
+    ) {
     }
 
     #[Route('', name: 'api_admin_products_list', methods: ['GET'])]
@@ -126,9 +129,14 @@ class ProductController extends AbstractController
     {
         $this->denyAccessUnlessGranted(ProductVoter::DELETE, $product);
 
+        $id   = $product->getId();
+        $name = $product->getName();
+
         if (!$this->manager->delete($product)) {
             return $this->json(['message' => 'Une erreur est survenue.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+
+        $this->activityLogger->log('product.deleted', 'product', $id, $name);
 
         return $this->json(null, Response::HTTP_NO_CONTENT);
     }
@@ -146,6 +154,8 @@ class ProductController extends AbstractController
             return $this->json(['message' => 'Une erreur est survenue.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
+        $this->activityLogger->log('product.published', 'product', $product->getId(), $product->getName());
+
         return $this->json($this->serializeList($product));
     }
 
@@ -161,6 +171,8 @@ class ProductController extends AbstractController
         if (!$this->manager->unpublish($product)) {
             return $this->json(['message' => 'Une erreur est survenue.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+
+        $this->activityLogger->log('product.unpublished', 'product', $product->getId(), $product->getName());
 
         return $this->json($this->serializeList($product));
     }

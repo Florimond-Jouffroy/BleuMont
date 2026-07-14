@@ -6,6 +6,7 @@ namespace App\Controller\Api\Admin;
 
 use App\Entity\ProductReview;
 use App\Repository\ProductReviewRepository;
+use App\Service\ActivityLogger;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -47,7 +48,7 @@ class ReviewController extends AbstractController
     }
 
     #[Route('/{id}', name: 'api_admin_reviews_update', methods: ['PATCH'])]
-    public function update(int $id, Request $request, ProductReviewRepository $repo, EntityManagerInterface $em): JsonResponse
+    public function update(int $id, Request $request, ProductReviewRepository $repo, EntityManagerInterface $em, ActivityLogger $activityLogger): JsonResponse
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
@@ -63,11 +64,20 @@ class ReviewController extends AbstractController
 
         $em->flush();
 
+        $action = $review->isApproved() ? 'review.approved' : 'review.unapproved';
+        $activityLogger->log(
+            $action,
+            'review',
+            $review->getId(),
+            $review->getProduct()->getName(),
+            ['author' => $review->getAuthorName(), 'rating' => $review->getRating()],
+        );
+
         return $this->json($this->serialize($review));
     }
 
     #[Route('/{id}', name: 'api_admin_reviews_delete', methods: ['DELETE'])]
-    public function delete(int $id, ProductReviewRepository $repo, EntityManagerInterface $em): JsonResponse
+    public function delete(int $id, ProductReviewRepository $repo, EntityManagerInterface $em, ActivityLogger $activityLogger): JsonResponse
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
@@ -76,8 +86,21 @@ class ReviewController extends AbstractController
             return $this->json(['message' => 'Avis introuvable.'], Response::HTTP_NOT_FOUND);
         }
 
+        $reviewId    = $review->getId();
+        $productName = $review->getProduct()->getName();
+        $author      = $review->getAuthorName();
+        $rating      = $review->getRating();
+
         $em->remove($review);
         $em->flush();
+
+        $activityLogger->log(
+            'review.deleted',
+            'review',
+            $reviewId,
+            $productName,
+            ['author' => $author, 'rating' => $rating],
+        );
 
         return $this->json(null, Response::HTTP_NO_CONTENT);
     }

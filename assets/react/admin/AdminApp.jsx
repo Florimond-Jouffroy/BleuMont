@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import AdminLayout from './layouts/AdminLayout';
+import ActivityLog from './pages/ActivityLog';
 import ArticleEditor from './pages/ArticleEditor';
 import ArticlesList from './pages/ArticlesList';
 import CategoryManager from './pages/CategoryManager';
@@ -54,6 +55,7 @@ export default function AdminApp() {
                     <Route path="avis" element={<ReviewManager urls={urls} />} />
                     <Route path="livraison" element={<ShippingMethods urls={urls} />} />
                     <Route path="parametres" element={<Settings urls={urls} />} />
+                    <Route path="journal" element={<ActivityLog urls={urls} />} />
                 </Route>
             </Routes>
         </BrowserRouter>

@@ -9,6 +9,7 @@ use App\Entity\SupportTicket;
 use App\Repository\CustomerRepository;
 use App\Repository\OrderRepository;
 use App\Repository\SupportTicketRepository;
+use App\Service\ActivityLogger;
 use App\Service\SupportMailer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -155,7 +156,7 @@ class SupportController extends AbstractController
     }
 
     #[Route('/{id}/statut', name: 'api_admin_support_status', methods: ['PATCH'])]
-    public function updateStatus(int $id, Request $request, SupportTicketRepository $repo, EntityManagerInterface $em): JsonResponse
+    public function updateStatus(int $id, Request $request, SupportTicketRepository $repo, EntityManagerInterface $em, ActivityLogger $activityLogger): JsonResponse
     {
         $ticket = $repo->find($id);
         if (!$ticket) {
@@ -169,9 +170,18 @@ class SupportController extends AbstractController
             return $this->json(['message' => 'Statut invalide.'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
+        $previousStatus = $ticket->getStatus();
         $ticket->setStatus($status);
         $ticket->touch();
         $em->flush();
+
+        $activityLogger->log(
+            'ticket.status_changed',
+            'ticket',
+            $ticket->getId(),
+            $ticket->getSubject(),
+            ['from' => $previousStatus, 'to' => $status],
+        );
 
         return $this->json($this->serializeDetail($ticket));
     }
