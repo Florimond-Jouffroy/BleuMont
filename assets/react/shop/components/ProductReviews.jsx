@@ -147,26 +147,6 @@ export default function ProductReviews({ product, urls, isConnected }) {
                 )}
             </div>
 
-            {/* Form */}
-            {submitted ? (
-                <div className="rounded-xl border border-green-200 bg-green-50 px-5 py-4 text-sm text-green-700">
-                    Merci pour votre avis ! Il sera visible après modération.
-                </div>
-            ) : isConnected ? (
-                <ReviewForm
-                    productId={product.id}
-                    reviewSubmitUrl={urls.reviewSubmit}
-                    onSubmitted={handleSubmitted}
-                />
-            ) : (
-                <p className="text-sm text-muted-foreground">
-                    <a href="/connexion" className="font-medium text-foreground underline underline-offset-4 hover:no-underline">
-                        Connectez-vous
-                    </a>{' '}
-                    pour laisser un avis (réservé aux acheteurs).
-                </p>
-            )}
-
             {/* Reviews list */}
             {count === 0 ? (
                 <p className="text-sm text-muted-foreground">Aucun avis pour l'instant. Soyez le premier !</p>
@@ -188,6 +168,26 @@ export default function ProductReviews({ product, urls, isConnected }) {
                         </div>
                     ))}
                 </div>
+            )}
+
+            {/* Form */}
+            {submitted ? (
+                <div className="rounded-xl border border-green-200 bg-green-50 px-5 py-4 text-sm text-green-700">
+                    Merci pour votre avis ! Il sera visible après modération.
+                </div>
+            ) : isConnected ? (
+                <ReviewForm
+                    productId={product.id}
+                    reviewSubmitUrl={urls.reviewSubmit}
+                    onSubmitted={handleSubmitted}
+                />
+            ) : (
+                <p className="text-sm text-muted-foreground">
+                    <a href="/connexion" className="font-medium text-foreground underline underline-offset-4 hover:no-underline">
+                        Connectez-vous
+                    </a>{' '}
+                    pour laisser un avis (réservé aux acheteurs).
+                </p>
             )}
         </div>
     );

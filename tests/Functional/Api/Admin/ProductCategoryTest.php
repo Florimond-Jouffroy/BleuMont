@@ -16,7 +16,7 @@ class ProductCategoryTest extends AbstractApiTestCase
     {
         $this->client->request('GET', '/api/admin/categories-produits');
 
-        self::assertResponseRedirects('/connexion');
+        self::assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
     }
 
     public function testListForbiddenForNonAdmin(): void
