@@ -6,6 +6,7 @@ namespace App\Controller\Api\Admin;
 
 use App\Entity\StaticPage;
 use App\Repository\StaticPageRepository;
+use App\Security\Voter\StaticPageVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -44,12 +45,16 @@ class StaticPageController extends AbstractController
     #[Route('', name: 'api_admin_pages_list', methods: ['GET'])]
     public function list(StaticPageRepository $repo): JsonResponse
     {
+        $this->denyAccessUnlessGranted(StaticPageVoter::VIEW);
+
         return $this->json(array_map($this->serialize(...), $repo->findAllOrdered()));
     }
 
     #[Route('/{id}', name: 'api_admin_pages_get', methods: ['GET'])]
     public function get(int $id, StaticPageRepository $repo): JsonResponse
     {
+        $this->denyAccessUnlessGranted(StaticPageVoter::VIEW);
+
         $page = $repo->find($id);
         if (!$page) {
             return $this->json(['message' => 'Page introuvable.'], Response::HTTP_NOT_FOUND);
@@ -60,6 +65,8 @@ class StaticPageController extends AbstractController
     #[Route('', name: 'api_admin_pages_create', methods: ['POST'])]
     public function create(Request $request, StaticPageRepository $repo, EntityManagerInterface $em): JsonResponse
     {
+        $this->denyAccessUnlessGranted(StaticPageVoter::CREATE);
+
         $data  = $request->toArray();
         $title = trim((string) ($data['title'] ?? ''));
 
@@ -90,6 +97,8 @@ class StaticPageController extends AbstractController
     #[Route('/{id}', name: 'api_admin_pages_update', methods: ['PATCH'])]
     public function update(int $id, Request $request, StaticPageRepository $repo, EntityManagerInterface $em): JsonResponse
     {
+        $this->denyAccessUnlessGranted(StaticPageVoter::EDIT);
+
         $page = $repo->find($id);
         if (!$page) {
             return $this->json(['message' => 'Page introuvable.'], Response::HTTP_NOT_FOUND);
@@ -133,6 +142,8 @@ class StaticPageController extends AbstractController
     #[Route('/{id}', name: 'api_admin_pages_delete', methods: ['DELETE'])]
     public function delete(int $id, StaticPageRepository $repo, EntityManagerInterface $em): JsonResponse
     {
+        $this->denyAccessUnlessGranted(StaticPageVoter::DELETE);
+
         $page = $repo->find($id);
         if (!$page) {
             return $this->json(['message' => 'Page introuvable.'], Response::HTTP_NOT_FOUND);

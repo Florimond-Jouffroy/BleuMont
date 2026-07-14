@@ -9,6 +9,7 @@ use App\Entity\SupportTicket;
 use App\Repository\CustomerRepository;
 use App\Repository\OrderRepository;
 use App\Repository\SupportTicketRepository;
+use App\Security\Voter\SupportVoter;
 use App\Service\ActivityLogger;
 use App\Service\SupportMailer;
 use Doctrine\ORM\EntityManagerInterface;
@@ -96,6 +97,8 @@ class SupportController extends AbstractController
     #[Route('', name: 'api_admin_support_list', methods: ['GET'])]
     public function list(Request $request, SupportTicketRepository $repo): JsonResponse
     {
+        $this->denyAccessUnlessGranted(SupportVoter::VIEW);
+
         $status = $request->query->get('status');
         $search = $request->query->get('search');
 
@@ -107,6 +110,8 @@ class SupportController extends AbstractController
     #[Route('/{id}', name: 'api_admin_support_detail', methods: ['GET'])]
     public function detail(int $id, SupportTicketRepository $repo, CustomerRepository $customerRepo, OrderRepository $orderRepo): JsonResponse
     {
+        $this->denyAccessUnlessGranted(SupportVoter::VIEW);
+
         $ticket = $repo->find($id);
         if (!$ticket) {
             return $this->json(['message' => 'Ticket introuvable.'], Response::HTTP_NOT_FOUND);
@@ -125,6 +130,8 @@ class SupportController extends AbstractController
         CustomerRepository $customerRepo,
         OrderRepository $orderRepo,
     ): JsonResponse {
+        $this->denyAccessUnlessGranted(SupportVoter::REPLY);
+
         $ticket = $repo->find($id);
         if (!$ticket) {
             return $this->json(['message' => 'Ticket introuvable.'], Response::HTTP_NOT_FOUND);
@@ -158,6 +165,8 @@ class SupportController extends AbstractController
     #[Route('/{id}/statut', name: 'api_admin_support_status', methods: ['PATCH'])]
     public function updateStatus(int $id, Request $request, SupportTicketRepository $repo, EntityManagerInterface $em, ActivityLogger $activityLogger): JsonResponse
     {
+        $this->denyAccessUnlessGranted(SupportVoter::EDIT);
+
         $ticket = $repo->find($id);
         if (!$ticket) {
             return $this->json(['message' => 'Ticket introuvable.'], Response::HTTP_NOT_FOUND);

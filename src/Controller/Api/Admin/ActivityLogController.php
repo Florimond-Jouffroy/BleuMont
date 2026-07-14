@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Api\Admin;
 
 use App\Repository\ActivityLogRepository;
+use App\Security\Voter\ActivityLogVoter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,7 +17,7 @@ class ActivityLogController extends AbstractController
     #[Route('', name: 'api_admin_activity_log_list', methods: ['GET'])]
     public function list(Request $request, ActivityLogRepository $repo): JsonResponse
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        $this->denyAccessUnlessGranted(ActivityLogVoter::VIEW);
 
         $page       = max(1, $request->query->getInt('page', 1));
         $pageSize   = min(100, max(1, $request->query->getInt('pageSize', 50)));

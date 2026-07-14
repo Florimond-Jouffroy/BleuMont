@@ -8,6 +8,7 @@ use App\Entity\Order;
 use App\Repository\CustomerRepository;
 use App\Repository\OrderRepository;
 use App\Repository\ProductRepository;
+use App\Security\Voter\StatisticsVoter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -25,7 +26,7 @@ class StatisticsController extends AbstractController
     #[Route('', name: 'dashboard')]
     public function dashboard(): JsonResponse
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        $this->denyAccessUnlessGranted(StatisticsVoter::VIEW);
 
         $now            = new \DateTimeImmutable();
         $startOfMonth   = new \DateTimeImmutable('first day of this month 00:00:00');

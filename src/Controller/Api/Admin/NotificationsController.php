@@ -8,6 +8,7 @@ use App\Entity\Order;
 use App\Repository\OrderRepository;
 use App\Repository\ProductReviewRepository;
 use App\Repository\SupportTicketRepository;
+use App\Security\Voter\NotificationVoter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -20,7 +21,7 @@ class NotificationsController extends AbstractController
         SupportTicketRepository $ticketRepo,
         ProductReviewRepository $reviewRepo,
     ): JsonResponse {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        $this->denyAccessUnlessGranted(NotificationVoter::VIEW);
 
         $byStatus = $orderRepo->countByStatus();
 

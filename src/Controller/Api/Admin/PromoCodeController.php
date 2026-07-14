@@ -6,6 +6,7 @@ namespace App\Controller\Api\Admin;
 
 use App\Entity\PromoCode;
 use App\Repository\PromoCodeRepository;
+use App\Security\Voter\PromoCodeVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -25,7 +26,7 @@ class PromoCodeController extends AbstractController
     #[Route('', name: 'api_admin_promo_list', methods: ['GET'])]
     public function list(): JsonResponse
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        $this->denyAccessUnlessGranted(PromoCodeVoter::VIEW);
 
         $codes = $this->repo->findBy([], ['createdAt' => 'DESC']);
 
@@ -35,7 +36,7 @@ class PromoCodeController extends AbstractController
     #[Route('', name: 'api_admin_promo_create', methods: ['POST'])]
     public function create(Request $request): JsonResponse
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        $this->denyAccessUnlessGranted(PromoCodeVoter::CREATE);
 
         $payload = $request->toArray();
 
@@ -54,7 +55,7 @@ class PromoCodeController extends AbstractController
     #[Route('/{id}', name: 'api_admin_promo_update', methods: ['PATCH'])]
     public function update(PromoCode $code, Request $request): JsonResponse
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        $this->denyAccessUnlessGranted(PromoCodeVoter::EDIT);
 
         $payload = $request->toArray();
 
@@ -71,7 +72,7 @@ class PromoCodeController extends AbstractController
     #[Route('/{id}', name: 'api_admin_promo_delete', methods: ['DELETE'])]
     public function delete(PromoCode $code): JsonResponse
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        $this->denyAccessUnlessGranted(PromoCodeVoter::DELETE);
 
         $this->em->remove($code);
         $this->em->flush();

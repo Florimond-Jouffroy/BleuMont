@@ -6,6 +6,7 @@ namespace App\Controller\Api\Admin;
 
 use App\Entity\ProductReview;
 use App\Repository\ProductReviewRepository;
+use App\Security\Voter\ReviewVoter;
 use App\Service\ActivityLogger;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -35,7 +36,7 @@ class ReviewController extends AbstractController
     #[Route('', name: 'api_admin_reviews_list', methods: ['GET'])]
     public function list(Request $request, ProductReviewRepository $repo): JsonResponse
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        $this->denyAccessUnlessGranted(ReviewVoter::VIEW);
 
         $filter = $request->query->get('approved');
         $approved = match ($filter) {
@@ -50,7 +51,7 @@ class ReviewController extends AbstractController
     #[Route('/{id}', name: 'api_admin_reviews_update', methods: ['PATCH'])]
     public function update(int $id, Request $request, ProductReviewRepository $repo, EntityManagerInterface $em, ActivityLogger $activityLogger): JsonResponse
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        $this->denyAccessUnlessGranted(ReviewVoter::EDIT);
 
         $review = $repo->find($id);
         if (!$review) {
@@ -79,7 +80,7 @@ class ReviewController extends AbstractController
     #[Route('/{id}', name: 'api_admin_reviews_delete', methods: ['DELETE'])]
     public function delete(int $id, ProductReviewRepository $repo, EntityManagerInterface $em, ActivityLogger $activityLogger): JsonResponse
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        $this->denyAccessUnlessGranted(ReviewVoter::DELETE);
 
         $review = $repo->find($id);
         if (!$review) {

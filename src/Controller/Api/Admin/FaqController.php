@@ -6,6 +6,7 @@ namespace App\Controller\Api\Admin;
 
 use App\Entity\FaqItem;
 use App\Repository\FaqItemRepository;
+use App\Security\Voter\FaqVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -31,12 +32,15 @@ class FaqController extends AbstractController
     #[Route('', name: 'api_admin_faq_list', methods: ['GET'])]
     public function list(FaqItemRepository $repo): JsonResponse
     {
+        $this->denyAccessUnlessGranted(FaqVoter::VIEW);
+
         return $this->json(array_map($this->serialize(...), $repo->findAllOrdered()));
     }
 
     #[Route('', name: 'api_admin_faq_create', methods: ['POST'])]
     public function create(Request $request, FaqItemRepository $repo, EntityManagerInterface $em): JsonResponse
     {
+        $this->denyAccessUnlessGranted(FaqVoter::CREATE);
         $data = $request->toArray();
 
         $question = trim((string) ($data['question'] ?? ''));
@@ -61,6 +65,8 @@ class FaqController extends AbstractController
     #[Route('/{id}', name: 'api_admin_faq_update', methods: ['PATCH'])]
     public function update(int $id, Request $request, FaqItemRepository $repo, EntityManagerInterface $em): JsonResponse
     {
+        $this->denyAccessUnlessGranted(FaqVoter::EDIT);
+
         $item = $repo->find($id);
         if (!$item) {
             return $this->json(['message' => 'FAQ introuvable.'], Response::HTTP_NOT_FOUND);
@@ -96,6 +102,8 @@ class FaqController extends AbstractController
     #[Route('/{id}', name: 'api_admin_faq_delete', methods: ['DELETE'])]
     public function delete(int $id, FaqItemRepository $repo, EntityManagerInterface $em): JsonResponse
     {
+        $this->denyAccessUnlessGranted(FaqVoter::DELETE);
+
         $item = $repo->find($id);
         if (!$item) {
             return $this->json(['message' => 'FAQ introuvable.'], Response::HTTP_NOT_FOUND);
@@ -110,6 +118,8 @@ class FaqController extends AbstractController
     #[Route('/{id}/move-up', name: 'api_admin_faq_move_up', methods: ['POST'])]
     public function moveUp(int $id, FaqItemRepository $repo, EntityManagerInterface $em): JsonResponse
     {
+        $this->denyAccessUnlessGranted(FaqVoter::EDIT);
+
         $all = $repo->findAllOrdered();
         $idx = array_search($id, array_column(array_map(fn ($i) => ['id' => $i->getId()], $all), 'id'));
 
@@ -138,6 +148,8 @@ class FaqController extends AbstractController
     #[Route('/{id}/move-down', name: 'api_admin_faq_move_down', methods: ['POST'])]
     public function moveDown(int $id, FaqItemRepository $repo, EntityManagerInterface $em): JsonResponse
     {
+        $this->denyAccessUnlessGranted(FaqVoter::EDIT);
+
         $all  = $repo->findAllOrdered();
         $last = count($all) - 1;
         $idx  = array_search($id, array_column(array_map(fn ($i) => ['id' => $i->getId()], $all), 'id'));

@@ -7,6 +7,7 @@ namespace App\Controller\Api\Admin;
 use App\Entity\Invoice;
 use App\Entity\Order;
 use App\Repository\InvoiceRepository;
+use App\Security\Voter\InvoiceVoter;
 use App\Service\InvoiceService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -27,7 +28,7 @@ class InvoiceController extends AbstractController
     #[Route('', name: 'api_admin_invoices_list', methods: ['GET'])]
     public function list(): JsonResponse
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        $this->denyAccessUnlessGranted(InvoiceVoter::VIEW);
 
         $invoices = $this->invoiceRepo->findAllWithOrder();
 
@@ -37,7 +38,7 @@ class InvoiceController extends AbstractController
     #[Route('/commande/{id}', name: 'api_admin_invoices_by_order', methods: ['GET'])]
     public function getByOrder(Order $order): JsonResponse
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        $this->denyAccessUnlessGranted(InvoiceVoter::VIEW);
 
         $invoice = $this->invoiceService->findForOrder($order);
 
@@ -51,7 +52,7 @@ class InvoiceController extends AbstractController
     #[Route('/commande/{id}/generer', name: 'api_admin_invoices_generate', methods: ['POST'])]
     public function generate(Order $order): JsonResponse
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        $this->denyAccessUnlessGranted(InvoiceVoter::CREATE);
 
         $invoice = $this->invoiceService->generateForOrder($order);
 
@@ -61,7 +62,7 @@ class InvoiceController extends AbstractController
     #[Route('/{id}/pdf', name: 'api_admin_invoices_pdf', methods: ['GET'])]
     public function pdf(Invoice $invoice): StreamedResponse
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        $this->denyAccessUnlessGranted(InvoiceVoter::DOWNLOAD);
 
         $pdfContent = $this->invoiceService->generatePdf($invoice);
         $filename   = $invoice->getInvoiceNumber() . '.pdf';
@@ -80,7 +81,7 @@ class InvoiceController extends AbstractController
     #[Route('/{id}/statut', name: 'api_admin_invoices_status', methods: ['PATCH'])]
     public function updateStatus(Invoice $invoice, Request $request): JsonResponse
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        $this->denyAccessUnlessGranted(InvoiceVoter::EDIT);
 
         $payload = $request->toArray();
         $status  = trim((string) ($payload['status'] ?? ''));
