@@ -6,6 +6,7 @@ namespace App\Controller\Api\Admin;
 
 use App\Entity\ShippingMethod;
 use App\Repository\ShippingMethodRepository;
+use App\Security\Voter\ShippingVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -19,7 +20,7 @@ class ShippingMethodController extends AbstractController
     #[Route('', name: 'api_admin_shipping_list', methods: ['GET'])]
     public function list(ShippingMethodRepository $repo): JsonResponse
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        $this->denyAccessUnlessGranted(ShippingVoter::VIEW);
 
         return $this->json(array_map($this->serialize(...), $repo->findAllOrdered()));
     }
@@ -27,7 +28,7 @@ class ShippingMethodController extends AbstractController
     #[Route('', name: 'api_admin_shipping_create', methods: ['POST'])]
     public function create(Request $request, EntityManagerInterface $em): JsonResponse
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        $this->denyAccessUnlessGranted(ShippingVoter::CREATE);
 
         $data   = $request->toArray();
         $errors = $this->validate($data);
@@ -46,7 +47,7 @@ class ShippingMethodController extends AbstractController
     #[Route('/{id}', name: 'api_admin_shipping_update', methods: ['PUT'])]
     public function update(ShippingMethod $method, Request $request, EntityManagerInterface $em): JsonResponse
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        $this->denyAccessUnlessGranted(ShippingVoter::EDIT);
 
         $data   = $request->toArray();
         $errors = $this->validate($data);
@@ -63,7 +64,7 @@ class ShippingMethodController extends AbstractController
     #[Route('/{id}', name: 'api_admin_shipping_delete', methods: ['DELETE'])]
     public function delete(ShippingMethod $method, EntityManagerInterface $em): JsonResponse
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        $this->denyAccessUnlessGranted(ShippingVoter::DELETE);
 
         $em->remove($method);
         $em->flush();

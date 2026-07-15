@@ -38,6 +38,18 @@
                             Boutique
                         </a>
                     </li>
+                    <li>
+                        <a href="{{ path('faq_index') }}"
+                           class="text-muted-foreground hover:text-foreground transition-colors">
+                            FAQ
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ path('contact_index') }}"
+                           class="text-muted-foreground hover:text-foreground transition-colors">
+                            Contact
+                        </a>
+                    </li>
                 </ul>
             </div>
 
@@ -98,11 +110,13 @@
                 © {{ "now"|date("Y") }} BleuMont. Tous droits réservés.
             </p>
             <div class="flex items-center gap-1 text-xs text-muted-foreground">
-                <a href="#" class="hover:text-foreground transition-colors">Mentions légales</a>
+                <a href="{{ path('static_page_show', {slug: 'mentions-legales'}) }}" class="hover:text-foreground transition-colors">Mentions légales</a>
                 <span class="select-none">·</span>
-                <a href="#" class="hover:text-foreground transition-colors">Politique de confidentialité</a>
+                <a href="{{ path('static_page_show', {slug: 'politique-de-confidentialite'}) }}" class="hover:text-foreground transition-colors">Politique de confidentialité</a>
                 <span class="select-none">·</span>
-                <a href="#" class="hover:text-foreground transition-colors">CGV</a>
+                <a href="{{ path('static_page_show', {slug: 'cgv'}) }}" class="hover:text-foreground transition-colors">CGV</a>
+                <span class="select-none">·</span>
+                <a href="{{ path('faq_index') }}" class="hover:text-foreground transition-colors">FAQ</a>
             </div>
         </div>
     </div>

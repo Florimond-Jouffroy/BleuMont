@@ -121,3 +121,138 @@ permissions:
         roles: [ ROLE_ADMIN ]
         description: "Supprimer un utilisateur"
 
+    # --- Support ---
+    SUPPORT_VIEW:
+        roles: [ ROLE_ADMIN ]
+        description: "Voir les tickets de support"
+
+    SUPPORT_REPLY:
+        roles: [ ROLE_ADMIN ]
+        description: "Répondre à un ticket de support"
+
+    SUPPORT_EDIT:
+        roles: [ ROLE_ADMIN ]
+        description: "Modifier le statut d'un ticket de support"
+
+    # --- Avis clients ---
+    REVIEW_VIEW:
+        roles: [ ROLE_ADMIN ]
+        description: "Voir les avis clients"
+
+    REVIEW_EDIT:
+        roles: [ ROLE_ADMIN ]
+        description: "Approuver ou désapprouver un avis"
+
+    REVIEW_DELETE:
+        roles: [ ROLE_ADMIN ]
+        description: "Supprimer un avis client"
+
+    # --- FAQ ---
+    FAQ_VIEW:
+        roles: [ ROLE_ADMIN ]
+        description: "Voir les questions FAQ"
+
+    FAQ_CREATE:
+        roles: [ ROLE_ADMIN ]
+        description: "Créer une question FAQ"
+
+    FAQ_EDIT:
+        roles: [ ROLE_ADMIN ]
+        description: "Modifier ou réordonner une question FAQ"
+
+    FAQ_DELETE:
+        roles: [ ROLE_ADMIN ]
+        description: "Supprimer une question FAQ"
+
+    # --- Pages statiques ---
+    PAGE_VIEW:
+        roles: [ ROLE_ADMIN ]
+        description: "Voir les pages statiques"
+
+    PAGE_CREATE:
+        roles: [ ROLE_ADMIN ]
+        description: "Créer une page statique"
+
+    PAGE_EDIT:
+        roles: [ ROLE_ADMIN ]
+        description: "Modifier une page statique"
+
+    PAGE_DELETE:
+        roles: [ ROLE_ADMIN ]
+        description: "Supprimer une page statique"
+
+    # --- Codes promo ---
+    PROMO_CODE_VIEW:
+        roles: [ ROLE_ADMIN ]
+        description: "Voir les codes promo"
+
+    PROMO_CODE_CREATE:
+        roles: [ ROLE_ADMIN ]
+        description: "Créer un code promo"
+
+    PROMO_CODE_EDIT:
+        roles: [ ROLE_ADMIN ]
+        description: "Modifier un code promo"
+
+    PROMO_CODE_DELETE:
+        roles: [ ROLE_ADMIN ]
+        description: "Supprimer un code promo"
+
+    # --- Livraison ---
+    SHIPPING_VIEW:
+        roles: [ ROLE_ADMIN ]
+        description: "Voir les méthodes de livraison"
+
+    SHIPPING_CREATE:
+        roles: [ ROLE_ADMIN ]
+        description: "Créer une méthode de livraison"
+
+    SHIPPING_EDIT:
+        roles: [ ROLE_ADMIN ]
+        description: "Modifier une méthode de livraison"
+
+    SHIPPING_DELETE:
+        roles: [ ROLE_ADMIN ]
+        description: "Supprimer une méthode de livraison"
+
+    # --- Factures ---
+    INVOICE_VIEW:
+        roles: [ ROLE_ADMIN ]
+        description: "Voir les factures"
+
+    INVOICE_CREATE:
+        roles: [ ROLE_ADMIN ]
+        description: "Générer une facture"
+
+    INVOICE_EDIT:
+        roles: [ ROLE_ADMIN ]
+        description: "Modifier le statut d'une facture"
+
+    INVOICE_DOWNLOAD:
+        roles: [ ROLE_ADMIN ]
+        description: "Télécharger une facture en PDF"
+
+    # --- Statistiques ---
+    STATISTICS_VIEW:
+        roles: [ ROLE_ADMIN ]
+        description: "Voir le tableau de bord statistiques"
+
+    # --- Notifications ---
+    NOTIFICATION_VIEW:
+        roles: [ ROLE_ADMIN ]
+        description: "Voir les compteurs de notifications admin"
+
+    # --- Paramètres ---
+    SETTING_VIEW:
+        roles: [ ROLE_ADMIN ]
+        description: "Voir les paramètres de l'application"
+
+    SETTING_EDIT:
+        roles: [ ROLE_ADMIN ]
+        description: "Modifier les paramètres de l'application"
+
+    # --- Journal d'activité ---
+    ACTIVITY_LOG_VIEW:
+        roles: [ ROLE_ADMIN ]
+        description: "Voir le journal d'activité admin"
+

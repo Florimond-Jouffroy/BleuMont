@@ -16,7 +16,7 @@ class OrderTest extends AbstractApiTestCase
     {
         $this->client->request('GET', '/api/admin/commandes');
 
-        self::assertResponseRedirects('/connexion');
+        self::assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
     }
 
     public function testListForbiddenForNonAdmin(): void

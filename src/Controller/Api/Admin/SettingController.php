@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Api\Admin;
 
 use App\Repository\AppSettingRepository;
+use App\Security\Voter\SettingVoter;
 use App\Service\InvoiceService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -24,7 +25,7 @@ class SettingController extends AbstractController
     #[Route('', name: 'api_admin_settings_get', methods: ['GET'])]
     public function get(): JsonResponse
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        $this->denyAccessUnlessGranted(SettingVoter::VIEW);
 
         return $this->json($this->buildPayload());
     }
@@ -32,7 +33,7 @@ class SettingController extends AbstractController
     #[Route('', name: 'api_admin_settings_update', methods: ['PATCH'])]
     public function update(Request $request): JsonResponse
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        $this->denyAccessUnlessGranted(SettingVoter::EDIT);
 
         $payload = $request->toArray();
 

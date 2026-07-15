@@ -16,13 +16,16 @@ class ShopController extends AbstractController
     {
         return $this->render('shop/shell.html.twig', [
             'urls' => [
-                'products'   => $this->generateUrl('api_shop_products_list'),
-                'categories' => $this->generateUrl('api_shop_categories_list'),
-                'cart'       => $this->generateUrl('api_shop_cart_get'),
-                'shipping'   => $this->generateUrl('api_shop_shipping_list'),
-                'checkout'   => $this->generateUrl('api_shop_checkout'),
-                'profile'    => $this->generateUrl('api_account_profile_get'),
+                'products'      => $this->generateUrl('api_shop_products_list'),
+                'categories'    => $this->generateUrl('api_shop_categories_list'),
+                'cart'          => $this->generateUrl('api_shop_cart_get'),
+                'shipping'      => $this->generateUrl('api_shop_shipping_list'),
+                'checkout'      => $this->generateUrl('api_shop_checkout'),
+                'promo'         => $this->generateUrl('api_shop_promo_apply'),
+                'profile'       => $this->generateUrl('api_account_profile_get'),
+                'reviewSubmit'  => $this->generateUrl('api_account_reviews_create'),
             ],
+            'isConnected' => $this->getUser() !== null,
         ]);
     }
 }

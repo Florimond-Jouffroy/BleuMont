@@ -23,6 +23,8 @@ class AccountController extends AbstractController
                 'profileUpdate'  => $this->generateUrl('api_account_profile_update'),
                 'passwordUpdate' => $this->generateUrl('api_account_password_update'),
                 'orders'         => $this->generateUrl('api_account_orders_list'),
+                'support'        => $this->generateUrl('api_account_support_list'),
+                'reviews'        => $this->generateUrl('api_account_reviews_list'),
                 'logout'         => $this->generateUrl('app_security_logout'),
             ],
             'userEmail' => $user->getEmail(),

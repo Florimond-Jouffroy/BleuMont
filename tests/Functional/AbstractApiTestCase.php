@@ -5,10 +5,15 @@ declare(strict_types=1);
 namespace App\Tests\Functional;
 
 use App\Entity\Customer;
+use App\Entity\FaqItem;
 use App\Entity\Order;
+use App\Entity\OrderItem;
 use App\Entity\PasswordResetToken;
 use App\Entity\Product;
 use App\Entity\ProductCategory;
+use App\Entity\ProductReview;
+use App\Entity\StaticPage;
+use App\Entity\SupportTicket;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -171,6 +176,105 @@ abstract class AbstractApiTestCase extends WebTestCase
         ]);
 
         $this->em->persist($order);
+        $this->em->flush();
+
+        return $order;
+    }
+
+    protected function createFaqItem(
+        string $question = 'Quelle est votre politique de retour ?',
+        string $answer = 'Vous disposez de 30 jours.',
+        int $position = 1,
+        bool $isActive = true,
+    ): FaqItem {
+        $item = new FaqItem();
+        $item->setQuestion($question);
+        $item->setAnswer($answer);
+        $item->setPosition($position);
+        $item->setIsActive($isActive);
+
+        $this->em->persist($item);
+        $this->em->flush();
+
+        return $item;
+    }
+
+    protected function createStaticPage(
+        string $title = 'Mentions légales',
+        string $slug = 'mentions-legales',
+        bool $isActive = true,
+        array $content = [],
+    ): StaticPage {
+        $page = new StaticPage();
+        $page->setTitle($title);
+        $page->setSlug($slug);
+        $page->setContent($content);
+        $page->setIsActive($isActive);
+
+        $this->em->persist($page);
+        $this->em->flush();
+
+        return $page;
+    }
+
+    protected function createSupportTicket(
+        string $subject = 'Problème de commande',
+        ?User $user = null,
+        string $status = SupportTicket::STATUS_OPEN,
+        ?string $guestName = null,
+        ?string $guestEmail = null,
+    ): SupportTicket {
+        $ticket = new SupportTicket();
+        $ticket->setSubject($subject);
+        $ticket->setStatus($status);
+        $ticket->setUser($user);
+        $ticket->setGuestName($guestName);
+        $ticket->setGuestEmail($guestEmail ?? ($user === null ? 'guest@example.com' : null));
+
+        $this->em->persist($ticket);
+        $this->em->flush();
+
+        return $ticket;
+    }
+
+    protected function createProductReview(
+        Product $product,
+        User $user,
+        int $rating = 5,
+        bool $isApproved = false,
+        ?string $comment = null,
+    ): ProductReview {
+        $review = new ProductReview();
+        $review->setProduct($product);
+        $review->setUser($user);
+        $review->setAuthorName($user->getEmail());
+        $review->setRating($rating);
+        $review->setComment($comment);
+        $review->setIsApproved($isApproved);
+
+        $this->em->persist($review);
+        $this->em->flush();
+
+        return $review;
+    }
+
+    protected function createOrderWithProduct(
+        Customer $customer,
+        Product $product,
+        string $orderNumber = 'ORD-20240101-00001',
+        string $status = Order::STATUS_DELIVERED,
+    ): Order {
+        $order = $this->createOrder($customer, $orderNumber, $status);
+
+        $item = new OrderItem();
+        $item->setOrder($order);
+        $item->setProduct($product);
+        $item->setProductName($product->getName());
+        $item->setUnitPrice($product->getPrice());
+        $item->setQuantity(1);
+        $item->recalculateTotal();
+
+        $this->em->persist($item);
         $this->em->flush();
 
         return $order;

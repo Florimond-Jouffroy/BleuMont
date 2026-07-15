@@ -26,6 +26,8 @@ Encore
     .addEntry('shop', './assets/shop.jsx')
     .addEntry('blog', './assets/blog.jsx')
     .addEntry('account', './assets/account.jsx')
+    .addEntry('faq', './assets/faq.jsx')
+    .addEntry('contact', './assets/contact.jsx')
 
     // When enabled, Webpack "splits" your files into smaller pieces for greater optimization.
     .splitEntryChunks()

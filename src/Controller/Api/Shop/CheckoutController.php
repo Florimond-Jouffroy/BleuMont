@@ -11,6 +11,7 @@ use App\Repository\CustomerRepository;
 use App\Repository\OrderRepository;
 use App\Repository\ProductRepository;
 use App\Repository\ProductVariantRepository;
+use App\Repository\PromoCodeRepository;
 use App\Repository\ShippingMethodRepository;
 use App\Service\InvoiceService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -32,6 +33,7 @@ class CheckoutController extends AbstractController
         CustomerRepository $customerRepo,
         ShippingMethodRepository $shippingRepo,
         OrderRepository $orderRepo,
+        PromoCodeRepository $promoRepo,
         InvoiceService $invoiceService,
     ): JsonResponse {
         $this->denyAccessUnlessGranted('ROLE_USER');
@@ -102,8 +104,22 @@ class CheckoutController extends AbstractController
             ];
         }
 
-        // ── 4. Compute shipping ────────────────────────────────────────────��──
-        $subtotal       = array_reduce($validatedItems, fn ($c, $i) => $c + $i['unitPrice'] * $i['qty'], 0);
+        // ── 4. Compute subtotal, promo discount & shipping ────────────────────
+        $subtotal = array_reduce($validatedItems, fn ($c, $i) => $c + $i['unitPrice'] * $i['qty'], 0);
+
+        $promoCode      = null;
+        $discountAmount = 0;
+        $promoCodeStr   = $request->getSession()->get('shop_promo');
+        if ($promoCodeStr) {
+            $promoCode = $promoRepo->findByCode($promoCodeStr);
+            if ($promoCode && $promoCode->isUsable()) {
+                $discountAmount = $promoCode->computeDiscount($subtotal);
+            } else {
+                $promoCode = null;
+                $request->getSession()->remove('shop_promo');
+            }
+        }
+
         $shippingAmount = $shippingMethod->getEffectivePrice($subtotal);
 
         // ── 5. Find or create Customer ────────────────────────────────────────
@@ -165,12 +181,18 @@ class CheckoutController extends AbstractController
         }
 
         $order->setSubtotal($subtotalFinal);
-        $order->setTotal(max(0, $subtotalFinal + $shippingAmount));
+        $order->setDiscountAmount($discountAmount);
+        if ($promoCode) {
+            $order->setPromoCode($promoCode->getCode());
+            $promoCode->incrementUsedCount();
+        }
+        $order->setTotal(max(0, $subtotalFinal - $discountAmount + $shippingAmount));
 
         $em->flush();
 
-        // ── 9. Clear cart ─────────────────────────────────────────────────────
+        // ── 9. Clear cart & promo ─────────────────────────────────────────────
         $request->getSession()->remove('shop_cart');
+        $request->getSession()->remove('shop_promo');
 
         // ── 10. Auto-generate invoice if trigger = on_order ───────────────────
         if ('on_order' === $invoiceService->getInvoiceTrigger()) {

@@ -16,7 +16,7 @@ class ProductTest extends AbstractApiTestCase
     {
         $this->client->request('GET', '/api/admin/produits');
 
-        self::assertResponseRedirects('/connexion');
+        self::assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
     }
 
     public function testListForbiddenForNonAdmin(): void
@@ -180,7 +180,7 @@ class ProductTest extends AbstractApiTestCase
         $this->loginAs($this->createAdmin());
         $product = $this->createProduct('T-shirt', 't-shirt', Product::STATUS_DRAFT);
 
-        $this->postJson('/api/admin/produits/'.$product->getId().'/publish', []);
+        $this->postJson('/api/admin/produits/'.$product->getId().'/publier', []);
 
         self::assertResponseIsSuccessful();
         $data = $this->getJson();
@@ -192,7 +192,7 @@ class ProductTest extends AbstractApiTestCase
         $this->loginAs($this->createAdmin());
         $product = $this->createProduct('T-shirt', 't-shirt', Product::STATUS_PUBLISHED);
 
-        $this->postJson('/api/admin/produits/'.$product->getId().'/publish', []);
+        $this->postJson('/api/admin/produits/'.$product->getId().'/publier', []);
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
@@ -202,7 +202,7 @@ class ProductTest extends AbstractApiTestCase
         $this->loginAs($this->createAdmin());
         $product = $this->createProduct('T-shirt', 't-shirt', Product::STATUS_PUBLISHED);
 
-        $this->postJson('/api/admin/produits/'.$product->getId().'/unpublish', []);
+        $this->postJson('/api/admin/produits/'.$product->getId().'/depublier', []);
 
         self::assertResponseIsSuccessful();
         $data = $this->getJson();
@@ -214,7 +214,7 @@ class ProductTest extends AbstractApiTestCase
         $this->loginAs($this->createAdmin());
         $product = $this->createProduct('T-shirt', 't-shirt', Product::STATUS_DRAFT);
 
-        $this->postJson('/api/admin/produits/'.$product->getId().'/unpublish', []);
+        $this->postJson('/api/admin/produits/'.$product->getId().'/depublier', []);
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }

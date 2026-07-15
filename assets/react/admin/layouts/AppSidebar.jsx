@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { ChevronRight, ChevronsUpDown, FileText, Image, LayoutDashboard, LogOut, Package, Receipt, Settings, ShoppingCart, Tag, Truck, Users } from 'lucide-react';
+import { BookOpen, ChevronRight, ChevronsUpDown, ClipboardList, FileText, HelpCircle, Image, LayoutDashboard, LogOut, MessageCircle, Package, Receipt, Settings, ShoppingCart, Star, Tag, Ticket, Truck, Users } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
@@ -28,24 +28,30 @@ import {
     SidebarRail,
 } from '@/components/ui/sidebar';
 
-const navItems = [
-    { to: '/dashboard',    icon: LayoutDashboard, label: 'Dashboard' },
-    { to: '/utilisateurs', icon: Users,           label: 'Utilisateurs' },
-    { to: '/medias',       icon: Image,           label: 'Médiathèque' },
+const NAV_ITEMS = [
+    { to: '/dashboard',    icon: LayoutDashboard, label: 'Dashboard',           permission: null },
+    { to: '/utilisateurs', icon: Users,           label: 'Utilisateurs',        permission: 'canViewUsers' },
+    { to: '/medias',       icon: Image,           label: 'Médiathèque',         permission: 'canViewMedia' },
+    { to: '/faq',          icon: HelpCircle,      label: 'FAQ',                 permission: 'canViewFaq' },
+    { to: '/support',      icon: MessageCircle,   label: 'Support',             permission: 'canViewSupport' },
+    { to: '/pages',        icon: BookOpen,        label: 'Pages statiques',     permission: 'canViewPages' },
+    { to: '/avis',         icon: Star,            label: 'Avis clients',        permission: 'canViewReviews' },
+    { to: '/journal',      icon: ClipboardList,   label: "Journal d'activité",  permission: 'canViewActivityLog' },
 ];
 
-const blogItems = [
-    { to: '/articles',   icon: FileText, label: 'Articles' },
-    { to: '/categories', icon: Tag,      label: 'Catégories' },
+const BLOG_ITEMS = [
+    { to: '/articles',   icon: FileText, label: 'Articles',    permission: 'canViewArticles' },
+    { to: '/categories', icon: Tag,      label: 'Catégories',  permission: 'canViewCategories' },
 ];
 
-const shopItems = [
-    { to: '/commandes',           icon: ShoppingCart, label: 'Commandes' },
-    { to: '/factures',            icon: Receipt,      label: 'Factures' },
-    { to: '/produits',            icon: Package,      label: 'Produits' },
-    { to: '/categories-produits', icon: Tag,          label: 'Catégories' },
-    { to: '/livraison',           icon: Truck,        label: 'Livraison' },
-    { to: '/parametres',          icon: Settings,     label: 'Paramètres' },
+const SHOP_ITEMS = [
+    { to: '/commandes',           icon: ShoppingCart, label: 'Commandes',   permission: 'canViewOrders' },
+    { to: '/factures',            icon: Receipt,      label: 'Factures',    permission: 'canViewInvoices' },
+    { to: '/codes-promo',         icon: Ticket,       label: 'Codes promo', permission: 'canViewPromoCodes' },
+    { to: '/produits',            icon: Package,      label: 'Produits',    permission: 'canViewProducts' },
+    { to: '/categories-produits', icon: Tag,          label: 'Catégories',  permission: 'canViewProductCategories' },
+    { to: '/livraison',           icon: Truck,        label: 'Livraison',   permission: 'canViewShipping' },
+    { to: '/parametres',          icon: Settings,     label: 'Paramètres',  permission: 'canViewSettings' },
 ];
 
 function getInitials(email) {
@@ -103,8 +109,15 @@ function NavItem({ to, icon: Icon, label }) {
     );
 }
 
-export default function AppSidebar({ userEmail = '', logoutUrl = '/deconnexion' }) {
+export default function AppSidebar({ userEmail = '', logoutUrl = '/deconnexion', permissions = {} }) {
     const { pathname } = useLocation();
+
+    const allowed = (permission) => permission === null || permissions[permission] !== false;
+
+    const navItems  = NAV_ITEMS.filter(i => allowed(i.permission));
+    const blogItems = BLOG_ITEMS.filter(i => allowed(i.permission));
+    const shopItems = SHOP_ITEMS.filter(i => allowed(i.permission));
+
     const isBlogActive = pathname.startsWith('/articles') || pathname.startsWith('/categories');
     const isShopActive = pathname.startsWith('/commandes') || pathname.startsWith('/factures') || pathname.startsWith('/produits') || pathname.startsWith('/categories-produits') || pathname.startsWith('/livraison') || pathname.startsWith('/parametres');
 
@@ -139,25 +152,27 @@ export default function AppSidebar({ userEmail = '', logoutUrl = '/deconnexion' 
                                 <NavItem key={item.to} {...item} />
                             ))}
 
-                            {/* Blog (collapsible) */}
-                            <CollapsibleNavGroup
-                                label="Blog"
-                                icon={FileText}
-                                groupKey="blog"
-                                isActive={isBlogActive}
-                                items={blogItems}
-                                pathname={pathname}
-                            />
+                            {blogItems.length > 0 && (
+                                <CollapsibleNavGroup
+                                    label="Blog"
+                                    icon={FileText}
+                                    groupKey="blog"
+                                    isActive={isBlogActive}
+                                    items={blogItems}
+                                    pathname={pathname}
+                                />
+                            )}
 
-                            {/* Boutique (collapsible) */}
-                            <CollapsibleNavGroup
-                                label="Boutique"
-                                icon={ShoppingCart}
-                                groupKey="shop"
-                                isActive={isShopActive}
-                                items={shopItems}
-                                pathname={pathname}
-                            />
+                            {shopItems.length > 0 && (
+                                <CollapsibleNavGroup
+                                    label="Boutique"
+                                    icon={ShoppingCart}
+                                    groupKey="shop"
+                                    isActive={isShopActive}
+                                    items={shopItems}
+                                    pathname={pathname}
+                                />
+                            )}
                         </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>

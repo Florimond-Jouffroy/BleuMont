@@ -7,6 +7,7 @@ namespace App\Controller\Api\Admin;
 use App\Entity\Order;
 use App\Repository\OrderRepository;
 use App\Security\Voter\OrderVoter;
+use App\Service\ActivityLogger;
 use App\Service\Manager\OrderManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -28,8 +29,10 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/api/admin/commandes')]
 class OrderController extends AbstractController
 {
-    public function __construct(private readonly OrderManager $manager)
-    {
+    public function __construct(
+        private readonly OrderManager $manager,
+        private readonly ActivityLogger $activityLogger,
+    ) {
     }
 
     #[Route('', name: 'api_admin_orders_list', methods: ['GET'])]
@@ -86,9 +89,19 @@ class OrderController extends AbstractController
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
+        $previousStatus = $order->getStatus();
+
         if (!$this->manager->transition($order, $status, $comment)) {
             return $this->json(['message' => 'Une erreur est survenue.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+
+        $this->activityLogger->log(
+            'order.status_changed',
+            'order',
+            $order->getId(),
+            $order->getOrderNumber(),
+            ['from' => $previousStatus, 'to' => $status, 'comment' => $comment],
+        );
 
         return $this->json($this->serializeFull($order));
     }

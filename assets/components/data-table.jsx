@@ -28,6 +28,7 @@ import {
  * @param {boolean}  [props.loading]          Affiche des lignes squelettes (premier chargement)
  * @param {boolean}  [props.refreshing]       Rechargement : les lignes restent visibles, en fondu
  * @param {string}   [props.emptyMessage]     Message quand il n'y a aucune ligne
+ * @param {Function} [props.onRowClick]       Callback appelé avec la row.original au clic sur une ligne
  */
 export function DataTable({
     columns,
@@ -39,6 +40,7 @@ export function DataTable({
     loading = false,
     refreshing = false,
     emptyMessage = 'Aucun résultat.',
+    onRowClick,
 }) {
     const table = useReactTable({
         data,
@@ -84,7 +86,11 @@ export function DataTable({
                             </TableRow>
                         ) : (
                             table.getRowModel().rows.map((row) => (
-                                <TableRow key={row.id}>
+                                <TableRow
+                                    key={row.id}
+                                    onClick={onRowClick ? () => onRowClick(row.original) : undefined}
+                                    className={onRowClick ? 'cursor-pointer' : undefined}
+                                >
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell key={cell.id} className={cell.column.columnDef.meta?.cellClassName}>
                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
