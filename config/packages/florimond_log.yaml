@@ -1,3 +1,6 @@
+florimond_log:
+  app_name: bleumont
+
 doctrine:
   dbal:
     connections:
